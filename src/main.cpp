@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <AccelStepper.h>
 #include <Arduino_FreeRTOS.h>
+#include <semphr.h>  // add the FreeRTOS functions for Semaphores (or Flags).
 #include <PID_v1.h>
 #include <ClickEncoder.h>
 #include <TimerOne.h>
@@ -52,9 +53,19 @@ void TaskExtruder( void *pvParameters );
 void TaskTemperature( void *pvParameters );
 void TaskEncoder( void *pvParameters );
 void TaskDisplay( void *pvParameters );
+/* The service routine for the interrupt.  This is the interrupt that the task
+will be synchronized with. */
+static void vExampleInterruptHandler( void );
+
+/* Declare a variable of type SemaphoreHandle_t.  This is used to reference the
+semaphore that is used to synchronize a task with an interrupt. */
+SemaphoreHandle_t xBinarySemaphore;
 
 
-// extruder1: instance of AccelStepper 
+/* ------------------------------------------------- */
+
+
+// extruder1: instance of AccelStepper 0
 AccelStepper extruder1(1, E_STEP_PIN, E_DIR_PIN);
 // encoder
 ClickEncoder encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
@@ -74,6 +85,7 @@ void setup() {
   oldEncPos = -1;
   encoder.setAccelerationEnabled(true);
 
+  //display
   u8x8.begin();
 
 
@@ -84,6 +96,17 @@ void setup() {
   extruder1.setSpeed(ESet*Ek);
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
+  /* --------------------------------------Timer4 settings-------------------------------------*/
+  /* ------------ https://www.teachmemicro.com/arduino-timer-interrupt-tutorial/---------------*/
+  // using a mask to protect other bits
+  TIMSK4 = (TIMSK4 & B11111001) | 010;    // Time interrupt mask register
+  TCCR4B = (TCCR4B & B11111000) | 010;   //prescaler: 8, freq = 16MHz --> 
+  OCR4A = 2000;    // compare register, callback every 1ms
+  /* --------------------------------------------END------------------------------------------ */
+   
+   /* Before a semaphore is used it must be explicitly created.  In this example
+      a binary semaphore is created. */
+  vSemaphoreCreateBinary( xBinarySemaphore );
 
   // Now set up two tasks to run independently.
   xTaskCreate(
@@ -91,7 +114,7 @@ void setup() {
     ,  (const portCHAR *)"Extruder"   // A name just for humans
     ,  128  // Stack size
     ,  NULL
-    ,  1  // priority
+    ,  4  // priority
     ,  NULL );
 
   xTaskCreate(
@@ -99,7 +122,7 @@ void setup() {
     ,  (const portCHAR *) "Temperature"
     ,  128 // This stack size can be checked & adjusted by reading Highwater
     ,  NULL
-    ,  3  // priority
+    ,  2  // priority
     ,  NULL );
 
   xTaskCreate(
@@ -107,7 +130,7 @@ void setup() {
     ,  (const portCHAR *)"Encoder"   // A name just for humans
     ,  128  // Stack size
     ,  NULL
-    ,  4  // priority
+    ,  3  // priority
     ,  NULL );
 
   xTaskCreate(
@@ -115,7 +138,7 @@ void setup() {
     ,  (const portCHAR *)"Display"   // A name just for humans
     ,  128  // Stack size
     ,  NULL
-    ,  2  // priority
+    ,  1  // priority
     ,  NULL );
 
 
@@ -138,9 +161,11 @@ void TaskExtruder(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
+
+    xSemaphoreTake( xBinarySemaphore, ( TickType_t ) 0 );   // continuosly check for 
     extruder1.runSpeed();
-    delayMicroseconds(10);
     //vTaskDelay(1); // wait for one second
+    xSemaphoreGive( xBinarySemaphore );
   }
 }
 
@@ -276,3 +301,26 @@ void TaskDisplay(void *pvParameters)  // This is a task.
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
+
+
+// callback for timer4 
+ISR(TIMER4_COMPA_vect){
+  TCNT4 = 0; // preload timer to 0 
+  //static signed portBASE_TYPE xHigherPriorityTaskWoken;
+
+ // xHigherPriorityTaskWoken = pdFALSE;
+
+  /* 'Give' the semaphore to unblock the task. */
+  xSemaphoreGiveFromISR( xBinarySemaphore, NULL); //(signed portBASE_TYPE*)&xHigherPriorityTaskWoken 
+
+  /* xHigherPriorityTaskWoken was initialised to pdFALSE.  It will have then
+  been set to pdTRUE only if reading from or writing to a queue caused a task
+  of equal or greater priority than the currently executing task to leave the
+  Blocked state.  When this is the case a context switch should be performed.
+  In all other cases a context switch is not necessary.
+  NOTE: The syntax for forcing a context switch within an ISR varies between
+  FreeRTOS ports.  The portEND_SWITCHING_ISR() macro is provided as part of
+  the Cortex-M3 port layer for this purpose.  taskYIELD() must never be called
+  from an ISR! */
+  //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+ }
