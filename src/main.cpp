@@ -109,8 +109,8 @@ void setup() {
   OCR2A = 100;    // compare register, callback every 1ms
   */
    TIMSK4 = (TIMSK4 & B11111101) | 0x06;
-   TCCR4B = (TCCR4B & B11111000) | 0x04;
-   OCR4A = 50;
+   TCCR4B = (TCCR4B & B11111000) | 0x02;
+   OCR4A = 150;
    OCR4B = 5001;
 
    
