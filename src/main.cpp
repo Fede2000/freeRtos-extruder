@@ -91,7 +91,7 @@ void setup() {
 
 
   // extruder settings
-  extruder1.setMaxSpeed(1000000);
+  extruder1.setMaxSpeed(1500);
   extruder1.setPinsInverted(false,false,true);  
   extruder1.setEnablePin(E_ENABLE_PIN);
   extruder1.setSpeed(ESet*Ek);
@@ -109,9 +109,9 @@ void setup() {
   OCR2A = 100;    // compare register, callback every 1ms
   */
    TIMSK4 = (TIMSK4 & B11111101) | 0x06;
-   TCCR4B = (TCCR4B & B11111000) | 0x03;
-   OCR4A = 100;
-   OCR4B = 100;
+   TCCR4B = (TCCR4B & B11111000) | 0x04;
+   OCR4A = 50;
+   OCR4B = 5001;
 
    
   //interrupts();
@@ -144,7 +144,7 @@ void setup() {
     ,  (const portCHAR *) "Temperature"
     ,  128 // This stack size can be checked & adjusted by reading Highwater
     ,  NULL
-    ,  3  // priority
+    ,  2  // priority
     ,  NULL );
 
   xTaskCreate(
@@ -152,7 +152,7 @@ void setup() {
     ,  (const portCHAR *)"Encoder"   // A name just for humans
     ,  128  // Stack size
     ,  NULL
-    ,  2  // priority
+    ,  3  // priority
     ,  NULL );
 
   /*xTaskCreate(
@@ -241,17 +241,17 @@ void TaskTemperature(void *pvParameters)  // This is a task.
     steinhart = 1.0 / steinhart;                 // Invert
     steinhart -= 273.15;                         // convert to C
   
-    Serial.print("Temperature "); 
+   /* Serial.print("Temperature "); 
     Serial.print(steinhart);
     Serial.print(" *C");
 
     Serial.print(" Output: "); 
     Serial.print(Output);
-    Serial.println(" *C");
+    Serial.println(" *C");*/
     
     myPID.Compute();
-    analogWrite(HEATER_PIN, Output);
-    vTaskDelay(30);  // one tick delay (15ms) in between reads for stability
+    analogWrite(HEATER_PIN,LOW ); //TODO: Output
+    vTaskDelay(31);  // one tick delay (15ms) in between reads for stability
   }
 }
 
@@ -268,7 +268,7 @@ void TaskEncoder(void *pvParameters)  // This is a task.
 
   // if change speed mode:
   if (lastButtonState == 5){
-    ESet += encoder.getValue()*10;
+    ESet += encoder.getValue();
     extruder1.setSpeed(ESet*Ek);
     Serial.print("**NEW ESet: "); Serial.println(ESet);
   }
