@@ -1,3 +1,9 @@
+/**-----------------------------------------------**/
+/*TODO:
+-EEPROM
+*/
+
+
 #include <Arduino.h>
 #include <AccelStepper.h>
 #include <Arduino_FreeRTOS.h>
@@ -6,11 +12,10 @@
 #include <ClickEncoder.h>
 #include <TimerOne.h>
 
-#include <U8x8lib.h>
+#include "U8glib.h"
 
-#ifdef U8X8_HAVE_HW_SPI
-#include <SPI.h>
-#endif
+
+
 
 
 /*--------------------------------------------------------------------*/
@@ -38,14 +43,15 @@ float const c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
 float logR2, R2, T;
 
 // encoder
-int16_t oldEncPos, encPos;
 uint8_t buttonState, lastButtonState;
 
 /*--------------------------------------------------------------------*/
 /*------------------- END Definitions & Variables --------------------*/
 /*--------------------------------------------------------------------*/
 
-U8X8_SSD1306_128X64_NONAME_HW_I2C u8x8(/* reset=*/ U8X8_PIN_NONE); 	      
+//12864      
+U8GLIB_ST7920_128X64_4X u8g(23, 17, 16);
+
 
 
 // define two tasks for Blink & AnalogRead
@@ -59,7 +65,7 @@ will be synchronized with. */
 
 /* Declare a variable of type SemaphoreHandle_t.  This is used to reference the
 semaphore that is used to synchronize a task with an interrupt. */
-SemaphoreHandle_t xBinarySemaphore;
+//SemaphoreHandle_t xBinarySemaphore;
 
 
 /* ------------------------------------------------- */
@@ -83,12 +89,11 @@ void setup() {
   // encoder setup
   Timer1.initialize(1000);
   Timer1.attachInterrupt(timerIsr);
-  oldEncPos = -1;
   encoder.setAccelerationEnabled(true);
 
   //display
-  u8x8.begin();
-
+  u8g.setFont(u8g_font_unifont);
+  u8g.setColorIndex(1);
 
   // extruder settings
   extruder1.setMaxSpeed(1500);
@@ -97,6 +102,7 @@ void setup() {
   extruder1.setSpeed(ESet*Ek);
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
+
 
   
   /* --------------------------------------Timer4 settings-------------------------------------*/
@@ -109,8 +115,8 @@ void setup() {
   OCR2A = 100;    // compare register, callback every 1ms
   */
    TIMSK4 = (TIMSK4 & B11111101) | 0x06;
-   TCCR4B = (TCCR4B & B11111000) | 0x02;
-   OCR4A = 150;
+   TCCR4B = (TCCR4B & B11111000) | 0x03;   //prescaler
+   OCR4A = 62; //62;   //1ms
    OCR4B = 5001;
 
    
@@ -155,18 +161,72 @@ void setup() {
     ,  3  // priority
     ,  NULL );
 
-  /*xTaskCreate(
+  xTaskCreate(
     TaskDisplay
     ,  (const portCHAR *)"Display"   // A name just for humans
-    ,  128  // Stack size
+    ,  1024  // Stack size
     ,  NULL
-    ,  1  // priority
-    ,  NULL );*/
+    ,  4  // priority
+    ,  NULL );
 }
 
 void loop() {
    // leave it empty
 }
+void strFromInt(char* str, int v) 
+{
+	char* p = str;
+
+	*p++ = (v / 100) + '0'; // Convert 100's to ASCII digit (0-9) and put in string
+	v = v % 100;    // Return remainder after dividing by 100
+	*p++ = (v / 10) + '0';  // Convert 10's to ASCII digit (0-9) and put in string
+	v = v % 10;
+	*p++ = v + '0';   // Convert 1's to ASCII digit (0-9) and put in string
+	*p++ = '\0';    // Terminating null
+
+	// Remove leading zeros
+	for (p = str; (p < str + 2) && (*p == '0'); p++)
+		*p = ' '; // Write a space character
+}
+
+void draw(void)
+{
+  u8g.setFont(u8g_font_orgv01);  
+	
+  u8g.drawStr( 0, 20, "Speed: ");
+  u8g.setPrintPos(60, 20);
+  u8g.print(ESet);
+
+  String strT = "T: ";
+	String He;
+	if (true)    //heat
+		He = "ON";
+	else
+		He = "OFF";
+  /*char Tset,T;
+  strFromInt(&Tset, TempSetpoint);
+  strFromInt(&T, int(steinhart) );*/
+  strT = strT + "C " + "C " + He;
+	char charT[20];
+	strT.toCharArray(charT, 20);
+	u8g.drawStr(0, 40, "asddass" ); //charT
+
+ 
+  //u8g.drawStr( 0, 60, "Voltage");
+}
+/*
+	String strT = "T: ";
+	String He;
+	if (true)    //heat
+		He = "ON";
+	else
+		He = "OFF";
+	strT = strT + TempSetpoint + "C "+ int(steinhart) + "C " + He;
+	char charT[strT.length()+1];
+	strT.toCharArray(charT, strT.length()+);
+	u8g.drawStr(0, 40, charT ); //charT
+ */
+
 
 
 /*--------------------------------------------------*/
@@ -250,7 +310,7 @@ void TaskTemperature(void *pvParameters)  // This is a task.
     Serial.println(" *C");*/
     
     myPID.Compute();
-    analogWrite(HEATER_PIN,LOW ); //TODO: Output
+    analogWrite(HEATER_PIN,Output ); 
     vTaskDelay(31);  // one tick delay (15ms) in between reads for stability
   }
 }
@@ -258,17 +318,19 @@ void TaskTemperature(void *pvParameters)  // This is a task.
 void TaskEncoder(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
-
+ 
   // initialize digital pin 13 as an output.
 
   for (;;) // A Task shall never return or exit.
   {
- 
+  
   buttonState = encoder.getButton();
-
+  
   // if change speed mode:
   if (lastButtonState == 5){
-    ESet += encoder.getValue();
+    
+    
+    ESet += encoder.getValue()*10;
     extruder1.setSpeed(ESet*Ek);
     Serial.print("**NEW ESet: "); Serial.println(ESet);
   }
@@ -278,7 +340,6 @@ void TaskEncoder(void *pvParameters)  // This is a task.
     Serial.print("**NEW TempSetpoint: "); Serial.println(TempSetpoint);
   }
   // TODO: provare a inserirle nell switch
-  //encPos += encoder.getValue();
 
   if (buttonState != 0) {
     Serial.print("Button: "); Serial.println(buttonState);
@@ -306,26 +367,51 @@ void TaskEncoder(void *pvParameters)  // This is a task.
         break;
     }
   }
-    vTaskDelay(5); //5
+  vTaskDelay(5);
   }
 }
 
 void TaskDisplay(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
+  
 
-  // initialize digital pin 13 as an output.
-  u8x8.setFont(u8x8_font_px437wyse700b_2x2_r);
+  Serial.println("dispA");
+    
   for (;;) // A Task shall never return or exit.
   {
 
-    //u8x8.drawString(0, 2, "T: ");
-    u8x8.print(steinhart);  
-    u8x8.refreshDisplay();
-    vTaskDelay(3); //1000 / portTICK_PERIOD_MS
+    char *strT = "T: ";
+    String He;
+    if (true)    //heat
+      He = "ON";
+    else
+      He = "OFF";
+    /*char Tset,T;
+    strFromInt(&Tset, TempSetpoint);
+    strFromInt(&T, int(steinhart) );*/
+    //strT = strT + "C " + "C " + He;
+    char charT[20];
+    Serial.println("strT");
+    //strT.toCharArray(charT, 20);
+
+     // picture loop: This will print the picture  
     
+    Serial.print("char-:");
+    Serial.println(strT[0]);
+    u8g.firstPage();  
+    do {
+      draw();
+    } while( u8g.nextPage() );
+
+  // send manual CR to the printer
+ 
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
+
+
+
 
 // callback for timer4 
 ISR(TIMER4_COMPA_vect){
