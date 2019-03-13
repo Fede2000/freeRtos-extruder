@@ -13,7 +13,7 @@
 #include <TimerOne.h>
 
 #include "U8glib.h"
-
+#include "lcd.cpp"
 
 
 
@@ -44,13 +44,18 @@ float logR2, R2, T;
 
 // encoder
 uint8_t buttonState, lastButtonState;
+int encPos;
+// display
+uint8_t page_current = 1;  // status page
+uint8_t menu_current = 0;
+
 
 /*--------------------------------------------------------------------*/
 /*------------------- END Definitions & Variables --------------------*/
 /*--------------------------------------------------------------------*/
 
 //12864      
-U8GLIB_ST7920_128X64_4X u8g(23, 17, 16);
+U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
 
 
 
@@ -164,7 +169,7 @@ void setup() {
   xTaskCreate(
     TaskDisplay
     ,  (const portCHAR *)"Display"   // A name just for humans
-    ,  1024  // Stack size
+    ,  1524  // Stack size
     ,  NULL
     ,  4  // priority
     ,  NULL );
@@ -173,85 +178,99 @@ void setup() {
 void loop() {
    // leave it empty
 }
-void strFromInt(char* str, int v) 
-{
-	char* p = str;
 
-	*p++ = (v / 100) + '0'; // Convert 100's to ASCII digit (0-9) and put in string
-	v = v % 100;    // Return remainder after dividing by 100
-	*p++ = (v / 10) + '0';  // Convert 10's to ASCII digit (0-9) and put in string
-	v = v % 10;
-	*p++ = v + '0';   // Convert 1's to ASCII digit (0-9) and put in string
-	*p++ = '\0';    // Terminating null
 
-	// Remove leading zeros
-	for (p = str; (p < str + 2) && (*p == '0'); p++)
-		*p = ' '; // Write a space character
+/* ----------------------------------------------------- */
+/* --------------- DISPLAY functions ------------------- */
+/* ----------------------------------------------------- */
+#define MENU_ITEMS 3
+#define KEY_NONE 0
+#define KEY_NEXT 1
+#define KEY_PREV -1
+
+char *menu_strings[MENU_ITEMS] = { "Status", "Set", "Save" };
+
+uint8_t menu_redraw_required = 0;   // not used yet
+uint8_t last_key_code = KEY_NONE;
+int uiKeyCode = KEY_NONE;
+ 
+
+void updateMenu(void) {
+  /*if ( uiKeyCode != KEY_NONE && last_key_code == uiKeyCode ) {
+    Serial.println("ss");
+    return; 
+  }
+  last_key_code = uiKeyCode;
+  */
+  switch ( uiKeyCode ) {
+    case KEY_NEXT:
+      uiKeyCode = KEY_NONE;
+      menu_current++;
+      if ( menu_current >= MENU_ITEMS )
+        menu_current = 0;
+      menu_redraw_required = 1;
+      break;
+    case KEY_PREV:
+      uiKeyCode = KEY_NONE;
+      if ( menu_current == 0 )
+        menu_current = MENU_ITEMS;
+      menu_current--;
+      menu_redraw_required = 1;
+      break;
+  }
 }
 
-void draw(void)
+void drawMenu(void) {
+  uint8_t i, h;
+  u8g_uint_t w, d;
+
+  u8g.setFont(u8g_font_6x13);
+  u8g.setFontRefHeightText();
+  u8g.setFontPosTop();
+  
+  h = u8g.getFontAscent()-u8g.getFontDescent();
+  w = u8g.getWidth();
+  for( i = 0; i < MENU_ITEMS; i++ ) {
+    d = (w-u8g.getStrWidth(menu_strings[i]))/2;
+    u8g.setDefaultForegroundColor();
+    if ( i == menu_current ) {
+      u8g.drawBox(0, i*h+1, w, h);
+      u8g.setDefaultBackgroundColor();
+    }
+    u8g.drawStr(d, i*h, menu_strings[i]);
+  }
+}
+
+void drawMenuPage(void)
 {
-  u8g.setFont(u8g_font_orgv01);  
-	
+	drawMenu();
+}
+
+void drawStatusPage(void)
+{
+  u8g.setFont(u8g_font_orgv01);
+  //u8g.setFontRefHeightText();
+  //u8g.setFontPosTop();
   u8g.drawStr( 0, 20, "Speed: ");
   u8g.setPrintPos(60, 20);
   u8g.print(ESet);
 
-  String strT = "T: ";
-	String He;
-	if (true)    //heat
-		He = "ON";
-	else
-		He = "OFF";
-  /*char Tset,T;
-  strFromInt(&Tset, TempSetpoint);
-  strFromInt(&T, int(steinhart) );*/
-  strT = strT + "C " + "C " + He;
-	char charT[20];
-	strT.toCharArray(charT, 20);
-	u8g.drawStr(0, 40, "asddass" ); //charT
-
+  u8g.drawStr( 0, 40, "Temperature: ");
+  u8g.setPrintPos(60, 40);
+  u8g.print(int(steinhart));
  
-  //u8g.drawStr( 0, 60, "Voltage");
 }
-/*
-	String strT = "T: ";
-	String He;
-	if (true)    //heat
-		He = "ON";
-	else
-		He = "OFF";
-	strT = strT + TempSetpoint + "C "+ int(steinhart) + "C " + He;
-	char charT[strT.length()+1];
-	strT.toCharArray(charT, strT.length()+);
-	u8g.drawStr(0, 40, charT ); //charT
- */
+
+
+/* ----------------------------------------------------- */
+/* ------------- END DISPLAY functions ----------------- */
+/* ----------------------------------------------------- */
 
 
 
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
-/*
-void TaskExtruder(void *pvParameters)  // This is a task.
-{
-  (void) pvParameters;
-
-  // initialize digital pin 13 as an output.
-  #define LONG_TIME 0xffff
-
-  for (;;) // A Task shall never return or exit.
-  {
-
-    //xSemaphoreTake( xBinarySemaphore, ( TickType_t ) portMAX_DELAY );   // continuosly check for portMAX_DELAY
-    if( xSemaphoreTake( xBinarySemaphore, 10 ) == pdTRUE ){
-      extruder1.runSpeed();
-    }
-    //extruder1.runSpeed();
-    //vTaskDelay(10); // wait for one second
-    //xSemaphoreGive( xBinarySemaphore );
-  }
-}*/
 
 void TaskTemperature(void *pvParameters)  // This is a task.
 {
@@ -314,13 +333,12 @@ void TaskTemperature(void *pvParameters)  // This is a task.
     vTaskDelay(31);  // one tick delay (15ms) in between reads for stability
   }
 }
-
 void TaskEncoder(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
  
   // initialize digital pin 13 as an output.
-
+  int tempEnc;
   for (;;) // A Task shall never return or exit.
   {
   
@@ -339,6 +357,12 @@ void TaskEncoder(void *pvParameters)  // This is a task.
     TempSetpoint += encoder.getValue();
     Serial.print("**NEW TempSetpoint: "); Serial.println(TempSetpoint);
   }
+  else{
+    tempEnc += encoder.getValue();    // TODO: return if zero
+    if(tempEnc > 1)         {uiKeyCode = 1; tempEnc = 0;}
+    else if(tempEnc < -1)   {uiKeyCode = -1; tempEnc = 0;}
+  }
+   
   // TODO: provare a inserirle nell switch
 
   if (buttonState != 0) {
@@ -380,29 +404,32 @@ void TaskDisplay(void *pvParameters)  // This is a task.
     
   for (;;) // A Task shall never return or exit.
   {
+    /*switch (page_current)
+    {
+      case 0:         //Menu
+        updateMenu();
+        u8g.firstPage();  
+        do {
+          drawMenuPage();
+        } while( u8g.nextPage() );
+        break;
 
-    char *strT = "T: ";
-    String He;
-    if (true)    //heat
-      He = "ON";
-    else
-      He = "OFF";
-    /*char Tset,T;
-    strFromInt(&Tset, TempSetpoint);
-    strFromInt(&T, int(steinhart) );*/
-    //strT = strT + "C " + "C " + He;
-    char charT[20];
-    Serial.println("strT");
-    //strT.toCharArray(charT, 20);
+      case 1:         //Status
+        do {
+          drawStatusPage();
+        } while( u8g.nextPage() );
+        break;
 
-     // picture loop: This will print the picture  
-    
-    Serial.print("char-:");
-    Serial.println(strT[0]);
-    u8g.firstPage();  
+      default:        //Status
+        do {
+          drawStatusPage();
+        } while( u8g.nextPage() );
+        break;
+    }*/
     do {
-      draw();
-    } while( u8g.nextPage() );
+          drawMenuPage();
+        } while( u8g.nextPage() );
+    
 
   // send manual CR to the printer
  
@@ -415,26 +442,8 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 
 // callback for timer4 
 ISR(TIMER4_COMPA_vect){
-  //static BaseType_t xHigherPriorityTaskWoken;
   TCNT4 = 0; // preload timer to 0 
   extruder1.runSpeed();
-  //Serial.println("aa");
-  //xHigherPriorityTaskWoken = pdFALSE;
-  //xSemaphoreGiveFromISR( xBinarySemaphore, &xHigherPriorityTaskWoken );
-  /* 'Give' the semaphore to unblock the task. */
-  //xSemaphoreGiveFromISR( xBinarySemaphore, NULL); //(signed portBASE_TYPE*)&xHigherPriorityTaskWoken 
-  //xSemaphoreGive(xBinarySemaphore);
-  //digitalWrite(LED_BUILTIN,HIGH);
-  /* xHigherPriorityTaskWoken was initialised to pdFALSE.  It will have then
-  been set to pdTRUE only if reading from or writing to a queue caused a task
-  of equal or greater priority than the currently executing task to leave the
-  Blocked state.  When this is the case a context switch should be performed.
-  In all other cases a context switch is not necessary.
-  NOTE: The syntax for forcing a context switch within an ISR varies between
-  FreeRTOS ports.  The portEND_SWITCHING_ISR() macro is provided as part of
-  the Cortex-M3 port layer for this purpose.  taskYIELD() must never be called
-  from an ISR! */
-  //portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
  }
 
  ISR(TIMER4_COMPB_vect){
