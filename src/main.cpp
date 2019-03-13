@@ -46,7 +46,7 @@ float logR2, R2, T;
 uint8_t buttonState, lastButtonState;
 int encPos;
 // display
-uint8_t page_current = 0;  // status page       TODO: creare classe pagina -> menu
+uint8_t page_current = 1;  // status page       TODO: creare classe pagina -> menu
 uint8_t menu_current = 0; 
 bool setPageMenu = true;  
 
@@ -253,11 +253,11 @@ void drawStatusPage(void)
   //u8g.setFontRefHeightText();
   //u8g.setFontPosTop();
   u8g.drawStr( 0, 20, "Speed: ");
-  u8g.setPrintPos(60, 20);
+  u8g.setPrintPos(80, 20);
   u8g.print(ESet);
 
   u8g.drawStr( 0, 40, "Temperature: ");
-  u8g.setPrintPos(60, 40);
+  u8g.setPrintPos(80, 40);
   u8g.print(int(steinhart));
 }
 
@@ -267,11 +267,11 @@ void drawSetPage(void)
   //u8g.setFontRefHeightText();
   //u8g.setFontPosTop();
   u8g.drawStr( 0, 20, "Set speed: ");
-  u8g.setPrintPos(60, 20);
+  u8g.setPrintPos(80, 20);
   u8g.print(ESet);
 
   u8g.drawStr( 0, 40, "Set temperature: ");
-  u8g.setPrintPos(60, 40);
+  u8g.setPrintPos(80, 40);
   u8g.print(TempSetpoint);
 }
 
