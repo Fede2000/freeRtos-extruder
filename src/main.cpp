@@ -13,8 +13,7 @@
 #include <TimerOne.h>
 
 #include "U8glib.h"
-#include "lcd.cpp"
-
+#include "displayUtility.h"
 
 
 
@@ -57,6 +56,7 @@ bool setPageMenu = true;
 //12864      
 U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
 
+Menu page1(&u8g);
 
 
 // define two tasks for Blink & AnalogRead
@@ -108,7 +108,10 @@ void setup() {
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
 
-
+  page1.addItem("aaaa");
+  page1.addItem("ss");
+  page1.addItem("dasdadsc");
+  page1.addItem("asdqqw");
   
   /* --------------------------------------Timer4 settings-------------------------------------*/
   /* ------------ https://www.teachmemicro.com/arduino-timer-interrupt-tutorial/ ---------------*/
@@ -205,20 +208,22 @@ void updateMenu(void) {
   switch ( uiKeyCode ) {
     case KEY_NEXT:
       uiKeyCode = KEY_NONE;
-      menu_current++;
-      if ( menu_current >= MENU_ITEMS )
-        menu_current = 0;
+      page1.curruntMenu++;
+      if ( page1.curruntMenu >= page1.itemIdx )
+        
+        page1.curruntMenu = 0;
       menu_redraw_required = 1;
       break;
     case KEY_PREV:
       uiKeyCode = KEY_NONE;
-      if ( menu_current == 0 )
-        menu_current = MENU_ITEMS;
-      menu_current--;
+      if ( page1.curruntMenu == 0 )
+        page1.curruntMenu = page1.itemIdx;
+      page1.curruntMenu--;
       menu_redraw_required = 1;
       break;
   }
 }
+
 
 void drawMenu(void) {
   uint8_t i, h;
@@ -431,7 +436,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
   for (;;) // A Task shall never return or exit.
   {
     
-    switch (page_current)
+    /*switch (page_current)
     {
       case 0:         //Menu
         updateMenu();
@@ -462,8 +467,13 @@ void TaskDisplay(void *pvParameters)  // This is a task.
           drawStatusPage();
         } while( u8g.nextPage() );
         break;
-    }
-    
+    }*/
+    page1.updateMenu(uiKeyCode);
+    uiKeyCode = 0;
+    u8g.firstPage();
+        do {
+          page1.drawMenu();
+        } while( u8g.nextPage() );
    
 
   // send manual CR to the printer
