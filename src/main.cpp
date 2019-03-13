@@ -46,9 +46,9 @@ float logR2, R2, T;
 uint8_t buttonState, lastButtonState;
 int encPos;
 // display
-uint8_t page_current = 1;  // status page
-uint8_t menu_current = 0;
-
+uint8_t page_current = 0;  // status page       TODO: creare classe pagina -> menu
+uint8_t menu_current = 0; 
+bool setPageMenu = true;  
 
 /*--------------------------------------------------------------------*/
 /*------------------- END Definitions & Variables --------------------*/
@@ -183,12 +183,12 @@ void loop() {
 /* ----------------------------------------------------- */
 /* --------------- DISPLAY functions ------------------- */
 /* ----------------------------------------------------- */
-#define MENU_ITEMS 3
+#define MENU_ITEMS 4
 #define KEY_NONE 0
 #define KEY_NEXT 1
 #define KEY_PREV -1
 
-char *menu_strings[MENU_ITEMS] = { "Status", "Set", "Save" };
+char *menu_strings[MENU_ITEMS] = { "Status", "Set", "Save", "Reset" };
 
 uint8_t menu_redraw_required = 0;   // not used yet
 uint8_t last_key_code = KEY_NONE;
@@ -198,7 +198,7 @@ int uiKeyCode = KEY_NONE;
 void updateMenu(void) {
   /*if ( uiKeyCode != KEY_NONE && last_key_code == uiKeyCode ) {
     Serial.println("ss");
-    return; 
+    return;
   }
   last_key_code = uiKeyCode;
   */
@@ -234,7 +234,7 @@ void drawMenu(void) {
     d = (w-u8g.getStrWidth(menu_strings[i]))/2;
     u8g.setDefaultForegroundColor();
     if ( i == menu_current ) {
-      u8g.drawBox(0, i*h+1, w, h);
+      u8g.drawBox(d-2, i*h+1, -d*2 + w, h);
       u8g.setDefaultBackgroundColor();
     }
     u8g.drawStr(d, i*h, menu_strings[i]);
@@ -246,9 +246,10 @@ void drawMenuPage(void)
 	drawMenu();
 }
 
+
 void drawStatusPage(void)
 {
-  u8g.setFont(u8g_font_orgv01);
+  u8g.setFont(u8g_font_6x13);
   //u8g.setFontRefHeightText();
   //u8g.setFontPosTop();
   u8g.drawStr( 0, 20, "Speed: ");
@@ -258,7 +259,20 @@ void drawStatusPage(void)
   u8g.drawStr( 0, 40, "Temperature: ");
   u8g.setPrintPos(60, 40);
   u8g.print(int(steinhart));
- 
+}
+
+void drawSetPage(void)
+{
+  u8g.setFont(u8g_font_orgv01);
+  //u8g.setFontRefHeightText();
+  //u8g.setFontPosTop();
+  u8g.drawStr( 0, 20, "Set speed: ");
+  u8g.setPrintPos(60, 20);
+  u8g.print(ESet);
+
+  u8g.drawStr( 0, 40, "Set temperature: ");
+  u8g.setPrintPos(60, 40);
+  u8g.print(TempSetpoint);
 }
 
 
@@ -345,18 +359,20 @@ void TaskEncoder(void *pvParameters)  // This is a task.
   buttonState = encoder.getButton();
   
   // if change speed mode:
-  if (lastButtonState == 5){
-    
-    
-    ESet += encoder.getValue()*10;
-    extruder1.setSpeed(ESet*Ek);
-    Serial.print("**NEW ESet: "); Serial.println(ESet);
+  if (page_current == 2){
+    if( setPageMenu ){
+      ESet += encoder.getValue()*10;
+      extruder1.setSpeed(ESet*Ek);
+    }
+    else{
+      TempSetpoint += encoder.getValue();
+    }    
   }
   // if change temperature mode:
-  else if (lastButtonState == 6){
+  /*else if (lastButtonState == 6){
     TempSetpoint += encoder.getValue();
     Serial.print("**NEW TempSetpoint: "); Serial.println(TempSetpoint);
-  }
+  }*/
   else{
     tempEnc += encoder.getValue();    // TODO: return if zero
     if(tempEnc > 1)         {uiKeyCode = 1; tempEnc = 0;}
@@ -380,14 +396,24 @@ void TaskEncoder(void *pvParameters)  // This is a task.
 
       case ClickEncoder::Held:          //3
         break;
+   
 
       case ClickEncoder::Released:      //4
+        Serial.println("rel");
+        if(page_current == 2){
+          setPageMenu = !setPageMenu;
+        }
         break;
 
       case ClickEncoder::Clicked:       //5
+        if(page_current == 0)
+          page_current=menu_current + 1;
+          menu_current = 1;
+        //else { page_current = 0; }
         break;
 
       case ClickEncoder::DoubleClicked: //6
+        page_current = 0;
         break;
     }
   }
@@ -404,7 +430,8 @@ void TaskDisplay(void *pvParameters)  // This is a task.
     
   for (;;) // A Task shall never return or exit.
   {
-    /*switch (page_current)
+    
+    switch (page_current)
     {
       case 0:         //Menu
         updateMenu();
@@ -415,21 +442,29 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         break;
 
       case 1:         //Status
+        u8g.firstPage();
         do {
           drawStatusPage();
+        } while( u8g.nextPage() );
+        break;
+      
+      case 2:         //Status
+        u8g.firstPage();
+        do {
+          drawSetPage();
         } while( u8g.nextPage() );
         break;
 
       default:        //Status
+        //page_current = 1;
+        u8g.firstPage();
         do {
           drawStatusPage();
         } while( u8g.nextPage() );
         break;
-    }*/
-    do {
-          drawMenuPage();
-        } while( u8g.nextPage() );
+    }
     
+   
 
   // send manual CR to the printer
  
