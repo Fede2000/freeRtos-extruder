@@ -56,7 +56,12 @@ bool setPageMenu = true;
 //12864      
 U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
 
-Menu page1(&u8g);
+Menu menu(&u8g);
+Menu status(&u8g, false);
+Menu set(&u8g);
+Menu save(&u8g);
+Menu reset(&u8g);
+
 
 
 // define two tasks for Blink & AnalogRead
@@ -96,9 +101,28 @@ void setup() {
   Timer1.attachInterrupt(timerIsr);
   encoder.setAccelerationEnabled(true);
 
-  //display
+  /* --------------------------------------Display settings -------------------------------------*/  
   u8g.setFont(u8g_font_unifont);
   u8g.setColorIndex(1);
+  //menu 
+  menu.addString("Status");
+  menu.addString("Set");
+  menu.addString("Save");
+  menu.addString("Reset");
+  //status
+  status.addStringValue("Temperature: ", &steinhart);
+  status.addStringValue("Speed: ", &ESet);
+  //set
+  set.addStringValue("Set temp: ", &TempSetpoint);
+  set.addStringValue("Set speed: ", &ESet);
+  //save
+  save.addString("**confirm 1 click");
+  save.addString("back 2 clicks: ");
+  //reset
+  reset.addString("**confirm 1 click");
+  reset.addString("back 2 clicks: ");
+
+  /* ------------------------------------ END Display settings ----------------------------------*/  
 
   // extruder settings
   extruder1.setMaxSpeed(1500);
@@ -107,11 +131,6 @@ void setup() {
   extruder1.setSpeed(ESet*Ek);
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
-
-  page1.addItem("aaaa");
-  page1.addItem("ss");
-  page1.addItem("dasdadsc");
-  page1.addItem("asdqqw");
   
   /* --------------------------------------Timer4 settings-------------------------------------*/
   /* ------------ https://www.teachmemicro.com/arduino-timer-interrupt-tutorial/ ---------------*/
@@ -192,6 +211,7 @@ void loop() {
 #define KEY_PREV -1
 
 char *menu_strings[MENU_ITEMS] = { "Status", "Set", "Save", "Reset" };
+int *menu_values[MENU_ITEMS] = { 1,2,3,4 };
 
 uint8_t menu_redraw_required = 0;   // not used yet
 uint8_t last_key_code = KEY_NONE;
@@ -208,17 +228,17 @@ void updateMenu(void) {
   switch ( uiKeyCode ) {
     case KEY_NEXT:
       uiKeyCode = KEY_NONE;
-      page1.curruntMenu++;
-      if ( page1.curruntMenu >= page1.itemIdx )
+      menu.curruntMenu++;
+      if ( menu.curruntMenu >= menu.itemIdx )
         
-        page1.curruntMenu = 0;
+        menu.curruntMenu = 0;
       menu_redraw_required = 1;
       break;
     case KEY_PREV:
       uiKeyCode = KEY_NONE;
-      if ( page1.curruntMenu == 0 )
-        page1.curruntMenu = page1.itemIdx;
-      page1.curruntMenu--;
+      if ( menu.curruntMenu == 0 )
+        menu.curruntMenu = menu.itemIdx;
+      menu.curruntMenu--;
       menu_redraw_required = 1;
       break;
   }
@@ -366,10 +386,12 @@ void TaskEncoder(void *pvParameters)  // This is a task.
   // if change speed mode:
   if (page_current == 2){
     if( setPageMenu ){
+      set.curruntMenu = 1;
       ESet += encoder.getValue()*10;
       extruder1.setSpeed(ESet*Ek);
     }
     else{
+      set.curruntMenu = 0;
       TempSetpoint += encoder.getValue();
     }    
   }
@@ -412,10 +434,16 @@ void TaskEncoder(void *pvParameters)  // This is a task.
 
       case ClickEncoder::Clicked:       //5
         if(page_current == 0)
-          page_current=menu_current + 1;
-          menu_current = 1;
-        //else { page_current = 0; }
+          page_current= menu.curruntMenu + 1;
+        //save
+        else if(page_current == 3) {      
+          page_current= 0;
+          //eeprom save(a,b)
+        else if(page_current == 3) {      
+          page_current= 0;
+          //eeprom save(reset,reset)
         break;
+        
 
       case ClickEncoder::DoubleClicked: //6
         page_current = 0;
@@ -436,45 +464,60 @@ void TaskDisplay(void *pvParameters)  // This is a task.
   for (;;) // A Task shall never return or exit.
   {
     
-    /*switch (page_current)
+    switch (page_current)
     {
       case 0:         //Menu
         updateMenu();
         u8g.firstPage();  
         do {
-          drawMenuPage();
+          menu.drawMenu();
         } while( u8g.nextPage() );
+
         break;
 
       case 1:         //Status
         u8g.firstPage();
         do {
-          drawStatusPage();
+          status.drawMenu();
         } while( u8g.nextPage() );
+
         break;
       
-      case 2:         //Status
+      case 2:         //set
+        Serial.println("set");
         u8g.firstPage();
         do {
-          drawSetPage();
+          set.drawMenu();
         } while( u8g.nextPage() );
+
         break;
 
-      default:        //Status
+      case 3:         //save
+        u8g.firstPage();
+        do {
+          save.drawMenu();
+        } while( u8g.nextPage() );
+
+        break;
+      
+      case 4:         //reset
+        u8g.firstPage();
+        do {
+          reset.drawMenu();
+        } while( u8g.nextPage() );
+
+        break;
+
+      /*default:        //Status
         //page_current = 1;
         u8g.firstPage();
         do {
           drawStatusPage();
         } while( u8g.nextPage() );
-        break;
-    }*/
-    page1.updateMenu(uiKeyCode);
-    uiKeyCode = 0;
-    u8g.firstPage();
-        do {
-          page1.drawMenu();
-        } while( u8g.nextPage() );
-   
+
+        break;*/
+    }
+    
 
   // send manual CR to the printer
  
