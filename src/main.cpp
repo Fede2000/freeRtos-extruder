@@ -5,6 +5,8 @@
 
 
 #include <Arduino.h>
+#include <EEPROM.h>
+
 #include <AccelStepper.h>
 #include <Arduino_FreeRTOS.h>
 #include <semphr.h>  // add the FreeRTOS functions for Semaphores (or Flags).
@@ -30,10 +32,10 @@
 
 #define THERMISTOR_PIN 13
 #define HEATER_PIN 10
-double TempSetpoint = 35, steinhart;
+double tempSetpoint = 35, tempDefault=35, steinhart;
 
 
-int ESet = 1000;
+int ESet = 1000, ESetDefault=1000;
 const float Ek = 1.0; // corrective factor
 
 // consts for temperature measurement
@@ -48,6 +50,12 @@ int encPos;
 uint8_t page_current = 1;  // status page       TODO: creare classe pagina -> menu
 uint8_t menu_current = 0; 
 bool setPageMenu = true;  
+
+//eeprom
+int address_temp = 0;
+int address_speed = 1;
+int address_ck = 2;
+int eeprom_ck_value = 12;
 
 /*--------------------------------------------------------------------*/
 /*------------------- END Definitions & Variables --------------------*/
@@ -64,11 +72,14 @@ Menu reset(&u8g);
 
 
 
+
 // define two tasks for Blink & AnalogRead
 //void TaskExtruder( void *pvParameters );
 void TaskTemperature( void *pvParameters );
 void TaskEncoder( void *pvParameters );
 void TaskDisplay( void *pvParameters );
+
+void readEprom(int&, int&);
 /* The service routine for the interrupt.  This is the interrupt that the task
 will be synchronized with. */
 //static void vExampleInterruptHandler( void );
@@ -100,6 +111,11 @@ void setup() {
   Timer1.initialize(1000);
   Timer1.attachInterrupt(timerIsr);
   encoder.setAccelerationEnabled(true);
+  Serial.println(EEPROM.read(address_ck));
+  //eeprom reading
+  if(EEPROM.read(address_ck) == eeprom_ck_value){
+    readEprom(tempSetpoint, ESet);
+  }
 
   /* --------------------------------------Display settings -------------------------------------*/  
   u8g.setFont(u8g_font_unifont);
@@ -113,7 +129,7 @@ void setup() {
   status.addStringValue("Temperature: ", &steinhart);
   status.addStringValue("Speed: ", &ESet);
   //set
-  set.addStringValue("Set temp: ", &TempSetpoint);
+  set.addStringValue("Set temp: ", &tempSetpoint);
   set.addStringValue("Set speed: ", &ESet);
   //save
   save.addString("**confirm 1 click");
@@ -150,28 +166,7 @@ void setup() {
   //interrupts();
   /* --------------------------------------------END------------------------------------------ */
    
-   /* Before a semaphore is used it must be explicitly created.  In this example
-      a binary semaphore is created. */
-  //xSemaphoreCreateBinary( xBinarySemaphore );
-  //xBinarySemaphore = xSemaphoreCreateBinary();
-  //xBinarySemaphore = xSemaphoreCreateMutex();
-  //xSemaphoreGive( ( xBinarySemaphore ) );
-  /*if ( xBinarySemaphore == NULL )  // Check to confirm that the Serial Semaphore has not already been created.
-  {
-    xBinarySemaphore = xSemaphoreCreateMutex();  // Create a mutex semaphore we will use to manage the Serial Port
-    if ( ( xBinarySemaphore ) != NULL )
-      xSemaphoreGive( ( xBinarySemaphore ) );  // Make the Serial Port available for use, by "Giving" the Semaphore.
-  }*/
-  //interrupts();
-  // Now set up two tasks to run independently.
- /* xTaskCreate(
-    TaskExtruder
-    ,  (const portCHAR *)"Extruder"   // A name just for humans
-    ,  128  // Stack size
-    ,  NULL
-    ,  4  // priority
-    ,  NULL );
-*/
+  
   xTaskCreate(
     TaskTemperature
     ,  (const portCHAR *) "Temperature"
@@ -245,65 +240,42 @@ void updateMenu(void) {
 }
 
 
-void drawMenu(void) {
-  uint8_t i, h;
-  u8g_uint_t w, d;
-
-  u8g.setFont(u8g_font_6x13);
-  u8g.setFontRefHeightText();
-  u8g.setFontPosTop();
-  
-  h = u8g.getFontAscent()-u8g.getFontDescent();
-  w = u8g.getWidth();
-  for( i = 0; i < MENU_ITEMS; i++ ) {
-    d = (w-u8g.getStrWidth(menu_strings[i]))/2;
-    u8g.setDefaultForegroundColor();
-    if ( i == menu_current ) {
-      u8g.drawBox(d-2, i*h+1, -d*2 + w, h);
-      u8g.setDefaultBackgroundColor();
-    }
-    u8g.drawStr(d, i*h, menu_strings[i]);
-  }
-}
-
-void drawMenuPage(void)
-{
-	drawMenu();
-}
-
-
-void drawStatusPage(void)
-{
-  u8g.setFont(u8g_font_6x13);
-  //u8g.setFontRefHeightText();
-  //u8g.setFontPosTop();
-  u8g.drawStr( 0, 20, "Speed: ");
-  u8g.setPrintPos(80, 20);
-  u8g.print(ESet);
-
-  u8g.drawStr( 0, 40, "Temperature: ");
-  u8g.setPrintPos(80, 40);
-  u8g.print(int(steinhart));
-}
-
-void drawSetPage(void)
-{
-  u8g.setFont(u8g_font_orgv01);
-  //u8g.setFontRefHeightText();
-  //u8g.setFontPosTop();
-  u8g.drawStr( 0, 20, "Set speed: ");
-  u8g.setPrintPos(80, 20);
-  u8g.print(ESet);
-
-  u8g.drawStr( 0, 40, "Set temperature: ");
-  u8g.setPrintPos(80, 40);
-  u8g.print(TempSetpoint);
-}
-
-
 /* ----------------------------------------------------- */
 /* ------------- END DISPLAY functions ----------------- */
 /* ----------------------------------------------------- */
+
+
+// EEPROM
+write16b( int value, int addr = 0){
+  char * pt = (char *) &value;
+  EEPROM.write(addr++, *pt++);
+  EEPROM.write(addr , *pt );
+}
+int read16b(int addr){
+  int dato = 0;
+  char * pt = (char *) &dato;
+  *pt++ = EEPROM.read(addr++);
+  *pt++ = EEPROM.read(addr);
+   return dato;
+}
+
+void writeEprom(int temp, int speed){
+  //EEPROM.write(address_temp, temp);
+  //EEPROM.write(address_speed, speed);
+  write16b(temp,4);
+  write16b(speed,8);
+  EEPROM.write(address_ck, eeprom_ck_value);
+}
+void readEprom(int &temp, int &speed){
+  //EEPROM.write(address_temp, temp);
+  //EEPROM.write(address_speed, speed);
+  temp = read16b(4);
+  speed = read16b(8);
+}
+
+
+
+
 
 
 
@@ -318,7 +290,6 @@ void TaskTemperature(void *pvParameters)  // This is a task.
   /**
    * thermistor and temperature settings
   **/
-
   #define THERMISTORNOMINAL 100000      
   // temp. for nominal resistance (almost always 25 C)
   #define TEMPERATURENOMINAL 25   
@@ -336,7 +307,7 @@ void TaskTemperature(void *pvParameters)  // This is a task.
   double consKp=20, consKi=1.3, consKd=0.3;
 
   //Specify the links and initial tuning parameters
-  PID myPID(&steinhart, &Output, &TempSetpoint, consKp, consKi, consKd, DIRECT);
+  PID myPID(&steinhart, &Output, &tempSetpoint, consKp, consKi, consKd, DIRECT);
 
   // initialize serial communication at 9600 bits per second:
   //Serial.begin(9600);
@@ -392,13 +363,13 @@ void TaskEncoder(void *pvParameters)  // This is a task.
     }
     else{
       set.curruntMenu = 0;
-      TempSetpoint += encoder.getValue();
+      tempSetpoint += encoder.getValue();
     }    
   }
   // if change temperature mode:
   /*else if (lastButtonState == 6){
-    TempSetpoint += encoder.getValue();
-    Serial.print("**NEW TempSetpoint: "); Serial.println(TempSetpoint);
+    tempSetpoint += encoder.getValue();
+    Serial.print("**NEW tempSetpoint: "); Serial.println(tempSetpoint);
   }*/
   else{
     tempEnc += encoder.getValue();    // TODO: return if zero
@@ -438,10 +409,12 @@ void TaskEncoder(void *pvParameters)  // This is a task.
         //save
         else if(page_current == 3) {      
           page_current= 0;
-          //eeprom save(a,b)
-        else if(page_current == 3) {      
+          writeEprom(int(tempSetpoint), ESet);
+        }
+        else if(page_current == 4) {      
           page_current= 0;
-          //eeprom save(reset,reset)
+          writeEprom(int(tempDefault), ESetDefault);
+        }
         break;
         
 
@@ -524,8 +497,6 @@ void TaskDisplay(void *pvParameters)  // This is a task.
     vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
-
-
 
 
 // callback for timer4 
