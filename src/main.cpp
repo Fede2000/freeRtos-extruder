@@ -33,6 +33,7 @@
 
 #define THERMISTOR_PIN 13
 #define HEATER_PIN 10
+#define BUZZ_PIN 57
 double tempSetpoint = 35, tempDefault=35, steinhart;
 
 
@@ -165,8 +166,8 @@ void setup() {
   OCR2A = 100;    // compare register, callback every 1ms
   */
    TIMSK4 = (TIMSK4 & B11111101) | 0x06;
-   TCCR4B = (TCCR4B & B11111000) | 0x03;   //prescaler
-   OCR4A = 62; //62;   //1ms
+   TCCR4B = (TCCR4B & B11111000) | 0x02;   //prescaler 03
+   OCR4A = 30; //62;   //1ms
    OCR4B = 5001;
 
    
