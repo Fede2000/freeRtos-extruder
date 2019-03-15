@@ -9,8 +9,10 @@ class Menu
     private: 
     U8GLIB_ST7920_128X64_1X * ptU8g;
     char *menu_strings[MAX_MENU_ITEMS]; 
+    char *title = NULL;
     int *menu_values_int[MAX_MENU_ITEMS];
     double *menu_values_double[MAX_MENU_ITEMS];
+    
 
     public: 
     uint8_t curruntMenu = 0; 
@@ -18,9 +20,10 @@ class Menu
     bool isSelectable = true; 
 
     //Menu(void){}
-    Menu(U8GLIB_ST7920_128X64_1X * ptPage, bool aIsSelectable = true ){
+    Menu(U8GLIB_ST7920_128X64_1X * ptPage, bool aIsSelectable = true, char * ptTitle = NULL){
         ptU8g = ptPage;
         isSelectable = aIsSelectable;
+        title = ptTitle;
     }
     /*Menu(U8GLIB_ST7920_128X64_1X * ptPage){
         ptU8g = ptPage;

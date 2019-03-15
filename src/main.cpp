@@ -64,11 +64,11 @@ int eeprom_ck_value = 12;
 //12864      
 U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
 
-Menu menu(&u8g);
-Menu status(&u8g, false);
-Menu set(&u8g);
-Menu save(&u8g);
-Menu reset(&u8g);
+Menu menu(&u8g,true, "MENU");
+Menu status(&u8g, false,"STATUS");
+Menu set(&u8g, true, "SETTINGS");
+Menu save(&u8g,false, "SAVE");
+Menu reset(&u8g, false, "RESET");
 
 
 
@@ -79,7 +79,7 @@ void TaskTemperature( void *pvParameters );
 void TaskEncoder( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
-void readEprom(int&, int&);
+void readEprom(double&, int&);
 /* The service routine for the interrupt.  This is the interrupt that the task
 will be synchronized with. */
 //static void vExampleInterruptHandler( void );
@@ -111,10 +111,9 @@ void setup() {
   Timer1.initialize(1000);
   Timer1.attachInterrupt(timerIsr);
   encoder.setAccelerationEnabled(true);
-  Serial.println(EEPROM.read(address_ck));
   //eeprom reading
   if(EEPROM.read(address_ck) == eeprom_ck_value){
-    readEprom(tempSetpoint, ESet);
+    readEprom(tempSetpoint, ESet);           
   }
 
   /* --------------------------------------Display settings -------------------------------------*/  
@@ -126,17 +125,17 @@ void setup() {
   menu.addString("Save");
   menu.addString("Reset");
   //status
-  status.addStringValue("Temperature: ", &steinhart);
-  status.addStringValue("Speed: ", &ESet);
+  status.addStringValue("Temp:", &steinhart);
+  status.addStringValue("Speed:", &ESet);
   //set
   set.addStringValue("Set temp: ", &tempSetpoint);
   set.addStringValue("Set speed: ", &ESet);
   //save
-  save.addString("**confirm 1 click");
-  save.addString("back 2 clicks: ");
+  save.addString("*CONFIRM 1 click");
+  save.addString("**BACK 2 clicks ");
   //reset
-  reset.addString("**confirm 1 click");
-  reset.addString("back 2 clicks: ");
+  reset.addString("*CONFIRM 1 click");
+  reset.addString("**BACK 2 clicks ");
 
   /* ------------------------------------ END Display settings ----------------------------------*/  
 
@@ -188,7 +187,7 @@ void setup() {
     ,  (const portCHAR *)"Display"   // A name just for humans
     ,  1524  // Stack size
     ,  NULL
-    ,  4  // priority
+    ,  1  // priority
     ,  NULL );
 }
 
@@ -266,7 +265,7 @@ void writeEprom(int temp, int speed){
   write16b(speed,8);
   EEPROM.write(address_ck, eeprom_ck_value);
 }
-void readEprom(int &temp, int &speed){
+void readEprom(double &temp, int &speed){
   //EEPROM.write(address_temp, temp);
   //EEPROM.write(address_speed, speed);
   temp = read16b(4);
@@ -397,7 +396,6 @@ void TaskEncoder(void *pvParameters)  // This is a task.
    
 
       case ClickEncoder::Released:      //4
-        Serial.println("rel");
         if(page_current == 2){
           setPageMenu = !setPageMenu;
         }
@@ -411,13 +409,14 @@ void TaskEncoder(void *pvParameters)  // This is a task.
           page_current= 0;
           writeEprom(int(tempSetpoint), ESet);
         }
+        //reset
         else if(page_current == 4) {      
           page_current= 0;
+          tempSetpoint = tempDefault; ESet = ESetDefault;
           writeEprom(int(tempDefault), ESetDefault);
         }
         break;
         
-
       case ClickEncoder::DoubleClicked: //6
         page_current = 0;
         break;
@@ -430,10 +429,7 @@ void TaskEncoder(void *pvParameters)  // This is a task.
 void TaskDisplay(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
-  
-
-  Serial.println("dispA");
-    
+      
   for (;;) // A Task shall never return or exit.
   {
     
@@ -457,7 +453,6 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         break;
       
       case 2:         //set
-        Serial.println("set");
         u8g.firstPage();
         do {
           set.drawMenu();
