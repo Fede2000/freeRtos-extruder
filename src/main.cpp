@@ -17,27 +17,12 @@
 #include "U8glib.h"
 #include "displayUtility.h"
 #include "logo.h"
+#include "configuration.h"
+#include "temperatureManager.h"
 
 
 
-/*--------------------------------------------------------------------*/
-/*---------------------- Definitions & Variables ---------------------*/
-/*--------------------------------------------------------------------*/
-#define ENCODER_PIN1 31
-#define ENCODER_PIN2 33
-#define ENCODER_BTN 35
- 
-#define E_STEP_PIN 26
-#define E_DIR_PIN 28
-#define E_ENABLE_PIN 24
-
-#define THERMISTOR_PIN 13
-#define HEATER_PIN 10
-#define BUZZ_PIN 57
-
-#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MINTEMP 35 //TODO: 150
-double tempSetpoint = 35, tempDefault=35, steinhart;
+double tempSetpoint = 35, DEFAULT_TEMPERATURE=35, steinhart;
 
 
 int ESet = 1000, ESetDefault=1000;
@@ -80,7 +65,8 @@ Menu reset(&u8g, false, "RESET");
 
 // define two tasks for Blink & AnalogRead
 //void TaskExtruder( void *pvParameters );
-void TaskTemperature( void *pvParameters );
+//void TaskTemperature( void *pvParameters );
+TemperatureManager temperatureManager(&steinhart, &tempSetpoint);
 void TaskEncoder( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
@@ -111,6 +97,8 @@ void setup() {
   // serial init
   Serial.begin(9600);
   pinMode(LED_BUILTIN,OUTPUT);
+  pinMode(BUZZ_PIN,OUTPUT);
+  analogWrite(BUZZ_PIN,100);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
@@ -151,6 +139,7 @@ void setup() {
 
   /* ------------------------------------ END Display settings ----------------------------------*/  
 
+  temperatureManager.init();
   // extruder settings
   extruder1.setMaxSpeed(1500);
   extruder1.setPinsInverted(false,false,true);  
@@ -179,7 +168,7 @@ void setup() {
    
   
   xTaskCreate(
-    TaskTemperature
+    temperatureManager.start
     ,  (const portCHAR *) "Temperature"
     ,  128 // This stack size can be checked & adjusted by reading Highwater
     ,  NULL
@@ -302,66 +291,7 @@ void readEprom(double &temp, int &speed){
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
 
-void TaskTemperature(void *pvParameters)  // This is a task.
-{
-  (void) pvParameters;
 
-  /**
-   * thermistor and temperature settings
-  **/
-  #define THERMISTORNOMINAL 100000      
-  // temp. for nominal resistance (almost always 25 C)
-  #define TEMPERATURENOMINAL 25   
-  // how many samples to take and average, more takes longer
-  // but is more 'smooth'
-  #define NUMSAMPLES 5
-  // The beta coefficient of the thermistor (usually 3000-4000)
-  #define B_COEFFICIENT 3950
-  // the value of the RAMPS resistor
-  #define SERIESRESISTOR 4700  
-  float average;
-  double Output;
-
-  //Define PID Parameters
-  double consKp=20, consKi=1.3, consKd=0.3;
-
-  //Specify the links and initial tuning parameters
-  PID myPID(&steinhart, &Output, &tempSetpoint, consKp, consKi, consKd, DIRECT);
-
-  // initialize serial communication at 9600 bits per second:
-  //Serial.begin(9600);
-
-  //turn the PID on
-  myPID.SetMode(AUTOMATIC);
-  for (;;)
-  {
-    
-    average = analogRead(THERMISTOR_PIN);
-    average = 1023 / average - 1;
-    average = SERIESRESISTOR / average;
-    /* TODO: implement average measurement 
-    
-    */
-    steinhart = average / THERMISTORNOMINAL;     // (R/Ro)
-    steinhart = log(steinhart);                  // ln(R/Ro)
-    steinhart /= B_COEFFICIENT;                   // 1/B * ln(R/Ro)
-    steinhart += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
-    steinhart = 1.0 / steinhart;                 // Invert
-    steinhart -= 273.15;                         // convert to C
-  
-   /* Serial.print("Temperature "); 
-    Serial.print(steinhart);
-    Serial.print(" *C");
-
-    Serial.print(" Output: "); 
-    Serial.print(Output);
-    Serial.println(" *C");*/
-    
-    myPID.Compute();
-    analogWrite(HEATER_PIN,Output ); 
-    vTaskDelay(31);  // one tick delay (15ms) in between reads for stability
-  }
-}
 void TaskEncoder(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
@@ -432,8 +362,8 @@ void TaskEncoder(void *pvParameters)  // This is a task.
         //reset
         else if(page_current == 4) {      
           page_current= 0;
-          tempSetpoint = tempDefault; ESet = ESetDefault;
-          writeEprom(int(tempDefault), ESetDefault);
+          tempSetpoint = DEFAULT_TEMPERATURE; ESet = ESetDefault;
+          writeEprom(int(DEFAULT_TEMPERATURE), ESetDefault);
         }
         break;
         
