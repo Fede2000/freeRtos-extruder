@@ -34,6 +34,9 @@
 #define THERMISTOR_PIN 13
 #define HEATER_PIN 10
 #define BUZZ_PIN 57
+
+#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 35 //TODO: 150
 double tempSetpoint = 35, tempDefault=35, steinhart;
 
 
@@ -152,7 +155,7 @@ void setup() {
   extruder1.setMaxSpeed(1500);
   extruder1.setPinsInverted(false,false,true);  
   extruder1.setEnablePin(E_ENABLE_PIN);
-  extruder1.setSpeed(ESet*Ek);
+  extruder1.setSpeed(0);
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
   
@@ -284,9 +287,14 @@ void readEprom(double &temp, int &speed){
   speed = read16b(8);
 }
 
-
-
-
+/*
+#if ENABLED(PREVENT_COLD_EXTRUSION)
+*
+*
+*
+*
+#endif
+*/
 
 
 
@@ -508,8 +516,11 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 
 // callback for timer4 
 ISR(TIMER4_COMPA_vect){
-  TCNT4 = 0; // preload timer to 0 
-  extruder1.runSpeed();
+  TCNT4 = 0; // preload timer to 0
+  #ifdef PREVENT_COLD_EXTRUSION 
+    if(steinhart > EXTRUDE_MINTEMP) // da migliorare
+      extruder1.runSpeed();
+  #endif
  }
 
  ISR(TIMER4_COMPB_vect){
