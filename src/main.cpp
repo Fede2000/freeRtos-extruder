@@ -16,6 +16,7 @@
 
 #include "U8glib.h"
 #include "displayUtility.h"
+#include "logo.h"
 
 
 
@@ -25,7 +26,7 @@
 #define ENCODER_PIN1 31
 #define ENCODER_PIN2 33
 #define ENCODER_BTN 35
-
+ 
 #define E_STEP_PIN 26
 #define E_DIR_PIN 28
 #define E_ENABLE_PIN 24
@@ -80,6 +81,8 @@ void TaskEncoder( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
 void readEprom(double&, int&);
+
+void drawLogo();
 /* The service routine for the interrupt.  This is the interrupt that the task
 will be synchronized with. */
 //static void vExampleInterruptHandler( void );
@@ -117,8 +120,13 @@ void setup() {
   }
 
   /* --------------------------------------Display settings -------------------------------------*/  
-  u8g.setFont(u8g_font_unifont);
-  u8g.setColorIndex(1);
+  //displaying logo
+  u8g.firstPage();
+  do {
+    drawLogo();
+  } while( u8g.nextPage() );
+  delay(3000);
+
   //menu 
   menu.addString("Status");
   menu.addString("Set");
@@ -236,6 +244,9 @@ void updateMenu(void) {
       menu_redraw_required = 1;
       break;
   }
+}
+void drawLogo(){
+  u8g.drawXBMP( 0, 0, bmp_width, bmp_height, bmp_bits);
 }
 
 
