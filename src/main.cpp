@@ -1,9 +1,3 @@
-/**-----------------------------------------------**/
-/*TODO:
--EEPROM
-*/
-
-
 #include <Arduino.h>
 #include <EEPROM.h>
 
@@ -11,18 +5,20 @@
 #include <Arduino_FreeRTOS.h>
 #include <semphr.h>  // add the FreeRTOS functions for Semaphores (or Flags).
 #include <PID_v1.h>
-#include <ClickEncoder.h>
-#include <TimerOne.h>
+/*#include <ClickEncoder.h>
+#include <TimerOne.h>*/
 
 #include "U8glib.h"
 #include "displayUtility.h"
 #include "logo.h"
 #include "configuration.h"
+#include "eeprom_helper.h"
 #include "temperatureManager.h"
+#include "menuManager.h"
 
 
 
-double tempSetpoint = 35, DEFAULT_TEMPERATURE=35;
+double tempSetpoint = 35, DEFAULT_TEMPERATURE=35; // TODO: eliminare default temperature
 
 
 int ESet = 1000, ESetDefault=1000;
@@ -34,11 +30,11 @@ float const c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
 float logR2, R2, T;
 
 // encoder
-uint8_t buttonState, lastButtonState;
-int encPos;
+//uint8_t buttonState, lastButtonState;
+
 // display
-Page_t page_current = Status;  // status page       TODO: creare classe pagina -> menu
-bool setPageMenu = true;  
+//Page_t page_current = Status;  // status page       TODO: creare classe pagina -> menu
+//bool setPageMenu = true;  
 
 //eeprom
 int address_temp = 0;
@@ -60,17 +56,20 @@ Menu save(&u8g,false, "SAVE");
 Menu reset(&u8g, false, "RESET");
 
 
+AccelStepper extruder1(1, E_STEP_PIN, E_DIR_PIN);
 
 
 // define two tasks for Blink & AnalogRead
 //void TaskExtruder( void *pvParameters );
 //void TaskTemperature( void *pvParameters );
-TemperatureManager temperatureManager{	128, 2, "Temperature", 31, &tempSetpoint};
+
+TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31, &tempSetpoint};
+MenuManager         menuManager         {	128, 3, "Menu", 5,&ESet, &tempSetpoint, extruder1};
 
 void TaskMenu( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
-void readEprom(double&, int&);
+//void readEprom(double&, int&);
 
 void drawLogo();
 /* The service routine for the interrupt.  This is the interrupt that the task
@@ -86,14 +85,14 @@ semaphore that is used to synchronize a task with an interrupt. */
 
 
 // extruder1: instance of AccelStepper 0
-AccelStepper extruder1(1, E_STEP_PIN, E_DIR_PIN);
+//AccelStepper extruder1(1, E_STEP_PIN, E_DIR_PIN);
 // encoder
-ClickEncoder encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
+//ClickEncoder encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
 /*void x(){
      temperatureManager.run(NULL);
    }*/
 
-void timerIsr() { encoder.service(); } 
+//void timerIsr() { encoder.service(); } 
 
 void setup() {
   // serial init
@@ -105,9 +104,9 @@ void setup() {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
   // encoder setup
-  Timer1.initialize(1000);
-  Timer1.attachInterrupt(timerIsr);
-  encoder.setAccelerationEnabled(true);
+  /*Timer1.initialize(1000);
+  Timer1.attachInterrupt(timerIsr);*/
+  //encoder.setAccelerationEnabled(true);
   //eeprom reading
   if(EEPROM.read(address_ck) == eeprom_ck_value){
     readEprom(tempSetpoint, ESet);           
@@ -178,13 +177,13 @@ void setup() {
 
   //TemperatureManager temperatureManager{	128, 2, "Temperature", 31, &tempSetpoint};
 
-  xTaskCreate(
+ /*xTaskCreate(
     TaskMenu
     ,  (const portCHAR *)"Encoder"   // A name just for humans
     ,  128  // Stack size
     ,  NULL
     ,  3  // priority
-    ,  NULL );
+    ,  NULL );*/
 
   xTaskCreate(
     TaskDisplay
@@ -213,14 +212,14 @@ int *menu_values[MENU_ITEMS] = { 1,2,3,4 };
 
 uint8_t menu_redraw_required = 0;   // not used yet
 uint8_t last_key_code = KEY_NONE;
-int uiKeyCode = KEY_NONE;
+//int uiKeyCode = KEY_NONE;
  
 
 void updateMenu(void) {
 
-  switch ( uiKeyCode ) {
+  switch ( menuManager.uiKeyCode ) {
     case KEY_NEXT:
-      uiKeyCode = KEY_NONE;
+      menuManager.uiKeyCode = KEY_NONE;
       menu.curruntMenu++;
       if ( menu.curruntMenu >= menu.itemIdx )
         
@@ -228,7 +227,7 @@ void updateMenu(void) {
       menu_redraw_required = 1;
       break;
     case KEY_PREV:
-      uiKeyCode = KEY_NONE;
+      menuManager.uiKeyCode = KEY_NONE;
       if ( menu.curruntMenu == 0 )
         menu.curruntMenu = menu.itemIdx;
       menu.curruntMenu--;
@@ -246,29 +245,7 @@ void drawLogo(){
 /* ----------------------------------------------------- */
 
 
-// EEPROM
-write16b( int value, int addr = 0){
-  char * pt = (char *) &value;
-  EEPROM.write(addr++, *pt++);
-  EEPROM.write(addr , *pt );
-}
-int read16b(int addr){
-  int dato = 0;
-  char * pt = (char *) &dato;
-  *pt++ = EEPROM.read(addr++);
-  *pt++ = EEPROM.read(addr);
-   return dato;
-}
 
-void writeEprom(int temp, int speed){
-  write16b(temp,4);
-  write16b(speed,8);
-  EEPROM.write(address_ck, eeprom_ck_value);
-}
-void readEprom(double &temp, int &speed){
-  temp = read16b(4);
-  speed = read16b(8);
-}
 
 /*
 #if ENABLED(PREVENT_COLD_EXTRUSION)
@@ -285,12 +262,11 @@ void readEprom(double &temp, int &speed){
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
 
-
+/*
 void TaskMenu(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
  
-  // initialize digital pin 13 as an output.
   int tempEnc;
   for (;;) // A Task shall never return or exit.
   {
@@ -312,8 +288,8 @@ void TaskMenu(void *pvParameters)  // This is a task.
 
     else{
       tempEnc += encoder.getValue();    // TODO: return if zero
-      if(tempEnc > 1)         {uiKeyCode = 1; tempEnc = 0;}
-      else if(tempEnc < -1)   {uiKeyCode = -1; tempEnc = 0;}
+      if(tempEnc > 1)         {menuManager.uiKeyCode = 1; tempEnc = 0;}
+      else if(tempEnc < -1)   {menuManager.uiKeyCode = -1; tempEnc = 0;}
     }
     
     // TODO: provare a inserirle nell switch
@@ -364,7 +340,7 @@ void TaskMenu(void *pvParameters)  // This is a task.
     }
     vTaskDelay(5);
   }
-}
+}*/
 
 void TaskDisplay(void *pvParameters)  // This is a task.
 {
@@ -373,7 +349,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
   for (;;) // A Task shall never return or exit.
   {
     
-    switch (page_current)
+    switch (menuManager.page_current)
     {
       case 0:         //Menu
         updateMenu();

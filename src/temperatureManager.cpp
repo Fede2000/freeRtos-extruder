@@ -8,7 +8,7 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {   
-    tempSetpoint = aTempSetpoint;
+    //tempSetpoint = aTempSetpoint;
     myPID.SetMode(AUTOMATIC);
 }
 
@@ -42,6 +42,6 @@ void TemperatureManager::Main() {
         getTemperature();
         myPID.Compute();
         analogWrite(HEATER_PIN, output); 
-        vTaskDelay(31);  // one tick delay (15ms) in between reads for stability
+        vTaskDelay(ticks);  // one tick delay (15ms) in between reads for stability
     }
 }

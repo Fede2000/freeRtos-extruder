@@ -18,7 +18,8 @@
 
 #define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 20 //TODO: 150
-
+#define DEFAULT_TEMPERATURE 35
+#define DEFAULT_SPEED 1000 
 /**
  * thermistor and temperature settings
  **/
@@ -36,6 +37,13 @@
 #define CONST_KP 24
 #define CONST_KI 1
 #define CONST_KD 0.3
+
+
+//EEPROM
+#define address_temp  0
+#define address_speed  1
+#define address_ck  2
+#define eeprom_ck_value 12
 
 #endif
 
