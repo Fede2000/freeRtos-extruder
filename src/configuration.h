@@ -1,3 +1,6 @@
+#ifndef	CONFIGURATION_h
+#define CONFIGURATION_h
+
 /*--------------------------------------------------------------------*/
 /*---------------------- Definitions & Variables ---------------------*/
 /*--------------------------------------------------------------------*/
@@ -11,7 +14,7 @@
 
 #define THERMISTOR_PIN 13
 #define HEATER_PIN 10
-#define BUZZ_PIN 64 
+#define BUZZ_PIN 33 
 
 #define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 20 //TODO: 150
@@ -29,8 +32,11 @@
 #define B_COEFFICIENT 3950
 // the value of the RAMPS resistor
 #define SERIESRESISTOR 4700  
+
 #define CONST_KP 24
 #define CONST_KI 1
 #define CONST_KD 0.3
+
+#endif
 
 

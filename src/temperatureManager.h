@@ -1,21 +1,30 @@
 #ifndef	TEMPERATURE_MANAGER_h
 #define TEMPERATURE_MANAGER_h
 
+
 #include "configuration.h"
 #include <PID_v1.h>
 #include <Arduino_FreeRTOS.h>
+#include "Thread.h"
 
-class TemperatureManager {
-    public:
-    TemperatureManager(double * aTemperature, double * aTempSetpoint, const TickType_t xTicksToDelay = 31);
-    float getTemperature();
-    void init();
-    void start( void *pvParameters);
+/* https://drive.google.com/file/d/1SBhXfaA_kXBOX_d44FqEMjZ5Gr1imTRZ/view */
+class TemperatureManager : public Thread
+{
+public:
+    TemperatureManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name,	// base class arguments
+		 uint32_t _ticks , double * aTempSetpoint);
 
-    private:
-    double output, *tempSetpoint, * temperature;
-    const TickType_t xTicksToDelay;
-    PID myPID(temperature, &output, tempSetpoint, CONST_KP, CONST_KI, CONST_KD, DIRECT);
+    double temperature;
+    void getTemperature();
+    double readTemperature();
+    virtual void Main() override;
 
-}
+private:
+    double output;
+    double *tempSetpoint;
+	uint32_t ticks;
+    PID myPID;
+};
+
+#endif
 

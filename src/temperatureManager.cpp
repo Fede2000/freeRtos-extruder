@@ -1,39 +1,47 @@
 #include "TemperatureManager.h"
 #include <PID_v1.h>
 #include <Arduino_FreeRTOS.h>
+#include <Arduino.h>
 
-TemperatureManager::TemperatureManager(double * aTemperature, double * aInput, double * aTempSetpoint, const TickType_t aTicksToDelay = 31){
-    temperature = aTemperature;
-    input = aInput;
-    xTicksToDelay = aTicksToDelay;
+TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks , double * aTempSetpoint) : 
+                                                                                    myPID(&temperature, &output, aTempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
+                                                                                    Thread{ _stackDepth, _priority, _name },
+                                                                                    ticks{ _ticks }
+{   
     tempSetpoint = aTempSetpoint;
-}
-void TemperatureManager::init(){
     myPID.SetMode(AUTOMATIC);
 }
 
-float TemperatureManager::getTemperature(){
-    temperature = analogRead(THERMISTOR_PIN);
-    temperature = 1023 / temperature - 1;
-    temperature = SERIESRESISTOR / temperature;
+void TemperatureManager::getTemperature(){
+
+    double average;
+    average = (double) analogRead(THERMISTOR_PIN);
+    average = 1023.0 / average - 1;
+    average = (double) SERIESRESISTOR / average;
     /* TODO: implement average measurement 
     
     */
     // steinhart formula
-    temperature = temperature / THERMISTORNOMINAL;     // (R/Ro)
-    temperature = log(temperature);                  // ln(R/Ro)
-    temperature /= B_COEFFICIENT;                   // 1/B * ln(R/Ro)
-    temperature += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
-    temperature = 1.0 / temperature;                 // Invert
-    temperature -= 273.15;                         // convert to C
+
+    average = average / (double) THERMISTORNOMINAL;     // (R/Ro)
+    average = log(average);                  // ln(R/Ro)
+    average /= B_COEFFICIENT;                   // 1/B * ln(R/Ro)
+    average += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
+    average = 1.0 / average;                 // Invert
+    average -= 273.15;                         // convert to C
+    temperature = average;
+
+}
+double TemperatureManager::readTemperature(){
     return temperature;
 }
-void start(void *pvParameters){
+
+void TemperatureManager::Main() {
     for (;;)
     {
         getTemperature();
         myPID.Compute();
-        analogWrite(HEATER_PIN, *Output); 
-        vTaskDelay(xTicksToDelay);  // one tick delay (15ms) in between reads for stability
+        analogWrite(HEATER_PIN, output); 
+        vTaskDelay(31);  // one tick delay (15ms) in between reads for stability
     }
 }

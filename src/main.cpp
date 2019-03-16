@@ -22,7 +22,7 @@
 
 
 
-double tempSetpoint = 35, DEFAULT_TEMPERATURE=35, steinhart;
+double tempSetpoint = 35, DEFAULT_TEMPERATURE=35;
 
 
 int ESet = 1000, ESetDefault=1000;
@@ -37,8 +37,7 @@ float logR2, R2, T;
 uint8_t buttonState, lastButtonState;
 int encPos;
 // display
-uint8_t page_current = 1;  // status page       TODO: creare classe pagina -> menu
-uint8_t menu_current = 0; 
+Page_t page_current = Status;  // status page       TODO: creare classe pagina -> menu
 bool setPageMenu = true;  
 
 //eeprom
@@ -66,8 +65,9 @@ Menu reset(&u8g, false, "RESET");
 // define two tasks for Blink & AnalogRead
 //void TaskExtruder( void *pvParameters );
 //void TaskTemperature( void *pvParameters );
-TemperatureManager temperatureManager(&steinhart, &tempSetpoint);
-void TaskEncoder( void *pvParameters );
+TemperatureManager temperatureManager{	128, 2, "Temperature", 31, &tempSetpoint};
+
+void TaskMenu( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
 void readEprom(double&, int&);
@@ -89,7 +89,9 @@ semaphore that is used to synchronize a task with an interrupt. */
 AccelStepper extruder1(1, E_STEP_PIN, E_DIR_PIN);
 // encoder
 ClickEncoder encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
-
+/*void x(){
+     temperatureManager.run(NULL);
+   }*/
 
 void timerIsr() { encoder.service(); } 
 
@@ -98,7 +100,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(LED_BUILTIN,OUTPUT);
   pinMode(BUZZ_PIN,OUTPUT);
-  analogWrite(BUZZ_PIN,100);
+  digitalWrite(BUZZ_PIN,HIGH);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
@@ -117,15 +119,15 @@ void setup() {
   do {
     drawLogo();
   } while( u8g.nextPage() );
-  delay(3000);
-
+  delay(300);
+  //Serial.println(temperatureManager.temperature);
   //menu 
   menu.addString("Status");
   menu.addString("Set");
   menu.addString("Save");
   menu.addString("Reset");
   //status
-  status.addStringValue("Temp:", &steinhart);
+  status.addStringValue("Temp:", &(temperatureManager.temperature));
   status.addStringValue("Speed:", &ESet);
   //set
   set.addStringValue("Set temp: ", &tempSetpoint);
@@ -139,12 +141,12 @@ void setup() {
 
   /* ------------------------------------ END Display settings ----------------------------------*/  
 
-  temperatureManager.init();
+  
   // extruder settings
   extruder1.setMaxSpeed(1500);
   extruder1.setPinsInverted(false,false,true);  
   extruder1.setEnablePin(E_ENABLE_PIN);
-  extruder1.setSpeed(0);
+  extruder1.setSpeed(ESet);
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
   
@@ -165,18 +167,19 @@ void setup() {
    
   //interrupts();
   /* --------------------------------------------END------------------------------------------ */
-   
-  
+   /*
   xTaskCreate(
-    temperatureManager.start
+    x
     ,  (const portCHAR *) "Temperature"
-    ,  128 // This stack size can be checked & adjusted by reading Highwater
+    ,  4096 // This stack size can be checked & adjusted by reading Highwater
     ,  NULL
     ,  2  // priority
-    ,  NULL );
+    ,  NULL );*/
+
+  //TemperatureManager temperatureManager{	128, 2, "Temperature", 31, &tempSetpoint};
 
   xTaskCreate(
-    TaskEncoder
+    TaskMenu
     ,  (const portCHAR *)"Encoder"   // A name just for humans
     ,  128  // Stack size
     ,  NULL
@@ -214,12 +217,7 @@ int uiKeyCode = KEY_NONE;
  
 
 void updateMenu(void) {
-  /*if ( uiKeyCode != KEY_NONE && last_key_code == uiKeyCode ) {
-    Serial.println("ss");
-    return;
-  }
-  last_key_code = uiKeyCode;
-  */
+
   switch ( uiKeyCode ) {
     case KEY_NEXT:
       uiKeyCode = KEY_NONE;
@@ -263,15 +261,11 @@ int read16b(int addr){
 }
 
 void writeEprom(int temp, int speed){
-  //EEPROM.write(address_temp, temp);
-  //EEPROM.write(address_speed, speed);
   write16b(temp,4);
   write16b(speed,8);
   EEPROM.write(address_ck, eeprom_ck_value);
 }
 void readEprom(double &temp, int &speed){
-  //EEPROM.write(address_temp, temp);
-  //EEPROM.write(address_speed, speed);
   temp = read16b(4);
   speed = read16b(8);
 }
@@ -292,7 +286,7 @@ void readEprom(double &temp, int &speed){
 /*--------------------------------------------------*/
 
 
-void TaskEncoder(void *pvParameters)  // This is a task.
+void TaskMenu(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
  
@@ -301,78 +295,74 @@ void TaskEncoder(void *pvParameters)  // This is a task.
   for (;;) // A Task shall never return or exit.
   {
   
-  buttonState = encoder.getButton();
-  
-  // if change speed mode:
-  if (page_current == 2){
-    if( setPageMenu ){
-      set.curruntMenu = 1;
-      ESet += encoder.getValue()*10;
-      extruder1.setSpeed(ESet*Ek);
+    buttonState = encoder.getButton();
+    
+    // if change speed mode:
+    if (page_current == Settings){
+      if( setPageMenu ){
+        set.curruntMenu = 1;
+        ESet += encoder.getValue();
+        extruder1.setSpeed(ESet*Ek);
+      }
+      else{
+        set.curruntMenu = 0;
+        tempSetpoint += encoder.getValue();
+      }    
     }
+
     else{
-      set.curruntMenu = 0;
-      tempSetpoint += encoder.getValue();
-    }    
-  }
-  // if change temperature mode:
-  /*else if (lastButtonState == 6){
-    tempSetpoint += encoder.getValue();
-    Serial.print("**NEW tempSetpoint: "); Serial.println(tempSetpoint);
-  }*/
-  else{
-    tempEnc += encoder.getValue();    // TODO: return if zero
-    if(tempEnc > 1)         {uiKeyCode = 1; tempEnc = 0;}
-    else if(tempEnc < -1)   {uiKeyCode = -1; tempEnc = 0;}
-  }
-   
-  // TODO: provare a inserirle nell switch
-
-  if (buttonState != 0) {
-    Serial.print("Button: "); Serial.println(buttonState);
-    lastButtonState = buttonState;
-    switch (buttonState) {
-      case ClickEncoder::Open:          //0
-        break;
-
-      case ClickEncoder::Closed:        //1
-        break;
-
-      case ClickEncoder::Pressed:       //2
-        break;
-
-      case ClickEncoder::Held:          //3
-        break;
-   
-
-      case ClickEncoder::Released:      //4
-        if(page_current == 2){
-          setPageMenu = !setPageMenu;
-        }
-        break;
-
-      case ClickEncoder::Clicked:       //5
-        if(page_current == 0)
-          page_current= menu.curruntMenu + 1;
-        //save
-        else if(page_current == 3) {      
-          page_current= 0;
-          writeEprom(int(tempSetpoint), ESet);
-        }
-        //reset
-        else if(page_current == 4) {      
-          page_current= 0;
-          tempSetpoint = DEFAULT_TEMPERATURE; ESet = ESetDefault;
-          writeEprom(int(DEFAULT_TEMPERATURE), ESetDefault);
-        }
-        break;
-        
-      case ClickEncoder::DoubleClicked: //6
-        page_current = 0;
-        break;
+      tempEnc += encoder.getValue();    // TODO: return if zero
+      if(tempEnc > 1)         {uiKeyCode = 1; tempEnc = 0;}
+      else if(tempEnc < -1)   {uiKeyCode = -1; tempEnc = 0;}
     }
-  }
-  vTaskDelay(5);
+    
+    // TODO: provare a inserirle nell switch
+
+    if (buttonState != 0) {
+      Serial.print("Button: "); Serial.println(buttonState);
+      lastButtonState = buttonState;
+      switch (buttonState) {
+        case ClickEncoder::Open:          //0
+          break;
+
+        case ClickEncoder::Closed:        //1
+          break;
+
+        case ClickEncoder::Pressed:       //2
+          break;
+
+        case ClickEncoder::Held:          //3
+          break;
+    
+
+        case ClickEncoder::Released:      //4
+          if(page_current == Settings){
+            setPageMenu = !setPageMenu;
+          }
+          break;
+
+        case ClickEncoder::Clicked:       //5
+          if(page_current == Menu_p)
+            page_current = (Page_t) (menu.curruntMenu + 1);
+          //save
+          else if(page_current == Save) {      
+            page_current = Menu_p;
+            writeEprom(int(tempSetpoint), ESet);
+          }
+          //reset
+          else if(page_current == Reset) {      
+            page_current = Menu_p;
+            tempSetpoint = DEFAULT_TEMPERATURE; ESet = ESetDefault;
+            writeEprom(int(DEFAULT_TEMPERATURE), ESetDefault);
+          }
+          break;
+          
+        case ClickEncoder::DoubleClicked: //6
+          page_current = Menu_p;
+          break;
+      }
+    }
+    vTaskDelay(5);
   }
 }
 
@@ -426,20 +416,12 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 
         break;
 
-      /*default:        //Status
-        //page_current = 1;
-        u8g.firstPage();
-        do {
-          drawStatusPage();
-        } while( u8g.nextPage() );
-
-        break;*/
     }
     
 
   // send manual CR to the printer
  
-    vTaskDelay(100 / portTICK_PERIOD_MS);
+    vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }
 
@@ -448,7 +430,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 ISR(TIMER4_COMPA_vect){
   TCNT4 = 0; // preload timer to 0
   #ifdef PREVENT_COLD_EXTRUSION 
-    if(steinhart > EXTRUDE_MINTEMP) // da migliorare
+    //if(temperatureManager.readTemperature() > EXTRUDE_MINTEMP) // da migliorare
       extruder1.runSpeed();
   #endif
  }

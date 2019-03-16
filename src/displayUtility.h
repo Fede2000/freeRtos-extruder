@@ -2,6 +2,14 @@
 #define DISPLAYUTILITY_h
 #include "U8glib.h"
 
+typedef enum {
+    Menu_p,
+    Status,
+    Settings,
+    Save,
+    Reset
+}Page_t;
+
 class Menu 
 {   
     #define MAX_MENU_ITEMS  5
