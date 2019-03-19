@@ -21,13 +21,13 @@ class MenuManager : public Thread
 {
 public:
     MenuManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name,	
-		 uint32_t _ticks, int * aESet, double * aTempSetpoint, AccelStepper * aExtruder );
+		 uint32_t _ticks );
     
     static ClickEncoder encoder;
     uint8_t buttonState, lastButtonState;
     Page_t page_current = Status;
-    int *ESet;
-    double *tempSetpoint;
+    //int *ESet;
+    //double *tempSetpoint;
     int uiKeyCode = 0;
 
     void updateMenu();
@@ -35,7 +35,7 @@ public:
 
 private:
     
-    AccelStepper * extruder;
+    //AccelStepper * extruder;
     //void timerIsr(); 
 
 	uint32_t ticks;
@@ -50,6 +50,8 @@ extern Menu status;
 extern Menu set;
 extern Menu save;
 extern Menu reset;
+
+//extern MenuManager menuManager;
 
 #endif
 

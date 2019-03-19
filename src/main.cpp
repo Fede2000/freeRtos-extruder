@@ -10,12 +10,13 @@
 #include "eepromHelper.h"
 #include "temperatureManager.h"
 #include "menuManager.h"
+#include "Extruder.h"
 
 
 //double tempSetpoint = 35; // DEFAULT_TEMP=35; // TODO: eliminare default temperature
 
 
-int ESet = 1000, ESetDefault=1000;
+int ESetDefault=1000;
 const float Ek = 1.0; // corrective factor
 
 // consts for temperature measurement
@@ -28,21 +29,8 @@ float logR2, R2, T;
 /*------------------- END Definitions & Variables --------------------*/
 /*--------------------------------------------------------------------*/
 
-//12864      
+MenuManager menuManager {	128, 3, "Menu", 5};
 
-
-
-AccelStepper extruder1(AccelStepper::DRIVER, E_STEP_PIN, E_DIR_PIN);
-
-// define two tasks for Blink & AnalogRead
-//void TaskExtruder( void *pvParameters );
-//void TaskTemperature( void *pvParameters );
-
-MenuManager         menuManager         {	128, 3, "Menu", 5, &ESet, &tempSetpoint, &extruder1};
-
-
-
-void TaskMenu( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
 /* ------------------------------------------------- */

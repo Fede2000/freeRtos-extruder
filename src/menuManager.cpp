@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
-#include <AccelStepper.h>
 #include <ClickEncoder.h>
 #include <TimerOne.h>
 #include "EepromHelper.h"
@@ -9,6 +8,11 @@
 #include "U8glib.h"
 #include "logo.h"
 #include "menuManager.h"
+#include "Extruder.h"
+#include "temperatureManager.h"
+
+
+//MenuManager menuManager {	128, 3, "Menu", 5};
 
 
 Menu menu(true, "MENU");
@@ -25,14 +29,14 @@ void drawLogo(){
 }
 
 MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, 
-                        uint32_t _ticks, int * aESet, double * aTempSetpoint, AccelStepper * aExtruder ) :                                                                                                                                 
+                        uint32_t _ticks) :                                                                                                                                 
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {   
 
-    ESet = aESet;
-    tempSetpoint = aTempSetpoint;
-    extruder = aExtruder;
+    //ESet = aESet;
+    //tempSetpoint = aTempSetpoint;
+    //extruder = aExtruder;
     
 
     Timer1.initialize(1000);
@@ -45,11 +49,11 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
     menu.addString("Save");
     menu.addString("Reset");
     //status
-    status.addStringValue("Temp:", tempSetpoint); //TODO: &(temperatureManager.temperature)
-    status.addStringValue("Speed:", ESet);  //&ESet
+    status.addStringValue("Temp:", &(temperatureManager.temperature)); 
+    status.addStringValue("Speed:", &ESet);  //&ESet
     //set
-    set.addStringValue("Set temp: ", tempSetpoint);
-    set.addStringValue("Set speed: ", ESet);
+    set.addStringValue("Set temp: ", &tempSetpoint);
+    set.addStringValue("Set speed: ", &ESet);
     //save
     save.addString("*CONFIRM 1 click");
     save.addString("**BACK 2 clicks ");
@@ -71,12 +75,12 @@ void MenuManager::Main() {
     if (page_current == Settings){
       if( setPageMenu ){
         set.curruntMenu = 1;
-        * ESet += encoder.getValue();
-        extruder->setSpeed(* ESet); // TODO:Ek
+        ESet += encoder.getValue();
+        extruder1.setSpeed( ESet); // TODO:Ek
       }
       else{
         set.curruntMenu = 0;
-        *tempSetpoint += encoder.getValue();
+        tempSetpoint += encoder.getValue();
       }    
     }
 
@@ -117,12 +121,12 @@ void MenuManager::Main() {
           //save
           else if(page_current == Save) {      
             page_current = Menu_p;
-            writeEprom(int(tempSetpoint), *ESet);
+            writeEprom(int(tempSetpoint), ESet);
           }
           //reset
           else if(page_current == Reset) {      
             page_current = Menu_p;
-            *tempSetpoint = DEFAULT_TEMP; *ESet = DEFAULT_SPEED;
+            tempSetpoint = DEFAULT_TEMP; ESet = DEFAULT_SPEED;
             writeEprom(int(DEFAULT_TEMP), DEFAULT_SPEED);
           }
           break;
