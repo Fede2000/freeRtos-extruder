@@ -7,15 +7,7 @@
 #include "Thread.h"
 #include <ClickEncoder.h>
 #include <TimerOne.h>
-#include "displayUtility.h"  //Page_t
-
-extern Menu menu;
-extern Menu status;
-extern Menu set;
-extern Menu save;
-extern Menu reset;
-
-extern U8GLIB_ST7920_128X64_1X u8g;
+#include "displayUtility.h"  
 
 #define KEY_NONE 0
 #define KEY_NEXT 1
@@ -51,6 +43,13 @@ private:
     bool setPageMenu = true;  
 
 };
+
+
+extern Menu menu;
+extern Menu status;
+extern Menu set;
+extern Menu save;
+extern Menu reset;
 
 #endif
 

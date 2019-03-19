@@ -3,11 +3,7 @@
 
 #include <AccelStepper.h>
 #include <Arduino_FreeRTOS.h>
-#include <semphr.h>  // add the FreeRTOS functions for Semaphores (or Flags).
 #include <PID_v1.h>
-/*#include <ClickEncoder.h>
-#include <TimerOne.h>*/
-
 #include "U8glib.h"
 #include "displayUtility.h"
 #include "configuration.h"
@@ -16,8 +12,7 @@
 #include "menuManager.h"
 
 
-
-double tempSetpoint = 35; // DEFAULT_TEMP=35; // TODO: eliminare default temperature
+//double tempSetpoint = 35; // DEFAULT_TEMP=35; // TODO: eliminare default temperature
 
 
 int ESet = 1000, ESetDefault=1000;
@@ -43,7 +38,6 @@ AccelStepper extruder1(AccelStepper::DRIVER, E_STEP_PIN, E_DIR_PIN);
 //void TaskExtruder( void *pvParameters );
 //void TaskTemperature( void *pvParameters );
 
-TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31, &tempSetpoint};
 MenuManager         menuManager         {	128, 3, "Menu", 5, &ESet, &tempSetpoint, &extruder1};
 
 
@@ -172,10 +166,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         break;
 
     }
-    
-
-  // send manual CR to the printer
- 
+  
     vTaskDelay(50 / portTICK_PERIOD_MS);
   }
 }

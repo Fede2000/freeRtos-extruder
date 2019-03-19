@@ -3,6 +3,7 @@
 
 #include "U8glib.h"
 
+
 typedef enum {
     Menu_p,
     Status,
@@ -19,7 +20,6 @@ class Menu
     #define MAX_MENU_ITEMS  5
 
     private: 
-    U8GLIB_ST7920_128X64_1X * ptU8g;
     char *menu_strings[MAX_MENU_ITEMS]; 
     char *title = NULL;
     int *menu_values_int[MAX_MENU_ITEMS];
@@ -32,14 +32,11 @@ class Menu
     bool isSelectable = true; 
 
     //Menu(void){}
-    Menu(U8GLIB_ST7920_128X64_1X * ptPage, bool aIsSelectable = true, char * ptTitle = NULL){
-        ptU8g = ptPage;
+    Menu( bool aIsSelectable = true, char * ptTitle = NULL){
         isSelectable = aIsSelectable;
         title = ptTitle;
     }
-    /*Menu(U8GLIB_ST7920_128X64_1X * ptPage){
-        ptU8g = ptPage;
-    }*/
+  
     void addString(char * ptItem){
         if(itemIdx < MAX_MENU_ITEMS){
             menu_strings[itemIdx] = ptItem;
@@ -67,6 +64,10 @@ class Menu
     void drawMenu(); 
       
 }; 
+
+
+extern U8GLIB_ST7920_128X64_1X u8g;
+
 
 #endif
 

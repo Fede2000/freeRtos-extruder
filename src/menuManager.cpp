@@ -1,4 +1,3 @@
-#include "menuManager.h"
 #include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
 #include <AccelStepper.h>
@@ -9,15 +8,14 @@
 #include "displayUtility.h"
 #include "U8glib.h"
 #include "logo.h"
+#include "menuManager.h"
 
 
-U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
-
-Menu menu(&u8g,true, "MENU");
-Menu status(&u8g, false,"STATUS");
-Menu set(&u8g, true, "SETTINGS");
-Menu save(&u8g,false, "SAVE");
-Menu reset(&u8g, false, "RESET");
+Menu menu(true, "MENU");
+Menu status(false,"STATUS");
+Menu set(true, "SETTINGS");
+Menu save(false, "SAVE");
+Menu reset(false, "RESET");
 
 ClickEncoder MenuManager::encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
 void timerIsr() { MenuManager::encoder.service(); } 

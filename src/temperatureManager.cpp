@@ -3,12 +3,14 @@
 #include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 
-TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks , double * aTempSetpoint) : 
-                                                                                    myPID(&temperature, &output, aTempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
+TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
+double tempSetpoint = 35;
+
+TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
+                                                                                    myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {   
-    //tempSetpoint = aTempSetpoint;
     myPID.SetMode(AUTOMATIC);
 }
 
