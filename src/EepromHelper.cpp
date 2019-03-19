@@ -1,13 +1,11 @@
-
+#include "EepromHelper.h"
 #include <Arduino.h>
 #include <EEPROM.h>
-
-#ifndef	EEPROM_HELPER_h  //EEPROM : name conflict
-#define EEPROM_HELPER_h
+#include "configuration.h"
 
 
 // EEPROM
-write16b( int value, int addr = 0){
+void write16b( int value, int addr = 0){
   char * pt = (char *) &value;
   EEPROM.write(addr++, *pt++);
   EEPROM.write(addr , *pt );
@@ -23,11 +21,9 @@ int read16b(int addr){
 void writeEprom(int temp, int speed){
   write16b(temp,4);
   write16b(speed,8);
-  EEPROM.write(address_ck, eeprom_ck_value);
+  EEPROM.write(ADDRESS_CK, EEPROM_CK_VALUE);
 }
 void readEprom(double &temp, int &speed){
   temp = read16b(4);
   speed = read16b(8);
 }
-
-#endif

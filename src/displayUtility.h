@@ -1,6 +1,8 @@
 #ifndef	DISPLAYUTILITY_h
 #define DISPLAYUTILITY_h
+
 #include "U8glib.h"
+
 
 typedef enum {
     Menu_p,
@@ -9,6 +11,9 @@ typedef enum {
     Save,
     Reset
 }Page_t;
+
+
+
 
 class Menu 
 {   
@@ -24,7 +29,7 @@ class Menu
 
     public: 
     uint8_t curruntMenu = 0; 
-    char itemIdx = 0;
+    int itemIdx = 0;
     bool isSelectable = true; 
 
     //Menu(void){}
@@ -65,3 +70,5 @@ class Menu
 }; 
 
 #endif
+
+

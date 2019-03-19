@@ -12,13 +12,13 @@
 #include "displayUtility.h"
 #include "logo.h"
 #include "configuration.h"
-#include "eeprom_helper.h"
+#include "eepromHelper.h"
 #include "temperatureManager.h"
 #include "menuManager.h"
 
 
 
-double tempSetpoint = 35, DEFAULT_TEMPERATURE=35; // TODO: eliminare default temperature
+double tempSetpoint = 35; // DEFAULT_TEMP=35; // TODO: eliminare default temperature
 
 
 int ESet = 1000, ESetDefault=1000;
@@ -37,39 +37,34 @@ float logR2, R2, T;
 //bool setPageMenu = true;  
 
 //eeprom
-int address_temp = 0;
-int address_speed = 1;
-int address_ck = 2;
-int eeprom_ck_value = 12;
+/*int ADDRESS_TEMPERATURE = 0;
+int ADDRESS_SPEED = 1;
+int ADDRESS_CK = 2;
+int EEPROM_CK_VALUE = 12;*/
 
 /*--------------------------------------------------------------------*/
 /*------------------- END Definitions & Variables --------------------*/
 /*--------------------------------------------------------------------*/
 
 //12864      
-U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
-
-Menu menu(&u8g,true, "MENU");
-Menu status(&u8g, false,"STATUS");
-Menu set(&u8g, true, "SETTINGS");
-Menu save(&u8g,false, "SAVE");
-Menu reset(&u8g, false, "RESET");
 
 
-AccelStepper extruder1(1, E_STEP_PIN, E_DIR_PIN);
 
+AccelStepper extruder1(AccelStepper::DRIVER, E_STEP_PIN, E_DIR_PIN);
 
 // define two tasks for Blink & AnalogRead
 //void TaskExtruder( void *pvParameters );
 //void TaskTemperature( void *pvParameters );
 
 TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31, &tempSetpoint};
-MenuManager         menuManager         {	128, 3, "Menu", 5,&ESet, &tempSetpoint, extruder1};
+MenuManager         menuManager         {	128, 3, "Menu", 5, &ESet, &tempSetpoint, &extruder1};
+
+
 
 void TaskMenu( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
-//void readEprom(double&, int&);
+// void readEprom(double&, int&);
 
 void drawLogo();
 /* The service routine for the interrupt.  This is the interrupt that the task
@@ -108,7 +103,7 @@ void setup() {
   Timer1.attachInterrupt(timerIsr);*/
   //encoder.setAccelerationEnabled(true);
   //eeprom reading
-  if(EEPROM.read(address_ck) == eeprom_ck_value){
+  if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
     readEprom(tempSetpoint, ESet);           
   }
 
@@ -120,23 +115,7 @@ void setup() {
   } while( u8g.nextPage() );
   delay(300);
   //Serial.println(temperatureManager.temperature);
-  //menu 
-  menu.addString("Status");
-  menu.addString("Set");
-  menu.addString("Save");
-  menu.addString("Reset");
-  //status
-  status.addStringValue("Temp:", &(temperatureManager.temperature));
-  status.addStringValue("Speed:", &ESet);
-  //set
-  set.addStringValue("Set temp: ", &tempSetpoint);
-  set.addStringValue("Set speed: ", &ESet);
-  //save
-  save.addString("*CONFIRM 1 click");
-  save.addString("**BACK 2 clicks ");
-  //reset
-  reset.addString("*CONFIRM 1 click");
-  reset.addString("**BACK 2 clicks ");
+  
 
   /* ------------------------------------ END Display settings ----------------------------------*/  
 
@@ -328,8 +307,8 @@ void TaskMenu(void *pvParameters)  // This is a task.
           //reset
           else if(page_current == Reset) {      
             page_current = Menu_p;
-            tempSetpoint = DEFAULT_TEMPERATURE; ESet = ESetDefault;
-            writeEprom(int(DEFAULT_TEMPERATURE), ESetDefault);
+            tempSetpoint = DEFAULT_TEMP; ESet = ESetDefault;
+            writeEprom(int(DEFAULT_TEMP), ESetDefault);
           }
           break;
           

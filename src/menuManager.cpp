@@ -1,18 +1,33 @@
 #include "menuManager.h"
+#include <Arduino.h>
 #include <Arduino_FreeRTOS.h>
 #include <AccelStepper.h>
-#include <Arduino.h>
 #include <ClickEncoder.h>
 #include <TimerOne.h>
-#include "eeprom_helper.h"
+#include "EepromHelper.h"
 #include "configuration.h"
+#include "displayUtility.h"
+#include "U8glib.h"
 
 
-MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks, double * aESet, double * aTempSetpoint, AccelStepper & aExtruder ) : 
-                                                                                    encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4) , 
+
+U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
+
+Menu menu(&u8g,true, "MENU");
+Menu status(&u8g, false,"STATUS");
+Menu set(&u8g, true, "SETTINGS");
+Menu save(&u8g,false, "SAVE");
+Menu reset(&u8g, false, "RESET");
+
+ClickEncoder MenuManager::encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
+void timerIsr() { MenuManager::encoder.service(); } 
+
+MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, 
+                        uint32_t _ticks, int * aESet, double * aTempSetpoint, AccelStepper * aExtruder ) :                                                                                                                                 
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {   
+
     ESet = aESet;
     tempSetpoint = aTempSetpoint;
     extruder = aExtruder;
@@ -22,9 +37,28 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
     Timer1.attachInterrupt(timerIsr);
     encoder.setAccelerationEnabled(true);
 
+    //menu 
+    menu.addString("Status");
+    menu.addString("Set");
+    menu.addString("Save");
+    menu.addString("Reset");
+    //status
+    status.addStringValue("Temp:", tempSetpoint); //TODO: &(temperatureManager.temperature)
+    status.addStringValue("Speed:", ESet);  //&ESet
+    //set
+    set.addStringValue("Set temp: ", tempSetpoint);
+    set.addStringValue("Set speed: ", ESet);
+    //save
+    save.addString("*CONFIRM 1 click");
+    save.addString("**BACK 2 clicks ");
+    //reset
+    reset.addString("*CONFIRM 1 click");
+    reset.addString("**BACK 2 clicks ");
+
+
 }
 
-void MenuManager::timerIsr() { encoder.service(); } 
+
 
 void MenuManager::Main() {
     for (;;)
@@ -35,8 +69,8 @@ void MenuManager::Main() {
     if (page_current == Settings){
       if( setPageMenu ){
         set.curruntMenu = 1;
-        ESet += encoder.getValue();
-        extruder.setSpeed(ESet); // TODO:Ek
+        * ESet += encoder.getValue();
+        extruder->setSpeed(* ESet); // TODO:Ek
       }
       else{
         set.curruntMenu = 0;
@@ -81,13 +115,13 @@ void MenuManager::Main() {
           //save
           else if(page_current == Save) {      
             page_current = Menu_p;
-            writeEprom(int(tempSetpoint), ESet);
+            writeEprom(int(tempSetpoint), *ESet);
           }
           //reset
           else if(page_current == Reset) {      
             page_current = Menu_p;
-            tempSetpoint = DEFAULT_TEMPERATURE; ESet = DEFAULT_SPEED;
-            writeEprom(int(DEFAULT_TEMPERATURE), DEFAULT_SPEED);
+            *tempSetpoint = DEFAULT_TEMP; *ESet = DEFAULT_SPEED;
+            writeEprom(int(DEFAULT_TEMP), DEFAULT_SPEED);
           }
           break;
           
