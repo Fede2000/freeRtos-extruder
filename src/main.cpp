@@ -10,7 +10,6 @@
 
 #include "U8glib.h"
 #include "displayUtility.h"
-#include "logo.h"
 #include "configuration.h"
 #include "eepromHelper.h"
 #include "temperatureManager.h"
@@ -29,18 +28,6 @@ float const R1 = 4700;
 float const c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
 float logR2, R2, T;
 
-// encoder
-//uint8_t buttonState, lastButtonState;
-
-// display
-//Page_t page_current = Status;  // status page       TODO: creare classe pagina -> menu
-//bool setPageMenu = true;  
-
-//eeprom
-/*int ADDRESS_TEMPERATURE = 0;
-int ADDRESS_SPEED = 1;
-int ADDRESS_CK = 2;
-int EEPROM_CK_VALUE = 12;*/
 
 /*--------------------------------------------------------------------*/
 /*------------------- END Definitions & Variables --------------------*/
@@ -64,30 +51,9 @@ MenuManager         menuManager         {	128, 3, "Menu", 5, &ESet, &tempSetpoin
 void TaskMenu( void *pvParameters );
 void TaskDisplay( void *pvParameters );
 
-// void readEprom(double&, int&);
-
-void drawLogo();
-/* The service routine for the interrupt.  This is the interrupt that the task
-will be synchronized with. */
-//static void vExampleInterruptHandler( void );
-
-/* Declare a variable of type SemaphoreHandle_t.  This is used to reference the
-semaphore that is used to synchronize a task with an interrupt. */
-//SemaphoreHandle_t xBinarySemaphore;
-
-
 /* ------------------------------------------------- */
 
 
-// extruder1: instance of AccelStepper 0
-//AccelStepper extruder1(1, E_STEP_PIN, E_DIR_PIN);
-// encoder
-//ClickEncoder encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
-/*void x(){
-     temperatureManager.run(NULL);
-   }*/
-
-//void timerIsr() { encoder.service(); } 
 
 void setup() {
   // serial init
@@ -98,11 +64,7 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
-  // encoder setup
-  /*Timer1.initialize(1000);
-  Timer1.attachInterrupt(timerIsr);*/
-  //encoder.setAccelerationEnabled(true);
-  //eeprom reading
+
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
     readEprom(tempSetpoint, ESet);           
   }
@@ -114,7 +76,6 @@ void setup() {
     drawLogo();
   } while( u8g.nextPage() );
   delay(300);
-  //Serial.println(temperatureManager.temperature);
   
 
   /* ------------------------------------ END Display settings ----------------------------------*/  
@@ -145,24 +106,6 @@ void setup() {
    
   //interrupts();
   /* --------------------------------------------END------------------------------------------ */
-   /*
-  xTaskCreate(
-    x
-    ,  (const portCHAR *) "Temperature"
-    ,  4096 // This stack size can be checked & adjusted by reading Highwater
-    ,  NULL
-    ,  2  // priority
-    ,  NULL );*/
-
-  //TemperatureManager temperatureManager{	128, 2, "Temperature", 31, &tempSetpoint};
-
- /*xTaskCreate(
-    TaskMenu
-    ,  (const portCHAR *)"Encoder"   // A name just for humans
-    ,  128  // Stack size
-    ,  NULL
-    ,  3  // priority
-    ,  NULL );*/
 
   xTaskCreate(
     TaskDisplay
@@ -178,149 +121,6 @@ void loop() {
 }
 
 
-/* ----------------------------------------------------- */
-/* --------------- DISPLAY functions ------------------- */
-/* ----------------------------------------------------- */
-#define MENU_ITEMS 4
-#define KEY_NONE 0
-#define KEY_NEXT 1
-#define KEY_PREV -1
-
-char *menu_strings[MENU_ITEMS] = { "Status", "Set", "Save", "Reset" };
-int *menu_values[MENU_ITEMS] = { 1,2,3,4 };
-
-uint8_t menu_redraw_required = 0;   // not used yet
-uint8_t last_key_code = KEY_NONE;
-//int uiKeyCode = KEY_NONE;
- 
-
-void updateMenu(void) {
-
-  switch ( menuManager.uiKeyCode ) {
-    case KEY_NEXT:
-      menuManager.uiKeyCode = KEY_NONE;
-      menu.curruntMenu++;
-      if ( menu.curruntMenu >= menu.itemIdx )
-        
-        menu.curruntMenu = 0;
-      menu_redraw_required = 1;
-      break;
-    case KEY_PREV:
-      menuManager.uiKeyCode = KEY_NONE;
-      if ( menu.curruntMenu == 0 )
-        menu.curruntMenu = menu.itemIdx;
-      menu.curruntMenu--;
-      menu_redraw_required = 1;
-      break;
-  }
-}
-void drawLogo(){
-  u8g.drawXBMP( 0, 0, bmp_width, bmp_height, bmp_bits);
-}
-
-
-/* ----------------------------------------------------- */
-/* ------------- END DISPLAY functions ----------------- */
-/* ----------------------------------------------------- */
-
-
-
-
-/*
-#if ENABLED(PREVENT_COLD_EXTRUSION)
-*
-*
-*
-*
-#endif
-*/
-
-
-
-/*--------------------------------------------------*/
-/*---------------------- Tasks ---------------------*/
-/*--------------------------------------------------*/
-
-/*
-void TaskMenu(void *pvParameters)  // This is a task.
-{
-  (void) pvParameters;
- 
-  int tempEnc;
-  for (;;) // A Task shall never return or exit.
-  {
-  
-    buttonState = encoder.getButton();
-    
-    // if change speed mode:
-    if (page_current == Settings){
-      if( setPageMenu ){
-        set.curruntMenu = 1;
-        ESet += encoder.getValue();
-        extruder1.setSpeed(ESet*Ek);
-      }
-      else{
-        set.curruntMenu = 0;
-        tempSetpoint += encoder.getValue();
-      }    
-    }
-
-    else{
-      tempEnc += encoder.getValue();    // TODO: return if zero
-      if(tempEnc > 1)         {menuManager.uiKeyCode = 1; tempEnc = 0;}
-      else if(tempEnc < -1)   {menuManager.uiKeyCode = -1; tempEnc = 0;}
-    }
-    
-    // TODO: provare a inserirle nell switch
-
-    if (buttonState != 0) {
-      Serial.print("Button: "); Serial.println(buttonState);
-      lastButtonState = buttonState;
-      switch (buttonState) {
-        case ClickEncoder::Open:          //0
-          break;
-
-        case ClickEncoder::Closed:        //1
-          break;
-
-        case ClickEncoder::Pressed:       //2
-          break;
-
-        case ClickEncoder::Held:          //3
-          break;
-    
-
-        case ClickEncoder::Released:      //4
-          if(page_current == Settings){
-            setPageMenu = !setPageMenu;
-          }
-          break;
-
-        case ClickEncoder::Clicked:       //5
-          if(page_current == Menu_p)
-            page_current = (Page_t) (menu.curruntMenu + 1);
-          //save
-          else if(page_current == Save) {      
-            page_current = Menu_p;
-            writeEprom(int(tempSetpoint), ESet);
-          }
-          //reset
-          else if(page_current == Reset) {      
-            page_current = Menu_p;
-            tempSetpoint = DEFAULT_TEMP; ESet = ESetDefault;
-            writeEprom(int(DEFAULT_TEMP), ESetDefault);
-          }
-          break;
-          
-        case ClickEncoder::DoubleClicked: //6
-          page_current = Menu_p;
-          break;
-      }
-    }
-    vTaskDelay(5);
-  }
-}*/
-
 void TaskDisplay(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
@@ -331,7 +131,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
     switch (menuManager.page_current)
     {
       case 0:         //Menu
-        updateMenu();
+        menuManager.updateMenu();
         u8g.firstPage();  
         do {
           menu.drawMenu();

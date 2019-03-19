@@ -3,7 +3,6 @@
 
 #include "U8glib.h"
 
-
 typedef enum {
     Menu_p,
     Status,

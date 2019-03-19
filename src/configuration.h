@@ -39,7 +39,7 @@
 #define CONST_KD 0.3
 
 
-//EEPROM
+//EEPROM  TODO: almost all useless -> remove their use
 #define ADDRESS_TEMPERATURE  0
 #define ADDRESS_SPEED  1
 #define ADDRESS_CK  2

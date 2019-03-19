@@ -8,7 +8,7 @@
 #include "configuration.h"
 #include "displayUtility.h"
 #include "U8glib.h"
-
+#include "logo.h"
 
 
 U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
@@ -21,6 +21,10 @@ Menu reset(&u8g, false, "RESET");
 
 ClickEncoder MenuManager::encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
 void timerIsr() { MenuManager::encoder.service(); } 
+
+void drawLogo(){
+  u8g.drawXBMP( 0, 0, bmp_width, bmp_height, bmp_bits);
+}
 
 MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, 
                         uint32_t _ticks, int * aESet, double * aTempSetpoint, AccelStepper * aExtruder ) :                                                                                                                                 
@@ -74,7 +78,7 @@ void MenuManager::Main() {
       }
       else{
         set.curruntMenu = 0;
-        tempSetpoint += encoder.getValue();
+        *tempSetpoint += encoder.getValue();
       }    
     }
 
@@ -133,3 +137,26 @@ void MenuManager::Main() {
     vTaskDelay(ticks);
     }
 }
+
+
+void MenuManager::updateMenu() {
+ 
+    switch ( uiKeyCode ) {
+      case KEY_NEXT:
+        uiKeyCode = KEY_NONE;
+        menu.curruntMenu++;
+        if ( menu.curruntMenu >= menu.itemIdx )
+          
+          menu.curruntMenu = 0;
+        //menu_redraw_required = 1;
+        break;
+      case KEY_PREV:
+        uiKeyCode = KEY_NONE;
+        if ( menu.curruntMenu == 0 )
+          menu.curruntMenu = menu.itemIdx;
+        menu.curruntMenu--;
+        //menu_redraw_required = 1;
+        break;
+  }
+}
+

@@ -1,6 +1,6 @@
 #include "U8glib.h"
 #include "displayUtility.h"
-
+#include "configuration.h"
 
   
 void Menu::drawMenu() 
@@ -13,7 +13,7 @@ void Menu::drawMenu()
     //draw title
     if(title !=NULL){
         ptU8g->setFont(u8g_font_7x13);
-        d = (w-ptU8g->getStrWidth(title))/2;
+        d = (w- ptU8g->getStrWidth(title) )/2;
         ptU8g->drawStr(d, h + spacingTop, title);
         ptU8g->drawFrame(0,0,w, h + spacingTop*2);
         spacingTop = h + spacingTop*3;
@@ -43,24 +43,4 @@ void Menu::drawMenu()
 } 
 
 
- void Menu::updateMenu(int aUiKeyCode) {
  
-    switch ( aUiKeyCode ) {
-        case 1:
-            //aUiKeyCode = KEY_NONE;
-            curruntMenu++;
-            if ( curruntMenu >= itemIdx )
-                
-                curruntMenu = 0;
-            //menu_redraw_required = 1;
-        break;
-
-        case -1:
-            //aUiKeyCode = KEY_NONE;
-            if ( curruntMenu == 0 )
-                curruntMenu = itemIdx;
-            curruntMenu--;
-            //menu_redraw_required = 1;
-        break;
-    }
-}

@@ -17,6 +17,12 @@ extern Menu reset;
 
 extern U8GLIB_ST7920_128X64_1X u8g;
 
+#define KEY_NONE 0
+#define KEY_NEXT 1
+#define KEY_PREV -1
+
+void drawLogo();
+
 
 /* https://drive.google.com/file/d/1SBhXfaA_kXBOX_d44FqEMjZ5Gr1imTRZ/view */
 class MenuManager : public Thread
@@ -32,6 +38,7 @@ public:
     double *tempSetpoint;
     int uiKeyCode = 0;
 
+    void updateMenu();
     virtual void Main() override;
 
 private:
