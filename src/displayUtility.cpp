@@ -1,9 +1,18 @@
 #include "U8glib.h"
 #include "displayUtility.h"
 #include "configuration.h"
+#include "menuManager.h"
+#include "temperatureManager.h"
+#include "Extruder.h"
+
+
 
 U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
-
+Menu menu(true, "MENU");
+Menu status(false,"STATUS");
+Menu set(true, "SETTINGS");
+Menu save(false, "SAVE");
+Menu reset(false, "RESET");
   
 void Menu::drawMenu() 
 { 
@@ -45,4 +54,83 @@ void Menu::drawMenu()
 } 
 
 
+DisplayManager::DisplayManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks, MenuManager * aMenuManager, TemperatureManager * aTemperatureManager ) : 
+                                                                                    //menuManagerTest(aMenuManager),
+                                                                                    Thread{ _stackDepth, _priority, _name },
+                                                                                    ticks{ _ticks }
+{   
+    Serial.println("DisplayManager");
+    menuManagerTest = aMenuManager;
+    //menu 
+    menu.addString("Status");
+    menu.addString("Set");
+    menu.addString("Save");
+    menu.addString("Reset");
+    //status
+    status.addStringValue("Temp:", & (aTemperatureManager->temperature)); 
+    status.addStringValue("Speed:", &ESet); 
+    //set
+    set.addStringValue("Set temp: ", & (aTemperatureManager->tempSetpoint));
+    set.addStringValue("Set speed: ", &ESet);
+    //save
+    save.addString("*CONFIRM 1 click");
+    save.addString("**BACK 2 clicks ");
+    //reset
+    reset.addString("*CONFIRM 1 click");
+    reset.addString("**BACK 2 clicks ");
+    Serial.println("DisplayManager");
+
+}
  
+void DisplayManager::Main(){
+    for (;;) // A Task shall never return or exit.
+    {
+      switch (menuManagerTest->page_current)
+      {
+        case 0:         //Menu
+          Serial.println("oko");
+          menuManagerTest->updateMenu();
+          u8g.firstPage();  
+          do {
+            menu.drawMenu();
+          } while( u8g.nextPage() );
+
+        break;
+
+        case 1:         //Status
+          u8g.firstPage();
+          do {
+            status.drawMenu();
+          } while( u8g.nextPage() );
+
+        break;
+        
+        case 2:         //set
+          u8g.firstPage();
+          do {
+            set.drawMenu();
+          } while( u8g.nextPage() );
+
+        break;
+
+        case 3:         //save
+          u8g.firstPage();
+          do {
+            save.drawMenu();
+          } while( u8g.nextPage() );
+
+        break;
+        
+        case 4:         //reset
+          u8g.firstPage();
+          do {
+            reset.drawMenu();
+          } while( u8g.nextPage() );
+
+        break;
+
+      }
+
+      vTaskDelay(ticks);
+  }
+}

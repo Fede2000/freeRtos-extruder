@@ -15,9 +15,11 @@ public:
     TemperatureManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
 
     double temperature;
+    double tempSetpoint;
+
     void getTemperature();
     double readTemperature();
-    virtual void Main() override;
+    void Main();
 
 private:
     double output;
@@ -25,8 +27,7 @@ private:
     PID myPID;
 };
 
-extern double tempSetpoint;
-extern TemperatureManager temperatureManager;
+//extern TemperatureManager temperatureManager;
 
 #endif
 

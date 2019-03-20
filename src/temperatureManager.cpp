@@ -3,14 +3,15 @@
 #include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
 
-TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
-double tempSetpoint = 35;
+//TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
 
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
                                                                                     myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
-{   
+{
+    Serial.println("TemperatureManager");   
+    tempSetpoint = 35;
     myPID.SetMode(AUTOMATIC);
 }
 
@@ -18,6 +19,7 @@ void TemperatureManager::getTemperature(){
 
     double average;
     average = (double) analogRead(THERMISTOR_PIN);
+    //Serial.println(average);
     average = 1023.0 / average - 1;
     average = (double) SERIESRESISTOR / average;
     /* TODO: implement average measurement 

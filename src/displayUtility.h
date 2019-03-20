@@ -2,16 +2,9 @@
 #define DISPLAYUTILITY_h
 
 #include "U8glib.h"
-
-
-typedef enum {
-    Menu_p,
-    Status,
-    Settings,
-    Save,
-    Reset
-}Page_t;
-
+#include "menuManager.h"
+#include "Thread.h"
+#include "temperatureManager.h"
 
 
 
@@ -20,16 +13,16 @@ class Menu
     #define MAX_MENU_ITEMS  5
 
     private: 
-    char *menu_strings[MAX_MENU_ITEMS]; 
-    char *title = NULL;
-    int *menu_values_int[MAX_MENU_ITEMS];
-    double *menu_values_double[MAX_MENU_ITEMS];
-    
+        char *menu_strings[MAX_MENU_ITEMS]; 
+        char *title = NULL;
+        int *menu_values_int[MAX_MENU_ITEMS];
+        double *menu_values_double[MAX_MENU_ITEMS];
+        
 
     public: 
-    uint8_t curruntMenu = 0; 
-    int itemIdx = 0;
-    bool isSelectable = true; 
+        uint8_t curruntMenu = 0; 
+        int itemIdx = 0;
+        bool isSelectable = true; 
 
     //Menu(void){}
     Menu( bool aIsSelectable = true, char * ptTitle = NULL){
@@ -66,8 +59,26 @@ class Menu
 }; 
 
 
-extern U8GLIB_ST7920_128X64_1X u8g;
 
+class DisplayManager : public Thread
+{
+    public:
+        DisplayManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks, MenuManager * aMenuManager, TemperatureManager * aTemperatureManager );
+        void Main();
+
+     private:
+        MenuManager *menuManagerTest;
+        uint32_t ticks;
+  
+};
+
+
+extern U8GLIB_ST7920_128X64_1X u8g;
+extern Menu menu;
+extern Menu status;
+extern Menu set;
+extern Menu save;
+extern Menu reset;
 
 #endif
 

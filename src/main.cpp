@@ -29,9 +29,9 @@ float logR2, R2, T;
 /*------------------- END Definitions & Variables --------------------*/
 /*--------------------------------------------------------------------*/
 
-MenuManager menuManager {	128, 3, "Menu", 5};
+//MenuManager menuManager {	128, 3, "Menu", 5, temperatureManager};
 
-void TaskDisplay( void *pvParameters );
+/*void TaskDisplay( void *pvParameters );*/
 
 /* ------------------------------------------------- */
 
@@ -39,6 +39,7 @@ void TaskDisplay( void *pvParameters );
 
 void setup() {
   // serial init
+  
   Serial.begin(9600);
   pinMode(LED_BUILTIN,OUTPUT);
   pinMode(BUZZ_PIN,OUTPUT);
@@ -46,10 +47,11 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
-
+  /*    TODO: re -enable
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
-    readEprom(tempSetpoint, ESet);           
+    readEprom(temperatureManager.tempSetpoint, ESet);           
   }
+  */
 
   /* --------------------------------------Display settings -------------------------------------*/  
   //displaying logo
@@ -58,7 +60,6 @@ void setup() {
     drawLogo();
   } while( u8g.nextPage() );
   delay(300);
-  
 
   /* ------------------------------------ END Display settings ----------------------------------*/  
 
@@ -89,74 +90,16 @@ void setup() {
   //interrupts();
   /* --------------------------------------------END------------------------------------------ */
 
-  xTaskCreate(
-    TaskDisplay
-    ,  (const portCHAR *)"Display"   // A name just for humans
-    ,  1524  // Stack size
-    ,  NULL
-    ,  1  // priority
-    ,  NULL );
+ 
+  TemperatureManager  temperatureManager  {	512, 2, "Temperature", 31};
+  MenuManager menuManager {	512, 3, "Menu", 5, &temperatureManager};
+  DisplayManager displayManager { 1524, 1, "Display", 100 / portTICK_PERIOD_MS, &menuManager, &temperatureManager};
+  
+  vTaskStartScheduler();
 }
 
 void loop() {
    // leave it empty
-}
-
-
-void TaskDisplay(void *pvParameters)  // This is a task.
-{
-  (void) pvParameters;
-      
-  for (;;) // A Task shall never return or exit.
-  {
-    
-    switch (menuManager.page_current)
-    {
-      case 0:         //Menu
-        menuManager.updateMenu();
-        u8g.firstPage();  
-        do {
-          menu.drawMenu();
-        } while( u8g.nextPage() );
-
-        break;
-
-      case 1:         //Status
-        u8g.firstPage();
-        do {
-          status.drawMenu();
-        } while( u8g.nextPage() );
-
-        break;
-      
-      case 2:         //set
-        u8g.firstPage();
-        do {
-          set.drawMenu();
-        } while( u8g.nextPage() );
-
-        break;
-
-      case 3:         //save
-        u8g.firstPage();
-        do {
-          save.drawMenu();
-        } while( u8g.nextPage() );
-
-        break;
-      
-      case 4:         //reset
-        u8g.firstPage();
-        do {
-          reset.drawMenu();
-        } while( u8g.nextPage() );
-
-        break;
-
-    }
-  
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-  }
 }
 
 
@@ -171,6 +114,3 @@ ISR(TIMER4_COMPA_vect){
 
  ISR(TIMER4_COMPB_vect){
  }
-
-
-

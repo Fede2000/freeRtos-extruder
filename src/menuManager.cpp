@@ -13,13 +13,8 @@
 
 
 //MenuManager menuManager {	128, 3, "Menu", 5};
+//MenuManager menuManager {	128, 3, "Menu", 5, temperatureManager};
 
-
-Menu menu(true, "MENU");
-Menu status(false,"STATUS");
-Menu set(true, "SETTINGS");
-Menu save(false, "SAVE");
-Menu reset(false, "RESET");
 
 ClickEncoder MenuManager::encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
 void timerIsr() { MenuManager::encoder.service(); } 
@@ -29,44 +24,23 @@ void drawLogo(){
 }
 
 MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, 
-                        uint32_t _ticks) :                                                                                                                                 
+                        uint32_t _ticks, TemperatureManager *  aTemperatureManager) :
+                                                                                    //temperatureManagerTest(aTemperatureManager),
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {   
-
-    //ESet = aESet;
-    //tempSetpoint = aTempSetpoint;
-    //extruder = aExtruder;
     
-
+    temperatureManagerTest = aTemperatureManager;
     Timer1.initialize(1000);
     Timer1.attachInterrupt(timerIsr);
     encoder.setAccelerationEnabled(true);
-
-    //menu 
-    menu.addString("Status");
-    menu.addString("Set");
-    menu.addString("Save");
-    menu.addString("Reset");
-    //status
-    status.addStringValue("Temp:", &(temperatureManager.temperature)); 
-    status.addStringValue("Speed:", &ESet);  //&ESet
-    //set
-    set.addStringValue("Set temp: ", &tempSetpoint);
-    set.addStringValue("Set speed: ", &ESet);
-    //save
-    save.addString("*CONFIRM 1 click");
-    save.addString("**BACK 2 clicks ");
-    //reset
-    reset.addString("*CONFIRM 1 click");
-    reset.addString("**BACK 2 clicks ");
-
-
+    
 }
 
 
 
 void MenuManager::Main() {
+    Serial.println("qwerty");
     for (;;)
     {
         buttonState = encoder.getButton();
@@ -80,7 +54,7 @@ void MenuManager::Main() {
       }
       else{
         set.curruntMenu = 0;
-        tempSetpoint += encoder.getValue();
+        temperatureManagerTest->tempSetpoint += encoder.getValue();
       }    
     }
 
@@ -121,12 +95,12 @@ void MenuManager::Main() {
           //save
           else if(page_current == Save) {      
             page_current = Menu_p;
-            writeEprom(int(tempSetpoint), ESet);
+            writeEprom(int(temperatureManagerTest->tempSetpoint), ESet);
           }
           //reset
           else if(page_current == Reset) {      
             page_current = Menu_p;
-            tempSetpoint = DEFAULT_TEMP; ESet = DEFAULT_SPEED;
+            temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; ESet = DEFAULT_SPEED;
             writeEprom(int(DEFAULT_TEMP), DEFAULT_SPEED);
           }
           break;
@@ -148,7 +122,6 @@ void MenuManager::updateMenu() {
         uiKeyCode = KEY_NONE;
         menu.curruntMenu++;
         if ( menu.curruntMenu >= menu.itemIdx )
-          
           menu.curruntMenu = 0;
         //menu_redraw_required = 1;
         break;
