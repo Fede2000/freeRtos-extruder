@@ -23,14 +23,14 @@ void Menu::drawMenu()
     w = u8g.getWidth();
     //draw title
     if(title !=NULL){
-        u8g.setFont(u8g_font_7x13);
+        u8g.setFont(u8g_font_7x13B);
         d = (w- u8g.getStrWidth(title) )/2;
-        u8g.drawStr(d, h + spacingTop, title);
+        u8g.drawStr(d, h + spacingTop, title);  //centered
         u8g.drawFrame(0,0,w, h + spacingTop*2);
         spacingTop = h + spacingTop*3;
     }
 
-    u8g.setFont(u8g_font_6x10);
+    u8g.setFont(u8g_font_profont12);     //u8g_font_6x10
     u8g.setFontRefHeightText();
     u8g.setFontPosTop();
     h = u8g.getFontAscent()-u8g.getFontDescent();
@@ -39,15 +39,24 @@ void Menu::drawMenu()
     for( i = 0; i < itemIdx; i++ ) {
         d = (w-u8g.getStrWidth(menu_strings[i]))/2;
         u8g.setDefaultForegroundColor();
+        
+        
         if ( i == curruntMenu && isSelectable) {
+            /*  DRAW box  centered */
+            /*
             u8g.drawBox(d-2, spacingTop + i*h, w-2*d+2, h);
             u8g.setDefaultBackgroundColor();
+            */
+           u8g.drawStr(2, spacingTop+i*h, ">");
         }
-        u8g.drawStr(d, spacingTop+i*h, menu_strings[i]);
+
+        //u8g.drawStr(d, spacingTop+i*h, menu_strings[i]); // centered
+        u8g.drawStr(10, spacingTop+i*h, menu_strings[i]);
         
         if(menu_values_int[i] != NULL || menu_values_double[i]  != NULL ){
             u8g.setDefaultForegroundColor();
-            u8g.setPrintPos(d -d*2 + w + 3, spacingTop + i*h+1);
+            //u8g.setPrintPos(d -d*2 + w + 3, spacingTop + i*h+1); centered
+            u8g.setPrintPos(10 -d*2 + w + 3, spacingTop + i*h+1);
             menu_values_int[i] != NULL ? u8g.print(*menu_values_int[i]) : u8g.print(*menu_values_double[i]);
         }   
     } 
@@ -101,6 +110,8 @@ void DisplayManager::Main(){
           u8g.firstPage();
           do {
             status.drawMenu();
+            //u8g.drawBitmap(2,30, )
+            
           } while( u8g.nextPage() );
 
         break;
