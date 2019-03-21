@@ -11,20 +11,28 @@
 /* https://drive.google.com/file/d/1SBhXfaA_kXBOX_d44FqEMjZ5Gr1imTRZ/view */
 class TemperatureManager : public Thread
 {
-public:
-    TemperatureManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
-
-    double temperature;
-    double tempSetpoint;
-
-    void getTemperature();
-    double readTemperature();
-    void Main();
 
 private:
     double output;
 	uint32_t ticks;
     PID myPID;
+    #ifdef PREVENT_THERMAL_RUNAWAY
+        int preventTR_Treshold;
+        bool isHot;
+    #endif
+
+public:
+    double temperature;
+    double tempSetpoint;
+    float alpha;
+
+    TemperatureManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
+
+    void getTemperature();
+    double readTemperature();
+    void Main();
+
+
 };
 
 //extern TemperatureManager temperatureManager;

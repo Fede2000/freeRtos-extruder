@@ -2,6 +2,7 @@
 #include <PID_v1.h>
 #include <Arduino_FreeRTOS.h>
 #include <Arduino.h>
+#include "configuration.h"
 
 //TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
 
@@ -10,30 +11,43 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {
-    Serial.println("TemperatureManager");   
-    tempSetpoint = 35;
     myPID.SetMode(AUTOMATIC);
+    tempSetpoint = 35;
+    alpha = 0.2;
+
+    #ifdef PREVENT_THERMAL_RUNAWAY
+        // Thermal Runaway protection settings
+        preventTR_Treshold = 25; 
+        isHot = false;
+    #endif
 }
 
 void TemperatureManager::getTemperature(){
 
     double average;
-    average = (double) analogRead(THERMISTOR_PIN);
-    //Serial.println(average);
+ 
+    //analogRead(THERMISTOR_PIN);                     // reading stability bugfix  https://electronics.stackexchange.com/questions/213851/arduino-analogread-neighbor-pin-noise-on-adc-even-with-big-delay
+    average = (double) analogRead(THERMISTOR_PIN);  // reading stability bugfix
+    /*
+    for (int i = 0; i< 5; i++){
+        average += (double) analogRead(THERMISTOR_PIN);
+        delayMicroseconds(500);
+    }
+    average = average / 5;*/
+    //average += (double) analogRead(THERMISTOR_PIN);
+    //average /=2;
     average = 1023.0 / average - 1;
     average = (double) SERIESRESISTOR / average;
-    /* TODO: implement average measurement 
-    
-    */
+   
     // steinhart formula
 
-    average = average / (double) THERMISTORNOMINAL;     // (R/Ro)
-    average = log(average);                  // ln(R/Ro)
-    average /= B_COEFFICIENT;                   // 1/B * ln(R/Ro)
-    average += 1.0 / (TEMPERATURENOMINAL + 273.15); // + (1/To)
-    average = 1.0 / average;                 // Invert
-    average -= 273.15;                         // convert to C
-    temperature = average;
+    average = average / (double) THERMISTORNOMINAL;         // (R/Ro)
+    average = log(average);                                 // ln(R/Ro)
+    average /= B_COEFFICIENT;                               // 1/B * ln(R/Ro)
+    average += 1.0 / (TEMPERATURENOMINAL + 273.15);         // + (1/To)
+    average = 1.0 / average;                                // Invert
+    average -= 273.15;                                      // convert to C
+    temperature = average*alpha + temperature* (1-alpha);   //FIR filter
 
 }
 double TemperatureManager::readTemperature(){
@@ -45,7 +59,12 @@ void TemperatureManager::Main() {
     {
         getTemperature();
         myPID.Compute();
+        //Serial.println((double) output);
+        #ifdef PREVENT_THERMAL_RUNAWAY
+        #endif //PREVENT_THERMAL_RUNAWAY
+
         analogWrite(HEATER_PIN, output); 
+        
         vTaskDelay(ticks);  // one tick delay (15ms) in between reads for stability
     }
 }
