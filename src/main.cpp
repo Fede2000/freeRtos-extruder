@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <EEPROM.h>
-
 #include <AccelStepper.h>
 #include <Arduino_FreeRTOS.h>
 #include <PID_v1.h>
@@ -29,13 +28,9 @@ float logR2, R2, T;
 /*------------------- END Definitions & Variables --------------------*/
 /*--------------------------------------------------------------------*/
 
-//MenuManager menuManager {	128, 3, "Menu", 5, temperatureManager};
-
-/*void TaskDisplay( void *pvParameters );*/
-
-/* ------------------------------------------------- */
 
 
+TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
 
 void setup() {
   // serial init
@@ -47,11 +42,10 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
-  /*    TODO: re -enable
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
     readEprom(temperatureManager.tempSetpoint, ESet);           
   }
-  */
+
 
   /* --------------------------------------Display settings -------------------------------------*/  
   //displaying logo
@@ -91,10 +85,9 @@ void setup() {
   /* --------------------------------------------END------------------------------------------ */
 
  
-  TemperatureManager  temperatureManager  {	512, 2, "Temperature", 31};
+  
   MenuManager menuManager {	512, 3, "Menu", 5, &temperatureManager};
   DisplayManager displayManager { 1524, 1, "Display", 100 / portTICK_PERIOD_MS, &menuManager, &temperatureManager};
-  
   vTaskStartScheduler();
 }
 
@@ -107,7 +100,7 @@ void loop() {
 ISR(TIMER4_COMPA_vect){
   TCNT4 = 0; // preload timer to 0
   #ifdef PREVENT_COLD_EXTRUSION 
-    //if(temperatureManager.readTemperature() > EXTRUDE_MINTEMP) // da migliorare
+    //if(temperatureManager.readTemperature() > EXTRUDE_MINTEMP) 
       extruder1.runSpeed();
   #endif
  }
