@@ -4,8 +4,6 @@
 #include <Arduino.h>
 #include "configuration.h"
 
-//TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
-
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
                                                                                     myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
                                                                                     Thread{ _stackDepth, _priority, _name },
@@ -28,14 +26,7 @@ void TemperatureManager::getTemperature(){
  
     //analogRead(THERMISTOR_PIN);                     // reading stability bugfix  https://electronics.stackexchange.com/questions/213851/arduino-analogread-neighbor-pin-noise-on-adc-even-with-big-delay
     average = (double) analogRead(THERMISTOR_PIN);  // reading stability bugfix
-    /*
-    for (int i = 0; i< 5; i++){
-        average += (double) analogRead(THERMISTOR_PIN);
-        delayMicroseconds(500);
-    }
-    average = average / 5;*/
-    //average += (double) analogRead(THERMISTOR_PIN);
-    //average /=2;
+
     average = 1023.0 / average - 1;
     average = (double) SERIESRESISTOR / average;
    
@@ -47,7 +38,7 @@ void TemperatureManager::getTemperature(){
     average += 1.0 / (TEMPERATURENOMINAL + 273.15);         // + (1/To)
     average = 1.0 / average;                                // Invert
     average -= 273.15;                                      // convert to C
-    temperature = average*alpha + temperature* (1-alpha);   //FIR filter
+    temperature = average*alpha + temperature*(1-alpha);   //FIR filter
 
 }
 double TemperatureManager::readTemperature(){
@@ -59,8 +50,9 @@ void TemperatureManager::Main() {
     {
         getTemperature();
         myPID.Compute();
-        //Serial.println((double) output);
+
         #ifdef PREVENT_THERMAL_RUNAWAY
+        /* =========== CODE =========== */
         #endif //PREVENT_THERMAL_RUNAWAY
 
         analogWrite(HEATER_PIN, output); 
