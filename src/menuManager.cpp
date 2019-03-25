@@ -36,7 +36,7 @@ void MenuManager::Main() {
     for (;;)
     {
       buttonState = encoder.getButton();
-      is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
+      extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
 
       if (ptMenu->title == "SETTINGS"){
         if( ptMenu->isSelected && ptMenu->curruntMenu == 0){

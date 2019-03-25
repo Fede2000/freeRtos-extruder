@@ -38,7 +38,6 @@ public:
     uint8_t buttonState, lastButtonState;
     //Page_t page_current = Status;
     int uiKeyCode = 0;
-    bool is_step = false;
     Menu * ptMenu;
     
     void updateMenu();
