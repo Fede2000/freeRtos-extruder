@@ -51,8 +51,8 @@ class Menu
     void updateMenu(int aUiKeyCode);
 
     void drawMenu(); 
-    void drawExtra(){
-        
+    //void drawExtra(){
+
     }
     
       

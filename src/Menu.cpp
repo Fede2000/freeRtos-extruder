@@ -67,6 +67,6 @@ void Menu::drawMenu()
             menu_values_float[i] != NULL ? u8g.print(*menu_values_float[i]) : u8g.print(*menu_values_double[i]);
         }
 
-        drawExtra();   
+        //drawExtra();   
     } 
 } 
