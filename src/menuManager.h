@@ -1,18 +1,19 @@
+
 #ifndef	MENU_MANAGER_h
 #define MENU_MANAGER_h
 
 #include "configuration.h"
-#include <Arduino_FreeRTOS.h>
-#include <AccelStepper.h>
 #include "Thread.h"
 #include <ClickEncoder.h>
-#include <TimerOne.h>
-#include "displayUtility.h"  
 #include "temperatureManager.h"
+#include "Extruder.h"
+#include "Menu.h"
+
 
 #define KEY_NONE 0
 #define KEY_NEXT 1
 #define KEY_PREV -1
+
 
 typedef enum {
     Menu_p,
@@ -31,13 +32,15 @@ class MenuManager : public Thread
 {
 public:
     MenuManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name,	
-		 uint32_t _ticks, TemperatureManager *  aTemperatureManager );
+		 uint32_t _ticks, TemperatureManager *  aTemperatureManager, Extruder * extruderManager );
     
     static ClickEncoder encoder;
     uint8_t buttonState, lastButtonState;
-    Page_t page_current = Status;
+    //Page_t page_current = Status;
     int uiKeyCode = 0;
-
+    bool is_step = false;
+    Menu * ptMenu;
+    
     void updateMenu();
     void Main();
 
@@ -48,6 +51,12 @@ private:
     int tempEnc;
     bool setPageMenu = true;  
     TemperatureManager * temperatureManagerTest;
+    
+    Extruder * extruderManager;
+    
+
+    void setSpeed();
+    void setTimer();
 
 };
 
