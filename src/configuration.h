@@ -1,9 +1,6 @@
 #ifndef	CONFIGURATION_h
 #define CONFIGURATION_h
 
-/*--------------------------------------------------------------------*/
-/*---------------------- Definitions & Variables ---------------------*/
-/*--------------------------------------------------------------------*/
 #define ENCODER_PIN1 31
 #define ENCODER_PIN2 33
 #define ENCODER_BTN 35
@@ -16,14 +13,23 @@
 #define HEATER_PIN 10
 #define BUZZ_PIN 33 
 
+#define EN_PIN  57    // enable pin
+#define EN_M_PIN  41 // manually enable pin "KILL PIN"
+
+
+
+/**
+ 
+ * thermistor and temperature settings
+ 
+ **/
+
 #define PREVENT_THERMAL_RUNAWAY
 #define PREVENT_COLD_EXTRUSION
 #define EXTRUDE_MINTEMP 20 //TODO: 150
 #define DEFAULT_TEMP 35
-#define DEFAULT_SPEED 1000 
-/**
- * thermistor and temperature settings
- **/
+#define DEFAULT_SPEED 60 //RPM 
+
 #define THERMISTORNOMINAL 100000      
 // temp. for nominal resistance (almost always 25 C)
 #define TEMPERATURENOMINAL 25   
@@ -36,7 +42,7 @@
 #define SERIESRESISTOR 4700  
 
 #define CONST_KP 24
-#define CONST_KI 1
+#define CONST_KI 0.5
 #define CONST_KD 0.3
 
 

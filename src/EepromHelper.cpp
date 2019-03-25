@@ -23,7 +23,7 @@ void writeEprom(int temp, int speed){
   write16b(speed,8);
   EEPROM.write(ADDRESS_CK, EEPROM_CK_VALUE);
 }
-void readEprom(double &temp, int &speed){
+void readEprom(double &temp, float &speed){
   temp = read16b(4);
   speed = read16b(8);
 }
