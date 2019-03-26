@@ -29,6 +29,9 @@
 #define EXTRUDE_MINTEMP 20 //TODO: 150
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60 //RPM 
+#define MAX_SET_TEMP 300
+#define MAX_SET_SPEED 300
+
 
 #define THERMISTORNOMINAL 100000      
 // temp. for nominal resistance (almost always 25 C)

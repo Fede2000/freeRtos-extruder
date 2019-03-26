@@ -5,18 +5,19 @@
 #include <Arduino_FreeRTOS.h>
 #include "Thread.h"
 
-class Extruder : public Thread
+class Extruder //: public Thread
 {
     public:
         float speed_rpm; //rpm target
         int timer;
         bool is_step = false;
         
-        Extruder( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
+        //Extruder( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
+        //Extruder();
         
-        
-        void setSpeed(float speed_rpm);
-        void setSpeed();
+        void setSpeedRpm(float speed);
+        void incrementSpeed(int i);
+        void runSpeed();
         int getSpeed(); // not yet implemented
         
     private:
@@ -25,7 +26,7 @@ class Extruder : public Thread
         
         float target_period_ms;
         float period_ms;
-        uint32_t ticks;
+        //uint32_t ticks;
 };
 
 

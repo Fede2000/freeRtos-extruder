@@ -40,11 +40,10 @@ void MenuManager::Main() {
 
       if (ptMenu->title == "SETTINGS"){
         if( ptMenu->isSelected && ptMenu->curruntMenu == 0){
-          temperatureManagerTest->tempSetpoint -= encoder.getValue();  // TODO:  setTempSetpoint(encoder.getValue())  -> per limitare a valore max e minimo
+          temperatureManagerTest->temperatureIncrement(- encoder.getValue());  
         }
         else if(ptMenu->isSelected){
-          extruderManager->speed_rpm -= encoder.getValue();
-          extruderManager->setSpeed();
+          extruderManager->incrementSpeed(- encoder.getValue());
         }  
       }
 

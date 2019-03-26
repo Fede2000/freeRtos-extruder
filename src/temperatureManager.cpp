@@ -60,3 +60,15 @@ void TemperatureManager::Main() {
         vTaskDelay(ticks);  // one tick delay (15ms) in between reads for stability
     }
 }
+
+void TemperatureManager::setTemperature( double temperatureSetpoint){
+    tempSetpoint = temperatureSetpoint;
+    if(temperatureSetpoint > MAX_SET_TEMP)
+        tempSetpoint = MAX_SET_TEMP;
+    else if(temperatureSetpoint < 0)
+        tempSetpoint = 0;
+}
+
+void TemperatureManager::temperatureIncrement( int i ){
+    setTemperature( tempSetpoint + i);
+}

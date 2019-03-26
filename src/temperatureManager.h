@@ -29,6 +29,8 @@ public:
     TemperatureManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
 
     void getTemperature();
+    void setTemperature(double temperatureSetpoint);
+    void temperatureIncrement(int i);
     double readTemperature();
     void Main();
 

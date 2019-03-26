@@ -27,7 +27,8 @@ float logR2, R2, T;
 /*--------------------------------------------------------------------*/
 
 
-Extruder extruderManager {	128, 4, "Temperature", 11}; //Highest priority, TODO: è inutile farlo girare qdo la velocità target è stata raggiunta
+//Extruder extruderManager {	128, 4, "Temperature", 11}; //Highest priority, TODO: è inutile farlo girare qdo la velocità target è stata raggiunta
+Extruder extruderManager;
 TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
 MenuManager menuManager {	512, 3, "Menu", 5, &temperatureManager, &extruderManager};
 void setup() {
@@ -127,13 +128,13 @@ ISR(TIMER4_COMPA_vect){
   TCCR4A = 0;
   TCCR4B = 0;
   TCNT4 = 0; // initialize the counter from 0
-
+  extruderManager.runSpeed();
   OCR4A = extruderManager.timer; //83 sets the counter compare value
   TCCR4A |= (1<<WGM41); // enable the CTC mode
   TCCR4B |= (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64
   TIMSK4 |= (1<<OCIE4A); //enable the interrupt
   
-  //TCCR4A = (TCCR4A & B11111000) | 0x03;
+
   #ifdef PREVENT_COLD_EXTRUSION 
     if(temperatureManager.readTemperature() > EXTRUDE_MINTEMP){
       if(extruderManager.is_step){
