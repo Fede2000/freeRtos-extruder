@@ -46,12 +46,26 @@ double TemperatureManager::readTemperature(){
 }
 
 void TemperatureManager::Main() {
+    #ifdef PREVENT_THERMAL_RUNAWAY
+        bool THERMAL_RUNAWAY_FLAG;
+        unsigned long THERMAL_RUNAWAY_AT;
+    #endif //PREVENT_THERMAL_RUNAWAY
     for (;;)
     {
         getTemperature();
         myPID.Compute();
 
         #ifdef PREVENT_THERMAL_RUNAWAY
+            if( (millis() - THERMAL_RUNAWAY_AT) > 60000){
+                if((tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_TRESHOLD){
+                    if(THERMAL_RUNAWAY_FLAG)
+                        Serial.println("STOP EVERYTHING!");
+                    THERMAL_RUNAWAY_AT = millis();
+                    THERMAL_RUNAWAY_FLAG = !THERMAL_RUNAWAY_FLAG;
+                }
+                else
+                    THERMAL_RUNAWAY_FLAG = false;
+            }
         /* =========== CODE =========== */
         #endif //PREVENT_THERMAL_RUNAWAY
 
