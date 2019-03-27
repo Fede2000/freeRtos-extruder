@@ -47,7 +47,7 @@ double TemperatureManager::readTemperature(){
 
 void TemperatureManager::Main() {
     #ifdef PREVENT_THERMAL_RUNAWAY
-        bool THERMAL_RUNAWAY_FLAG;
+        bool THERMAL_RUNAWAY_TEMP_FLAG, NOT_THERMAL_RUNAWAY_FLAG = true;
         unsigned long THERMAL_RUNAWAY_AT;
     #endif //PREVENT_THERMAL_RUNAWAY
     for (;;)
@@ -57,19 +57,20 @@ void TemperatureManager::Main() {
 
         #ifdef PREVENT_THERMAL_RUNAWAY
             if( (millis() - THERMAL_RUNAWAY_AT) > 60000){
-                if((tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_TRESHOLD){
-                    if(THERMAL_RUNAWAY_FLAG)
-                        Serial.println("STOP EVERYTHING!");
+                if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_THRESHOLD){
+                    Serial.println("THERMAL_RUNAWAY_TEMP_FLAG");
+                    if(THERMAL_RUNAWAY_TEMP_FLAG)
+                        NOT_THERMAL_RUNAWAY_FLAG = false;
                     THERMAL_RUNAWAY_AT = millis();
-                    THERMAL_RUNAWAY_FLAG = !THERMAL_RUNAWAY_FLAG;
+                    THERMAL_RUNAWAY_TEMP_FLAG = !THERMAL_RUNAWAY_TEMP_FLAG;
                 }
                 else
-                    THERMAL_RUNAWAY_FLAG = false;
+                    THERMAL_RUNAWAY_TEMP_FLAG = false;
             }
-        /* =========== CODE =========== */
-        #endif //PREVENT_THERMAL_RUNAWAY
 
-        analogWrite(HEATER_PIN, output); 
+        if(NOT_THERMAL_RUNAWAY_FLAG)
+        #endif //PREVENT_THERMAL_RUNAWAY
+            analogWrite(HEATER_PIN, output); 
         
         vTaskDelay(ticks);  // one tick delay (15ms) in between reads for stability
     }

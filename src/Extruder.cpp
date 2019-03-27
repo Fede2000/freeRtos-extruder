@@ -25,6 +25,10 @@ void Extruder::Main() {
 }
 */
 
+Extruder::Extruder(){
+    setSpeedRpm(0);
+}
+
 // set timer 4-A
 void Extruder::setTimer(float target_period_ms){
     if(is_step){
@@ -53,8 +57,9 @@ void Extruder::setSpeedRpm(float speed){
     speed_rpm = speed;
     if(speed > MAX_SET_TEMP)
         speed_rpm = MAX_SET_TEMP;
-    else if(speed < 0)
+    else if(speed <= 0)
         speed_rpm = 0;
+        is_step = false;
 }
 
 void Extruder::incrementSpeed(int i){

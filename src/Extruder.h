@@ -13,7 +13,7 @@ class Extruder //: public Thread
         bool is_step = false;
         
         //Extruder( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
-        //Extruder();
+        Extruder();
         
         void setSpeedRpm(float speed);
         void incrementSpeed(int i);

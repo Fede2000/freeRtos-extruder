@@ -17,24 +17,24 @@ DisplayManager::DisplayManager(unsigned portSHORT _stackDepth, UBaseType_t _prio
     temperatureManager = aTemperatureManager;
     extruderManager = aExtruderManager;
     //menu 
-    menu.addString("Status");
-    menu.addString("Set");
-    menu.addString("Save");
-    menu.addString("Reset");
+    menuPage.addMenuString("Status");
+    menuPage.addMenuString("Set");
+    menuPage.addMenuString("Save");
+    menuPage.addMenuString("Reset");
+    menuPage.isSelectable = true;
     //status
-    status.addStringValue("Temp:", & (temperatureManager->temperature)); 
-    status.addStringValue("Speed:", &extruderManager->speed_rpm); 
+    statusPage.addMenuStringValue("Temp:", & (temperatureManager->temperature)); 
+    statusPage.addMenuStringValue("Speed:", &extruderManager->speed_rpm); 
     //set
-    set.addStringValue("Set temp: ", & (temperatureManager->tempSetpoint));
-    set.addStringValue("Set speed: ", &extruderManager->speed_rpm);
+    setPage.addMenuStringValue("Set temp: ", & (temperatureManager->tempSetpoint));
+    setPage.addMenuStringValue("Set speed: ", &extruderManager->speed_rpm);
+    setPage.isSelectable = true;
     //save
-    save.addString("*CONFIRM 1 click");
-    save.addString("**BACK 2 clicks ");
+    savePage.addMenuString("*CONFIRM 1 click");
+    savePage.addMenuString("**BACK 2 clicks ");
     //reset
-    reset.addString("*CONFIRM 1 click");
-    reset.addString("**BACK 2 clicks ");
-    Serial.println("DisplayManager");
-
+    resetPage.addMenuString("*CONFIRM 1 click");
+    resetPage.addMenuString("**BACK 2 clicks ");
 }
  
 void DisplayManager::Main(){
@@ -44,7 +44,7 @@ void DisplayManager::Main(){
       
       u8g.firstPage();  
           do {
-            menuManagerTest->ptMenu->drawMenu();
+            menuManagerTest->ptMenu->drawPage();
           } while( u8g.nextPage() );
 
 

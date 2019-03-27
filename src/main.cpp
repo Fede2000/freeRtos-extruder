@@ -47,12 +47,11 @@ void setup() {
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
-  /* TODO: re-enable */
-  /*
+  
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
     readEprom(temperatureManager.tempSetpoint, extruderManager.speed_rpm);           
   }
- */
+ 
 
   /* --------------------------------------Display settings -------------------------------------*/  
   //displaying logo

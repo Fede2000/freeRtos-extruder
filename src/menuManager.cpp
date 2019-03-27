@@ -23,7 +23,7 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
 {   
     extruderManager = aExtruderManager;
     temperatureManagerTest = aTemperatureManager;
-    ptMenu = &status;
+    ptMenu = &statusPage;
     Timer1.initialize(1000);
     Timer1.attachInterrupt(timerIsr);
     encoder.setAccelerationEnabled(true);
@@ -76,36 +76,36 @@ void MenuManager::Main() {
           case ClickEncoder::Clicked:       //5
             ptMenu->isSelected = ! ptMenu->isSelected;
             if(ptMenu->title == "MENU"){
-              ptMenu = ptPages[menu.curruntMenu + 1];
+              ptMenu = ptPages[menuPage.curruntMenu + 1];
               ptMenu->isSelected = false;
             }
             //save
             else if(ptMenu->title == "SAVE") {      
-              ptMenu = & menu;
+              ptMenu = & menuPage;
               ptMenu->isSelected = false;
               writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
             }
             //reset
             else if(ptMenu->title == "RESET") {      
-              ptMenu = & menu;
+              ptMenu = & menuPage;
               ptMenu->isSelected = false;
               temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
               writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED);
             }
             else if(ptMenu->title == "STATUS") { 
-              ptMenu = & menu;
+              ptMenu = & menuPage;
             }
             break;
             
           case ClickEncoder::DoubleClicked: //6
             ptMenu->isSelected = ! ptMenu->isSelected;
             if(ptMenu->title != "MENU"){
-              ptMenu = & menu;
+              ptMenu = & menuPage;
               ptMenu->isSelected = false;
             } 
             else
             {
-              ptMenu = & status;
+              ptMenu = & statusPage;
             }
             
             break;

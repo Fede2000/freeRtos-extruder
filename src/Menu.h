@@ -11,36 +11,48 @@ class Menu
         char *menu_strings[MAX_MENU_ITEMS]; 
         float *menu_values_float[MAX_MENU_ITEMS];
         double *menu_values_double[MAX_MENU_ITEMS];   /* TODO: eliminare non usato */
+
         
 
     public: 
+        bool has_menu = false;
         char *title = NULL;
         uint8_t curruntMenu = 0; 
         int itemIdx = 0;
-        bool isSelectable = true; 
+        bool isSelectable = false; 
         bool isSelected = false; 
+        int topSpacing;
 
     //Menu(void){}
-    Menu( bool aIsSelectable = true, char * ptTitle = NULL){
-        isSelectable = aIsSelectable;
+    Menu(char * ptTitle = NULL){
+        title = ptTitle;  // TODO: rimuovere title da Menu -> in Page
+
+    }
+
+    /*
+    void addTitle(char * ptTitle = NULL){
         title = ptTitle;
     }
-  
-    void addString(char * ptItem){
+    */
+    void addMenuString(char * ptItem){
+        has_menu = true;
+
         if(itemIdx < MAX_MENU_ITEMS){
             menu_strings[itemIdx] = ptItem;
             menu_values_float[itemIdx] = NULL;
             menu_values_double[itemIdx++] = NULL;
         }
     }
-    void addStringValue(char * ptItem, void *ptValue){
+    void addMenuStringValue(char * ptItem, void *ptValue){
+        has_menu = true;
+
         if(itemIdx < MAX_MENU_ITEMS){
             menu_strings[itemIdx] = ptItem;
             menu_values_float[itemIdx] = ptValue;
             menu_values_double[itemIdx++] = NULL;
         }
     }
-    /*void addStringValue(char * ptItem, double *ptValue){
+    /*void addMenuStringValue(char * ptItem, double *ptValue){
         if(itemIdx < MAX_MENU_ITEMS){
             menu_strings[itemIdx] = ptItem;
             menu_values_float[itemIdx] = NULL;
@@ -49,21 +61,27 @@ class Menu
     }
 */
     void updateMenu(int aUiKeyCode);
-
-    void drawMenu(); 
-    //void drawExtra(){
-
-    //}
-    
+    void drawMenu();    
       
 }; 
 
+class Page : public Menu
+{   
+
+    public:     
+        Page(char *aPtTitle = NULL): Menu(aPtTitle){ }
+        void drawPage();
+    private:  
+        void drawTitle();  
+}; 
+
+
 extern U8GLIB_ST7920_128X64_1X u8g;
-extern Menu menu;
-extern Menu status;
-extern Menu set;
-extern Menu save;
-extern Menu reset;
-extern Menu * ptPages[5];
+extern Page menuPage;
+extern Page statusPage;
+extern Page setPage;
+extern Page savePage;
+extern Page resetPage;
+extern Page * ptPages[5];
 
 #endif
