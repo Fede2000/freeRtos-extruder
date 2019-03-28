@@ -74,6 +74,8 @@ class Page : public Menu
         virtual void drawPage();
         void drawTitle();  
         void drawButton(int x, int y, int id, char * name, const u8g_fntpgm_uint8_t *font);
+        char *heaterStatus;
+        char *motorStatus;
 }; 
 
 
@@ -81,16 +83,32 @@ class Page : public Menu
 class StatusPage : public Page
 {   
     public:     
-        StatusPage(char *aPtTitle = NULL): Page(aPtTitle){ nMenuItems = 2; }
+        StatusPage(char *aPtTitle = NULL): Page(aPtTitle){ nMenuItems = 1; heaterStatus = "COLD"; motorStatus="ON";}
         void drawPage();
+        
+}; 
+
+class SavePage : public Page
+{   
+    public:     
+        SavePage(char *aPtTitle = NULL): Page(aPtTitle){ nMenuItems = 0;}
+        void drawPage();
+        
+}; 
+class ResetPage : public Page
+{   
+    public:     
+        ResetPage(char *aPtTitle = NULL): Page(aPtTitle){ nMenuItems = 0;}
+        void drawPage();
+        
 }; 
 
 extern U8GLIB_ST7920_128X64_1X u8g;
 extern Page menuPage;
 extern StatusPage statusPage;
 extern Page setPage;
-extern Page savePage;
-extern Page resetPage;
+extern SavePage savePage;
+extern ResetPage resetPage;
 extern Page * ptPages[5];
 
 #endif

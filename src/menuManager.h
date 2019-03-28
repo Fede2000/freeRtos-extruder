@@ -39,7 +39,6 @@ public:
     //Page_t page_current = Status;
     int uiKeyCode = 0;
     Page * ptMenu;
-    
     void updateMenu();
     void Main();
 

@@ -11,6 +11,7 @@ class Extruder //: public Thread
         float speed_rpm; //rpm target
         int timer;
         bool is_step = false;
+        bool is_enabled = true;
         
         //Extruder( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
         Extruder();

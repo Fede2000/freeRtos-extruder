@@ -7,8 +7,8 @@ U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
 Page menuPage("MENU");
 StatusPage statusPage("STATUS");
 Page setPage("SETTINGS");
-Page savePage("SAVE");
-Page resetPage("RESET");
+SavePage savePage("SAVE");
+ResetPage resetPage("RESET");
 
 Page *ptPages[5] = { &menuPage, &statusPage, &setPage, &savePage, &resetPage };
   
@@ -37,15 +37,18 @@ void Menu::drawMenu()
             u8g.setDefaultBackgroundColor();
             */
             if (isSelected){
-                u8g.setFont(u8g_font_profont15);
+                u8g.setFont(u8g_font_profont15);  //u8g_font_6x12_75r
+                u8g.setFontRefHeightText();
+                u8g.setFontPosTop();
+                u8g.drawStr(0, topSpacing+i*h, "<");
+                //u8g.setPrintPos(2,topSpacing+i*h);
+                //u8g.print(0x20);    // https://github.com/olikraus/u8glib/wiki/fontgroupx11
+                u8g.setFont(u8g_font_profont12);
                 u8g.setFontRefHeightText();
                 u8g.setFontPosTop();
             }
-
-            u8g.drawStr(2, topSpacing+i*h, ">");
-            u8g.setFont(u8g_font_profont12);
-            u8g.setFontRefHeightText();
-            u8g.setFontPosTop();
+            else
+                u8g.drawStr(2, topSpacing+i*h, ">");
         }
 
         //u8g.drawStr(d, topSpacing+i*h, menu_strings[i]); // centered
@@ -55,7 +58,7 @@ void Menu::drawMenu()
             u8g.setDefaultForegroundColor();
             //u8g.setPrintPos(d -d*2 + w + 3, topSpacing + i*h+1); centered
             u8g.setPrintPos(10 -d*2 + w + 3, topSpacing + i*h+1);
-            menu_values_float[i] != NULL ? u8g.print(*menu_values_float[i]) : u8g.print(*menu_values_double[i]);
+            menu_values_float[i] != NULL ? u8g.print(*menu_values_float[i], 0) : u8g.print(*menu_values_double[i], 0);
         }
 
         //drawExtra();   
@@ -70,7 +73,7 @@ void Page::drawTitle(){
     w = u8g.getWidth();    
     d = (w- u8g.getStrWidth(title) )/2;
     u8g.drawStr(d, h + topSpacing, title);  //centered
-    u8g.drawFrame(0,0,w, h + topSpacing*2);
+    u8g.drawRFrame(0,0,w, h + topSpacing*2, 6);
     topSpacing = h + topSpacing*3;
 }
 
@@ -91,15 +94,15 @@ void Page::drawButton(int x, int y, int id, char * name = NULL , const u8g_fntpg
     //u8g.setFontPosTop();
     h = u8g.getFontAscent()-u8g.getFontDescent();
     d = u8g.getStrWidth(name);
-    if(id==currentMenu){  
-        u8g.drawBox(x -3, y -h -3, d+2*3, h+3*2 );
+    if(id==currentMenu  ){  
+        u8g.drawRBox(x -3, y -h -3, d+2*3, h+3*2, 3 );
         u8g.setDefaultBackgroundColor();
         u8g.drawStr(x, y, name);
         u8g.setDefaultForegroundColor();
     }
     else{
         u8g.drawStr(x, y, name);  
-        u8g.drawFrame(x -3, y -h -3, d+2*3, h+3*2 );
+        //u8g.drawFrame(x -2, y -h -2, d+2*2, h+2*2 );
     }
     
 }
@@ -118,12 +121,51 @@ void StatusPage::drawPage(){
 
     // °C
     u8g.setFont(u8g_font_profont12); 
-    u8g.drawStr(84, 21, "^C");  
-    u8g.drawStr(84, 31, "RPM"); 
+    u8g.setPrintPos(51,21);
+    u8g.write(0xB0);    u8g.print("C");
+    u8g.drawStr(51, 31, "rpm"); 
 
     // btn
-    drawButton(10,61,0, "STOP!", u8g_font_5x8r);
-    drawButton(55,61,1, "PCE", u8g_font_5x8r);
-    drawButton(85,61,2, "TRP", u8g_font_5x8r);
+    drawButton(100,28,0, heaterStatus, u8g_font_5x8r);
+    drawButton(100,40,1, motorStatus, u8g_font_trixel_square);
+    drawButton(90,60,2, "->MENU", u8g_font_5x8r);
+    //drawButton(55,61,2, "PCE", u8g_font_5x8r);
+    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
+}
 
+
+void SavePage::drawPage(){
+    topSpacing = 3;
+    if(title !=NULL)
+        drawTitle();
+
+    if(has_menu)
+        drawMenu();
+
+    uint8_t i, h;
+    u8g_uint_t w, d;
+
+    // btn
+    drawButton(50,60,0, "save", u8g_font_5x8r);
+    drawButton(90,60,1, "back", u8g_font_5x8r);
+    //drawButton(55,61,2, "PCE", u8g_font_5x8r);
+    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
+}
+
+void ResetPage::drawPage(){
+    topSpacing = 3;
+    if(title !=NULL)
+        drawTitle();
+
+    if(has_menu)
+        drawMenu();
+
+    uint8_t i, h;
+    u8g_uint_t w, d;
+
+    // btn
+    drawButton(50,60,0, "reset", u8g_font_5x8r);
+    drawButton(90,60,1, "back", u8g_font_5x8r);
+    //drawButton(55,61,2, "PCE", u8g_font_5x8r);
+    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
 }

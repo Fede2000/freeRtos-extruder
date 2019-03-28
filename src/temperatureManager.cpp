@@ -12,7 +12,7 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
     myPID.SetMode(AUTOMATIC);
     tempSetpoint = 35;
     alpha = 0.2;
-
+    HEATER_ENABLED = false;
     #ifdef PREVENT_THERMAL_RUNAWAY
         // Thermal Runaway protection settings
         preventTR_Treshold = 25; 
@@ -56,7 +56,7 @@ void TemperatureManager::Main() {
         myPID.Compute();
 
         #ifdef PREVENT_THERMAL_RUNAWAY
-            if( (millis() - THERMAL_RUNAWAY_AT) > 60000){
+            if( (millis() -THERMAL_RUNAWAY_AT) > 60000 && HEATER_ENABLED){
                 if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_THRESHOLD){
                     Serial.println("THERMAL_RUNAWAY_TEMP_FLAG");
                     if(THERMAL_RUNAWAY_TEMP_FLAG)
@@ -70,7 +70,8 @@ void TemperatureManager::Main() {
 
         if(NOT_THERMAL_RUNAWAY_FLAG)
         #endif //PREVENT_THERMAL_RUNAWAY
-            analogWrite(HEATER_PIN, output); 
+            if(HEATER_ENABLED)
+                analogWrite(HEATER_PIN, output); 
         
         vTaskDelay(ticks);  // one tick delay (15ms) in between reads for stability
     }

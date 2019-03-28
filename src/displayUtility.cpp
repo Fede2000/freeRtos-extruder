@@ -23,8 +23,8 @@ DisplayManager::DisplayManager(unsigned portSHORT _stackDepth, UBaseType_t _prio
     menuPage.addMenuString("Reset");
     menuPage.isSelectable = true;
     //status
-    statusPage.addMenuStringValue("Temp:", & (temperatureManager->temperature)); 
-    statusPage.addMenuStringValue("Speed:", &extruderManager->speed_rpm); 
+    statusPage.addMenuStringValue("T:", & (temperatureManager->temperature)); 
+    statusPage.addMenuStringValue("S:", &extruderManager->speed_rpm); 
     //set
     setPage.addMenuStringValue("Set temp: ", & (temperatureManager->tempSetpoint));
     setPage.addMenuStringValue("Set speed: ", &extruderManager->speed_rpm);

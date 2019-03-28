@@ -83,17 +83,39 @@ void MenuManager::Main() {
             else if(ptMenu->title == "SAVE") {      
               ptMenu = & menuPage;
               ptMenu->isSelected = false;
-              writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
+              if(ptMenu->currentMenu = 0)
+                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
             }
             //reset
             else if(ptMenu->title == "RESET") {      
               ptMenu = & menuPage;
-              ptMenu->isSelected = false;
-              temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
-              writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED);
+                ptMenu->isSelected = false;
+                if(ptMenu->currentMenu = 0){
+                  temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
+                  writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED);
+                }
             }
             else if(ptMenu->title == "STATUS") { 
-              ptMenu = & menuPage;
+              switch (ptMenu->currentMenu)
+              {
+                case 0:
+                  temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
+                  ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
+          
+                  break;
+                case 1:
+                  extruderManager->is_enabled = ! extruderManager->is_enabled;
+                  ptMenu->motorStatus = extruderManager->is_enabled ? "ON" : "OFF";
+                  break;
+                case 2:
+                  ptMenu = & menuPage;
+                  break;
+
+                default:
+                  break;
+              }
+    
+
             }
             break;
             

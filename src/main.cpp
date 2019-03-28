@@ -136,7 +136,7 @@ ISR(TIMER4_COMPA_vect){
 
   #ifdef PREVENT_COLD_EXTRUSION 
     if(temperatureManager.readTemperature() > EXTRUDE_MIN_EXTRUSION_TEMP){
-      if(extruderManager.is_step){
+      if(extruderManager.is_step && extruderManager.is_enabled){
         digitalWrite(E_STEP_PIN, HIGH);
         digitalWrite(E_STEP_PIN, LOW);
       }
