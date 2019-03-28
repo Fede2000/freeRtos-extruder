@@ -39,7 +39,7 @@ void MenuManager::Main() {
       extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
 
       if (ptMenu->title == "SETTINGS"){
-        if( ptMenu->isSelected && ptMenu->curruntMenu == 0){
+        if( ptMenu->isSelected && ptMenu->currentMenu == 0){
           temperatureManagerTest->temperatureIncrement(- encoder.getValue());  
         }
         else if(ptMenu->isSelected){
@@ -76,7 +76,7 @@ void MenuManager::Main() {
           case ClickEncoder::Clicked:       //5
             ptMenu->isSelected = ! ptMenu->isSelected;
             if(ptMenu->title == "MENU"){
-              ptMenu = ptPages[menuPage.curruntMenu + 1];
+              ptMenu = ptPages[menuPage.currentMenu + 1];
               ptMenu->isSelected = false;
             }
             //save
@@ -123,16 +123,16 @@ void MenuManager::updateMenu() {
       
       case KEY_NEXT:
         uiKeyCode = KEY_NONE;
-        ptMenu->curruntMenu++;
-        if ( ptMenu->curruntMenu >= ptMenu->itemIdx )
-          ptMenu->curruntMenu = 0;
+        ptMenu->currentMenu++;
+        if ( ptMenu->currentMenu >= ptMenu->nMenuItems)
+          ptMenu->currentMenu = 0;
         //menu_redraw_required = 1;
         break;
       case KEY_PREV:
         uiKeyCode = KEY_NONE;
-        if ( ptMenu->curruntMenu == 0 )
-          ptMenu->curruntMenu = ptMenu->itemIdx;
-        ptMenu->curruntMenu--;
+        if ( ptMenu->currentMenu == 0 )
+          ptMenu->currentMenu = ptMenu->nMenuItems;
+        ptMenu->currentMenu--;
         //menu_redraw_required = 1;
         break;
   }

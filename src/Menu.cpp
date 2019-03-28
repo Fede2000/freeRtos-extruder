@@ -5,7 +5,7 @@
 
 U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
 Page menuPage("MENU");
-Page statusPage("STATUS");
+StatusPage statusPage("STATUS");
 Page setPage("SETTINGS");
 Page savePage("SAVE");
 Page resetPage("RESET");
@@ -29,7 +29,7 @@ void Menu::drawMenu()
         u8g.setDefaultForegroundColor();
         
         
-        if ( i == curruntMenu && isSelectable) {
+        if ( i == currentMenu && isSelectable) {
 
             /*  DRAW box  centered */
             /*
@@ -62,28 +62,68 @@ void Menu::drawMenu()
     } 
 } 
 
+void Page::drawTitle(){
+    uint8_t i, h;
+    u8g_uint_t w, d;
+    u8g.setFont(u8g_font_7x13B);
+    h = u8g.getFontAscent()-u8g.getFontDescent();
+    w = u8g.getWidth();    
+    d = (w- u8g.getStrWidth(title) )/2;
+    u8g.drawStr(d, h + topSpacing, title);  //centered
+    u8g.drawFrame(0,0,w, h + topSpacing*2);
+    topSpacing = h + topSpacing*3;
+}
 
 void Page::drawPage(){
     topSpacing = 3;
+    if(title !=NULL)
+        drawTitle();
+
+    if(has_menu)
+        drawMenu();  
+}
+
+void Page::drawButton(int x, int y, int id, char * name = NULL , const u8g_fntpgm_uint8_t *font = u8g_font_7x13B){
+    // btn1
+    int h,d;
+    u8g.setFont(font);
+    //u8g.setFontRefHeightText();
+    //u8g.setFontPosTop();
+    h = u8g.getFontAscent()-u8g.getFontDescent();
+    d = u8g.getStrWidth(name);
+    if(id==currentMenu){  
+        u8g.drawBox(x -3, y -h -3, d+2*3, h+3*2 );
+        u8g.setDefaultBackgroundColor();
+        u8g.drawStr(x, y, name);
+        u8g.setDefaultForegroundColor();
+    }
+    else{
+        u8g.drawStr(x, y, name);  
+        u8g.drawFrame(x -3, y -h -3, d+2*3, h+3*2 );
+    }
     
+}
+
+
+void StatusPage::drawPage(){
+    topSpacing = 3;
     if(title !=NULL)
         drawTitle();
 
     if(has_menu)
         drawMenu();
-    
-}
 
-void Page::drawTitle(){
     uint8_t i, h;
     u8g_uint_t w, d;
 
-    h = u8g.getFontAscent()-u8g.getFontDescent();
-    w = u8g.getWidth();
-    //draw title
-    u8g.setFont(u8g_font_7x13B);
-    d = (w- u8g.getStrWidth(title) )/2;
-    u8g.drawStr(d, h + topSpacing, title);  //centered
-    u8g.drawFrame(0,0,w, h + topSpacing*2);
-    topSpacing = h + topSpacing*3;
+    // °C
+    u8g.setFont(u8g_font_profont12); 
+    u8g.drawStr(84, 21, "^C");  
+    u8g.drawStr(84, 31, "RPM"); 
+
+    // btn
+    drawButton(10,61,0, "STOP!", u8g_font_5x8r);
+    drawButton(55,61,1, "PCE", u8g_font_5x8r);
+    drawButton(85,61,2, "TRP", u8g_font_5x8r);
+
 }

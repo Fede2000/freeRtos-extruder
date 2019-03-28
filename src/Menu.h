@@ -11,14 +11,14 @@ class Menu
         char *menu_strings[MAX_MENU_ITEMS]; 
         float *menu_values_float[MAX_MENU_ITEMS];
         double *menu_values_double[MAX_MENU_ITEMS];   /* TODO: eliminare non usato */
-
         
 
     public: 
         bool has_menu = false;
         char *title = NULL;
-        uint8_t curruntMenu = 0; 
+        uint8_t currentMenu = 0; 
         int itemIdx = 0;
+        int nMenuItems = 0;
         bool isSelectable = false; 
         bool isSelected = false; 
         int topSpacing;
@@ -41,6 +41,7 @@ class Menu
             menu_strings[itemIdx] = ptItem;
             menu_values_float[itemIdx] = NULL;
             menu_values_double[itemIdx++] = NULL;
+            nMenuItems++;
         }
     }
     void addMenuStringValue(char * ptItem, void *ptValue){
@@ -50,6 +51,7 @@ class Menu
             menu_strings[itemIdx] = ptItem;
             menu_values_float[itemIdx] = ptValue;
             menu_values_double[itemIdx++] = NULL;
+            nMenuItems++;
         }
     }
     /*void addMenuStringValue(char * ptItem, double *ptValue){
@@ -67,18 +69,25 @@ class Menu
 
 class Page : public Menu
 {   
-
     public:     
         Page(char *aPtTitle = NULL): Menu(aPtTitle){ }
-        void drawPage();
-    private:  
+        virtual void drawPage();
         void drawTitle();  
+        void drawButton(int x, int y, int id, char * name, const u8g_fntpgm_uint8_t *font);
 }; 
 
 
+
+class StatusPage : public Page
+{   
+    public:     
+        StatusPage(char *aPtTitle = NULL): Page(aPtTitle){ nMenuItems = 2; }
+        void drawPage();
+}; 
+
 extern U8GLIB_ST7920_128X64_1X u8g;
 extern Page menuPage;
-extern Page statusPage;
+extern StatusPage statusPage;
 extern Page setPage;
 extern Page savePage;
 extern Page resetPage;
