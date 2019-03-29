@@ -11,7 +11,7 @@ void Menu::drawMenu()
     uint8_t i, h;
     u8g_uint_t w, d;
 
-    u8g.setFont(u8g_font_profont12);     //u8g_font_6x10
+    u8g.setFont(menuFont);     //u8g_font_6x10
     u8g.setFontRefHeightText();
     u8g.setFontPosTop();
     h = u8g.getFontAscent()-u8g.getFontDescent();
@@ -36,7 +36,7 @@ void Menu::drawMenu()
                 u8g.drawStr(0, topSpacing+i*h, "<");
                 //u8g.setPrintPos(2,topSpacing+i*h);
                 //u8g.print(0x20);    // https://github.com/olikraus/u8glib/wiki/fontgroupx11
-                u8g.setFont(u8g_font_profont12);
+                u8g.setFont(menuFont);
                 u8g.setFontRefHeightText();
                 u8g.setFontPosTop();
             }
@@ -87,7 +87,7 @@ void Page::drawButton(int x, int y, int id, char * name = NULL , const u8g_fntpg
     //u8g.setFontPosTop();
     h = u8g.getFontAscent()-u8g.getFontDescent();
     d = u8g.getStrWidth(name);
-    if(id==currentMenu  ){  
+    if(id==currentMenu){  
         u8g.drawRBox(x -3, y -h -3, d+2*3, h+3*2, 3 );
         u8g.setDefaultBackgroundColor();
         u8g.drawStr(x, y, name);
@@ -122,10 +122,38 @@ void StatusPage::drawPage(){
     drawButton(100,28,0, heaterStatus, u8g_font_5x8r);
     drawButton(100,40,1, motorStatus, u8g_font_trixel_square);
     drawButton(90,60,2, "->MENU", u8g_font_5x8r);
-    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG)
-        drawButton(85,61,3, "TRP", u8g_font_5x8r);
-    if(ptTemperatureManager->COLD_EXTRUSION_FLAG)
-        drawButton(55,61,2, "PCE", u8g_font_5x8r);
+    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptExtruderManager->is_step)
+        drawButton(20,61,3, "TRP", u8g_font_5x8r);
+    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptExtruderManager->is_step)
+        drawButton(55,61,4, "PCE", u8g_font_5x8r);
+    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
+}
+
+void SettingPage::drawPage(){
+    topSpacing = 3;
+    if(title !=NULL)
+        drawTitle();
+
+    if(has_menu)
+        drawMenu();
+
+    uint8_t i, h;
+    u8g_uint_t w, d;
+
+    /*
+    u8g.setFont(u8g_font_profont12); 
+    u8g.setPrintPos(51,21);
+    u8g.write(0xB0);    u8g.print("C");
+    u8g.drawStr(51, 31, "rpm"); 
+    */
+    // btn
+    drawButton(10,52,2, PTR, u8g_font_5x8r);
+    drawButton(50,52,3, PCE, u8g_font_5x8r);
+    drawButton(90,60,4, "<-BACK", u8g_font_5x8r);
+    /*if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptExtruderManager->is_step)
+        drawButton(20,61,3, "TRP", u8g_font_5x8r);
+    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptExtruderManager->is_step)
+        drawButton(55,61,4, "PCE", u8g_font_5x8r);*/
     //drawButton(85,61,3, "TRP", u8g_font_5x8r);
 }
 

@@ -81,21 +81,63 @@ void MenuManager::Main() {
               ptMenu = pages.ptPages[pages.menuPage.currentMenu + 1];
               ptMenu->isSelected = false;
             }
+
+            else if(ptMenu->title == "SETTINGS") { 
+              switch (ptMenu->currentMenu)
+              {
+                case 2: //TRP
+                  #ifdef PREVENT_THERMAL_RUNAWAY
+                      #undef PREVENT_THERMAL_RUNAWAY
+                      ptMenu->PTR =  " no PTR";
+                      temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
+                  #endif
+                  #ifndef PREVENT_THERMAL_RUNAWAY
+                    #define PREVENT_THERMAL_RUNAWAY
+                    ptMenu->PTR =  "  PTR";
+                  #endif
+    
+                  ptMenu->isSelected = false;
+                  break;
+
+                case 3: //PCE
+                  #ifdef PREVENT_COLD_EXTRUSION
+                      #undef PREVENT_COLD_EXTRUSION
+                      ptMenu->PCE =  " no PCE";
+                      temperatureManagerTest->COLD_EXTRUSION_FLAG = false;
+                  #endif
+                  #ifndef PREVENT_COLD_EXTRUSION
+                    #define PREVENT_COLD_EXTRUSION
+                    ptMenu->PCE =  "  PCE";
+                  #endif
+                  ptMenu->isSelected = false;
+                  break;
+
+                case 4:
+                  ptMenu = & pages.menuPage;
+                  ptMenu->isSelected = false;
+                  break;
+
+                default:
+                  break;
+              }
+            }
             //save
-            else if(ptMenu->title == "SAVE") {      
+            else if(ptMenu->title == "SAVE") {
+              if(ptMenu->currentMenu == 0)
+                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
+
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;
-              if(ptMenu->currentMenu = 0)
-                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
+
             }
             //reset
             else if(ptMenu->title == "RESET") {      
+              if(ptMenu->currentMenu == 0){
+                temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
+                writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED);
+              }
               ptMenu = & pages.menuPage;
-                ptMenu->isSelected = false;
-                if(ptMenu->currentMenu = 0){
-                  temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
-                  writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED);
-                }
+              ptMenu->isSelected = false;
             }
             else if(ptMenu->title == "STATUS") { 
               switch (ptMenu->currentMenu)
@@ -111,6 +153,7 @@ void MenuManager::Main() {
                   break;
                 case 2:
                   ptMenu = & pages.menuPage;
+                  ptMenu->isSelected = false;
                   break;
 
                 default:

@@ -6,6 +6,7 @@
 
 // EEPROM
 void write16b( int value, int addr = 0){
+  Serial.println(value);
   char * pt = (char *) &value;
   EEPROM.write(addr++, *pt++);
   EEPROM.write(addr , *pt );
@@ -26,4 +27,6 @@ void writeEprom(int temp, int speed){
 void readEprom(double &temp, float &speed){
   temp = read16b(4);
   speed = read16b(8);
+  Serial.println(temp);
+  Serial.println(speed);
 }

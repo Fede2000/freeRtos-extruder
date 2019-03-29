@@ -1,23 +1,24 @@
 #include "Menu.h"
 #include "temperatureManager.h"
 #include "Extruder.h"
+#include "U8glib.h"
 
 class Pages 
 {   
     public:    
         Page menuPage;
         StatusPage statusPage;
-        Page setPage;
+        SettingPage setPage;
         SavePage savePage;
         ResetPage resetPage; 
         Page *ptPages[5] = { &menuPage, &statusPage, &setPage, &savePage, &resetPage }; 
        
         Pages( TemperatureManager *aPtTemperatureManager, Extruder *aPtExtruderManager ): 
             menuPage("MENU"),
-            statusPage("STATUS", aPtTemperatureManager),
+            statusPage("STATUS", aPtTemperatureManager, aPtExtruderManager),
             setPage("SETTINGS"),
-            savePage("SAVE"),
-            resetPage("RESET")
+            savePage("SAVE", u8g_font_6x12),
+            resetPage("RESET", u8g_font_6x12)
         { 
               //menu 
             menuPage.addMenuString("Status");
@@ -33,11 +34,12 @@ class Pages
             setPage.addMenuStringValue("Set speed: ", & aPtExtruderManager->speed_rpm);
             setPage.isSelectable = true;
             //save
-            savePage.addMenuString("*CONFIRM 1 click");
-            savePage.addMenuString("**BACK 2 clicks ");
+            savePage.addMenuString("Save to eeprom");
+            savePage.addMenuString("temperature & speed");
             //reset
-            resetPage.addMenuString("*CONFIRM 1 click");
-            resetPage.addMenuString("**BACK 2 clicks ");
+            resetPage.addMenuString("Reset to default");
+            resetPage.addMenuString("temperature & speed");
+            
         }
 
     private:

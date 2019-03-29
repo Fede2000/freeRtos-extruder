@@ -51,8 +51,9 @@ void TemperatureManager::Main() {
         bool THERMAL_RUNAWAY_TEMP_FLAG;
         unsigned long THERMAL_RUNAWAY_AT;
     #endif //PREVENT_THERMAL_RUNAWAY
+
     #ifdef PREVENT_COLD_EXTRUSION
-        COLD_EXTRUSION_FLAG = true;
+        COLD_EXTRUSION_FLAG = false;
     #endif //PREVENT_COLD_EXTRUSION
 
     for (;;)
@@ -62,6 +63,9 @@ void TemperatureManager::Main() {
 
         #ifdef PREVENT_COLD_EXTRUSION
             COLD_EXTRUSION_FLAG = temperature > EXTRUDE_MIN_EXTRUSION_TEMP ? false : true;
+        #endif  
+        #ifndef PREVENT_COLD_EXTRUSION
+            COLD_EXTRUSION_FLAG = false;
         #endif
         #ifdef PREVENT_THERMAL_RUNAWAY
             if( (millis() -THERMAL_RUNAWAY_AT) > 60000 && HEATER_ENABLED){
@@ -76,7 +80,10 @@ void TemperatureManager::Main() {
                     THERMAL_RUNAWAY_TEMP_FLAG = false;
             }
 
-        if(!THERMAL_RUNAWAY_FLAG && !COLD_EXTRUSION_FLAG)
+        if(!THERMAL_RUNAWAY_FLAG)
+        #endif
+        #ifndef PREVENT_THERMAL_RUNAWAY
+            THERMAL_RUNAWAY_FLAG=false;
         #endif //PREVENT_THERMAL_RUNAWAY
             if(HEATER_ENABLED)
                 analogWrite(HEATER_PIN, output);

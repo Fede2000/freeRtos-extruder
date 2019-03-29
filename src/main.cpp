@@ -49,6 +49,7 @@ void setup() {
   }
   
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
+    Serial.println("loading eeprom values");
     readEprom(temperatureManager.tempSetpoint, extruderManager.speed_rpm);           
   }
  
@@ -135,9 +136,9 @@ ISR(TIMER4_COMPA_vect){
   
 
   #ifdef PREVENT_COLD_EXTRUSION
-     
+
     if(temperatureManager.readTemperature() > EXTRUDE_MIN_EXTRUSION_TEMP){
-      if(extruderManager.is_step && extruderManager.is_enabled){
+      if(extruderManager.is_step && extruderManager.is_enabled && !temperatureManager.COLD_EXTRUSION_FLAG && !temperatureManager.THERMAL_RUNAWAY_FLAG){
         digitalWrite(E_STEP_PIN, HIGH);
         digitalWrite(E_STEP_PIN, LOW);
       }

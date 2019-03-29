@@ -57,9 +57,10 @@ void Extruder::setSpeedRpm(float speed){
     speed_rpm = speed;
     if(speed > MAX_SET_TEMP)
         speed_rpm = MAX_SET_TEMP;
-    else if(speed <= 0)
+    else if(speed <= 0){
         speed_rpm = 0;
         is_step = false;
+    }
 }
 
 void Extruder::incrementSpeed(int i){
