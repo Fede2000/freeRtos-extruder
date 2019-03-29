@@ -71,7 +71,10 @@ void TemperatureManager::Main() {
         if(NOT_THERMAL_RUNAWAY_FLAG)
         #endif //PREVENT_THERMAL_RUNAWAY
             if(HEATER_ENABLED)
-                analogWrite(HEATER_PIN, output); 
+                analogWrite(HEATER_PIN, output);
+            else             
+                analogWrite(HEATER_PIN, 0);
+             
         
         vTaskDelay(ticks);  // one tick delay (15ms) in between reads for stability
     }
