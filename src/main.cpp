@@ -134,7 +134,8 @@ ISR(TIMER4_COMPA_vect){
   TIMSK4 |= (1<<OCIE4A); //enable the interrupt
   
 
-  #ifdef PREVENT_COLD_EXTRUSION 
+  #ifdef PREVENT_COLD_EXTRUSION
+     
     if(temperatureManager.readTemperature() > EXTRUDE_MIN_EXTRUSION_TEMP){
       if(extruderManager.is_step && extruderManager.is_enabled){
         digitalWrite(E_STEP_PIN, HIGH);

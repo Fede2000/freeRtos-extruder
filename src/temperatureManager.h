@@ -25,7 +25,8 @@ public:
     double temperature;
     double tempSetpoint;
     float alpha;
-    bool HEATER_ENABLED;
+    bool HEATER_ENABLED, THERMAL_RUNAWAY_FLAG = false, COLD_EXTRUSION_FLAG=false;
+    
 
     TemperatureManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
 

@@ -4,13 +4,6 @@
 #include "Arduino.h"
 
 U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
-Page menuPage("MENU");
-StatusPage statusPage("STATUS");
-Page setPage("SETTINGS");
-SavePage savePage("SAVE");
-ResetPage resetPage("RESET");
-
-Page *ptPages[5] = { &menuPage, &statusPage, &setPage, &savePage, &resetPage };
   
 void Menu::drawMenu() 
 { 
@@ -129,7 +122,10 @@ void StatusPage::drawPage(){
     drawButton(100,28,0, heaterStatus, u8g_font_5x8r);
     drawButton(100,40,1, motorStatus, u8g_font_trixel_square);
     drawButton(90,60,2, "->MENU", u8g_font_5x8r);
-    //drawButton(55,61,2, "PCE", u8g_font_5x8r);
+    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG)
+        drawButton(85,61,3, "TRP", u8g_font_5x8r);
+    if(ptTemperatureManager->COLD_EXTRUSION_FLAG)
+        drawButton(55,61,2, "PCE", u8g_font_5x8r);
     //drawButton(85,61,3, "TRP", u8g_font_5x8r);
 }
 

@@ -18,12 +18,14 @@ void drawLogo(){
 MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, 
                         uint32_t _ticks, TemperatureManager *  aTemperatureManager, Extruder * aExtruderManager) :
                                                                                     //temperatureManagerTest(aTemperatureManager),
+                                                                                    pages(aTemperatureManager, aExtruderManager),
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {   
     extruderManager = aExtruderManager;
     temperatureManagerTest = aTemperatureManager;
-    ptMenu = &statusPage;
+
+    ptMenu = &pages.statusPage;
     Timer1.initialize(1000);
     Timer1.attachInterrupt(timerIsr);
     encoder.setAccelerationEnabled(true);
@@ -76,19 +78,19 @@ void MenuManager::Main() {
           case ClickEncoder::Clicked:       //5
             ptMenu->isSelected = ! ptMenu->isSelected;
             if(ptMenu->title == "MENU"){
-              ptMenu = ptPages[menuPage.currentMenu + 1];
+              ptMenu = pages.ptPages[pages.menuPage.currentMenu + 1];
               ptMenu->isSelected = false;
             }
             //save
             else if(ptMenu->title == "SAVE") {      
-              ptMenu = & menuPage;
+              ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;
               if(ptMenu->currentMenu = 0)
                 writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
             }
             //reset
             else if(ptMenu->title == "RESET") {      
-              ptMenu = & menuPage;
+              ptMenu = & pages.menuPage;
                 ptMenu->isSelected = false;
                 if(ptMenu->currentMenu = 0){
                   temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
@@ -108,7 +110,7 @@ void MenuManager::Main() {
                   ptMenu->motorStatus = extruderManager->is_enabled ? "ON" : "OFF";
                   break;
                 case 2:
-                  ptMenu = & menuPage;
+                  ptMenu = & pages.menuPage;
                   break;
 
                 default:
@@ -122,12 +124,12 @@ void MenuManager::Main() {
           case ClickEncoder::DoubleClicked: //6
             ptMenu->isSelected = ! ptMenu->isSelected;
             if(ptMenu->title != "MENU"){
-              ptMenu = & menuPage;
+              ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;
             } 
             else
             {
-              ptMenu = & statusPage;
+              ptMenu = & pages.statusPage;
             }
             
             break;

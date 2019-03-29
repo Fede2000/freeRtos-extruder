@@ -2,7 +2,7 @@
 #define MENU_H
 
 #include "U8glib.h"
-
+#include "temperatureManager.h"
 class Menu 
 {   
     #define MAX_MENU_ITEMS  5
@@ -83,8 +83,11 @@ class Page : public Menu
 class StatusPage : public Page
 {   
     public:     
-        StatusPage(char *aPtTitle = NULL): Page(aPtTitle){ nMenuItems = 1; heaterStatus = "COLD"; motorStatus="ON";}
+        StatusPage(char *aPtTitle = NULL, TemperatureManager * aPtTemperatureManager = NULL ): Page(aPtTitle), ptTemperatureManager(aPtTemperatureManager)
+        { nMenuItems = 1; heaterStatus = "COLD"; motorStatus="ON";}
         void drawPage();
+    private:
+        TemperatureManager *ptTemperatureManager;
         
 }; 
 
@@ -104,11 +107,12 @@ class ResetPage : public Page
 }; 
 
 extern U8GLIB_ST7920_128X64_1X u8g;
-extern Page menuPage;
+/*extern Page menuPage;
 extern StatusPage statusPage;
 extern Page setPage;
 extern SavePage savePage;
 extern ResetPage resetPage;
 extern Page * ptPages[5];
+*/
 
 #endif

@@ -8,6 +8,7 @@
 #include "temperatureManager.h"
 #include "Extruder.h"
 #include "Menu.h"
+#include "Pages.h"
 
 
 #define KEY_NONE 0
@@ -39,6 +40,7 @@ public:
     //Page_t page_current = Status;
     int uiKeyCode = 0;
     Page * ptMenu;
+    Pages pages; //constructor
     void updateMenu();
     void Main();
 
