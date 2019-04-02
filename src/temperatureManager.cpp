@@ -10,14 +10,9 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
                                                                                     ticks{ _ticks }
 {
     myPID.SetMode(AUTOMATIC);
-    tempSetpoint = 35;
-    alpha = 0.2;
+    tempSetpoint = 35; // derault value
+    alpha = 0.45;
     HEATER_ENABLED = false;
-    #ifdef PREVENT_THERMAL_RUNAWAY
-        // Thermal Runaway protection settings
-        preventTR_Treshold = 25; 
-        isHot = false;
-    #endif
 }
 
 void TemperatureManager::getTemperature(){
@@ -48,12 +43,14 @@ double TemperatureManager::readTemperature(){
 void TemperatureManager::Main() {
     #ifdef PREVENT_THERMAL_RUNAWAY        
         COLD_EXTRUSION_FLAG = true;
+        PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
         bool THERMAL_RUNAWAY_TEMP_FLAG;
         unsigned long THERMAL_RUNAWAY_AT;
     #endif //PREVENT_THERMAL_RUNAWAY
 
     #ifdef PREVENT_COLD_EXTRUSION
-        COLD_EXTRUSION_FLAG = false;
+        COLD_EXTRUSION_FLAG = false; // TODO: true or false
+        PREVENT_COLD_EXTRUSION_IS_ACTIVE = true;
     #endif //PREVENT_COLD_EXTRUSION
 
     for (;;)
@@ -62,13 +59,15 @@ void TemperatureManager::Main() {
         myPID.Compute();
 
         #ifdef PREVENT_COLD_EXTRUSION
+        if( PREVENT_COLD_EXTRUSION_IS_ACTIVE)
             COLD_EXTRUSION_FLAG = temperature > EXTRUDE_MIN_EXTRUSION_TEMP ? false : true;
-        #endif  
-        #ifndef PREVENT_COLD_EXTRUSION
+        else  
             COLD_EXTRUSION_FLAG = false;
         #endif
+        
         #ifdef PREVENT_THERMAL_RUNAWAY
-            if( (millis() -THERMAL_RUNAWAY_AT) > 60000 && HEATER_ENABLED){
+        if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
+            if( (millis() -THERMAL_RUNAWAY_AT) > 6000 && HEATER_ENABLED){
                 if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_THRESHOLD){
                     Serial.println("THERMAL_RUNAWAY_TEMP_FLAG");
                     if(THERMAL_RUNAWAY_TEMP_FLAG)
@@ -79,16 +78,16 @@ void TemperatureManager::Main() {
                 else
                     THERMAL_RUNAWAY_TEMP_FLAG = false;
             }
-
-        if(!THERMAL_RUNAWAY_FLAG)
-        #endif
-        #ifndef PREVENT_THERMAL_RUNAWAY
+        }
+        else 
             THERMAL_RUNAWAY_FLAG=false;
-        #endif //PREVENT_THERMAL_RUNAWAY
-            if(HEATER_ENABLED)
-                analogWrite(HEATER_PIN, output);
-            else             
-                analogWrite(HEATER_PIN, 0);
+        #endif
+        SHOULD_EXTRUDER_RUN = !THERMAL_RUNAWAY_FLAG && !COLD_EXTRUSION_FLAG;
+        
+        if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED)
+            analogWrite(HEATER_PIN, output);
+        else             
+            analogWrite(HEATER_PIN, 0);
              
         
         vTaskDelay(ticks);  // one tick delay (15ms) in between reads for stability

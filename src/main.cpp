@@ -27,10 +27,11 @@ float logR2, R2, T;
 /*--------------------------------------------------------------------*/
 
 
-//Extruder extruderManager {	128, 4, "Temperature", 11}; //Highest priority, TODO: è inutile farlo girare qdo la velocità target è stata raggiunta
 Extruder extruderManager;
-TemperatureManager  temperatureManager  {	128, 2, "Temperature", 31};
+TemperatureManager  temperatureManager  {	128, 1, "Temperature", 31};
 MenuManager menuManager {	512, 3, "Menu", 5, &temperatureManager, &extruderManager};
+DisplayManager displayManager { 1524, 2, "Display", 100 / portTICK_PERIOD_MS, &menuManager, &temperatureManager, &extruderManager};
+
 void setup() {
   // serial init
   
@@ -92,7 +93,7 @@ void setup() {
 
   OCR4A = 26; //83 sets the counter compare value
   TCCR4A |= (1<<WGM41); // enable the CTC mode
-  TCCR4B |= (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64
+  TCCR4B |= (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64, 010 -> 8
   TIMSK4 |= (1<<OCIE4A); //enable the interrupt
 
 
@@ -108,10 +109,7 @@ ticks = period * (freq / prescaler )
   //interrupts();
   /* --------------------------------------------END------------------------------------------ */
 
- 
-  
-  
-  DisplayManager displayManager { 1524, 1, "Display", 100 / portTICK_PERIOD_MS, &menuManager, &temperatureManager, &extruderManager};
+  /* ---------------------- start the OS scheduler ----------------- */
   vTaskStartScheduler();
 }
 
@@ -122,7 +120,7 @@ void loop() {
 
 // callback for timer4 
 ISR(TIMER4_COMPA_vect){
-
+  /* ----------------- TIMER ----------------------------*/
   //TCNT4 = 0; // preload timer to 0
   //compare_register = extruderManager.timer;
   TCCR4A = 0;
@@ -131,19 +129,22 @@ ISR(TIMER4_COMPA_vect){
   extruderManager.runSpeed();
   OCR4A = extruderManager.timer; //83 sets the counter compare value
   TCCR4A |= (1<<WGM41); // enable the CTC mode
-  TCCR4B |= (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64
+  TCCR4B |=  (1<<CS41); //| (1<<CS40); // sets the control scale bits for the timer ....011 -> 64 https://ww1.microchip.com/downloads/en/devicedoc/atmel-2549-8-bit-avr-microcontroller-atmega640-1280-1281-2560-2561_datasheet.pdf
   TIMSK4 |= (1<<OCIE4A); //enable the interrupt
   
+  /* -------------------- MOTOR RUN ----------------------*/
+  if(extruderManager.is_step && extruderManager.is_enabled && temperatureManager.SHOULD_EXTRUDER_RUN){
+    /*digitalWrite(E_STEP_PIN, HIGH);
+    digitalWrite(E_STEP_PIN, LOW);*/
 
-  #ifdef PREVENT_COLD_EXTRUSION
+    // pin 26 = port A bit 4
+    // 14 times faster
+    //PORTA |= B00001000;
+    //PORTA &= B11110111;
+    PORTA |= 1 << PORTA4;
+    PORTA &= ~(1 << PORTA4);
 
-    if(temperatureManager.readTemperature() > EXTRUDE_MIN_EXTRUSION_TEMP){
-      if(extruderManager.is_step && extruderManager.is_enabled && !temperatureManager.COLD_EXTRUSION_FLAG && !temperatureManager.THERMAL_RUNAWAY_FLAG){
-        digitalWrite(E_STEP_PIN, HIGH);
-        digitalWrite(E_STEP_PIN, LOW);
-      }
-    }
-  #endif
+  }
 
 
  }

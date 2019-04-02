@@ -126,7 +126,6 @@ void StatusPage::drawPage(){
         drawButton(20,61,3, "TRP", u8g_font_5x8r);
     if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptExtruderManager->is_step)
         drawButton(55,61,4, "PCE", u8g_font_5x8r);
-    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
 }
 
 void SettingPage::drawPage(){
@@ -140,16 +139,15 @@ void SettingPage::drawPage(){
     uint8_t i, h;
     u8g_uint_t w, d;
 
-    /*
-    u8g.setFont(u8g_font_profont12); 
-    u8g.setPrintPos(51,21);
-    u8g.write(0xB0);    u8g.print("C");
-    u8g.drawStr(51, 31, "rpm"); 
-    */
     // btn
+    #ifdef PREVENT_COLD_EXTRUSION
     drawButton(10,52,2, PTR, u8g_font_5x8r);
+    #endif
+    #ifdef PREVENT_THERMAL_RUNAWAY
     drawButton(50,52,3, PCE, u8g_font_5x8r);
-    drawButton(90,60,4, "<-BACK", u8g_font_5x8r);
+    #endif
+    drawButton(90,60,4, "<-BACK", u8g_font_5x8r);  //TODO: se non definite id non deve essere 4
+
     /*if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptExtruderManager->is_step)
         drawButton(20,61,3, "TRP", u8g_font_5x8r);
     if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptExtruderManager->is_step)

@@ -24,10 +24,12 @@
  
  **/
 
-#define PREVENT_THERMAL_RUNAWAY
+#define PREVENT_THERMAL_RUNAWAY        //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_THRESHOLD 30
-#define PREVENT_COLD_EXTRUSION
-#define EXTRUDE_MIN_EXTRUSION_TEMP 25 //TODO: 150
+
+#define PREVENT_COLD_EXTRUSION  //comment out to disable
+#define EXTRUDE_MIN_EXTRUSION_TEMP 45 //TODO: 150
+
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60 //RPM 
 #define MAX_SET_TEMP 300
@@ -45,7 +47,7 @@
 // the value of the RAMPS resistor
 #define SERIESRESISTOR 4700  
 
-#define CONST_KP 24
+#define CONST_KP 10
 #define CONST_KI 0.5
 #define CONST_KD 0.3
 

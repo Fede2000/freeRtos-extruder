@@ -16,16 +16,13 @@ private:
     double output;
 	uint32_t ticks;
     PID myPID;
-    #ifdef PREVENT_THERMAL_RUNAWAY
-        int preventTR_Treshold;
-        bool isHot;
-    #endif
 
 public:
     double temperature;
     double tempSetpoint;
     float alpha;
-    bool HEATER_ENABLED, THERMAL_RUNAWAY_FLAG = false, COLD_EXTRUSION_FLAG=false;
+    bool HEATER_ENABLED, PREVENT_THERMAL_RUNAWAY_IS_ACTIVE, PREVENT_COLD_EXTRUSION_IS_ACTIVE, SHOULD_EXTRUDER_RUN,
+    THERMAL_RUNAWAY_FLAG = false, COLD_EXTRUSION_FLAG=false;
     
 
     TemperatureManager( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );

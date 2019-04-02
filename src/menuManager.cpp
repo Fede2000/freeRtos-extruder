@@ -86,29 +86,28 @@ void MenuManager::Main() {
               switch (ptMenu->currentMenu)
               {
                 case 2: //TRP
-                  #ifdef PREVENT_THERMAL_RUNAWAY
-                      #undef PREVENT_THERMAL_RUNAWAY
-                      ptMenu->PTR =  " no PTR";
-                      temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
-                  #endif
-                  #ifndef PREVENT_THERMAL_RUNAWAY
-                    #define PREVENT_THERMAL_RUNAWAY
+                  if(temperatureManagerTest->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE){
+                    temperatureManagerTest->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = false;   
+                    ptMenu->PTR =  " no PTR";
+                    temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
+                  }
+                  else{
+                    temperatureManagerTest->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
                     ptMenu->PTR =  "  PTR";
-                  #endif
-    
+                  }    
                   ptMenu->isSelected = false;
                   break;
 
                 case 3: //PCE
-                  #ifdef PREVENT_COLD_EXTRUSION
-                      #undef PREVENT_COLD_EXTRUSION
-                      ptMenu->PCE =  " no PCE";
-                      temperatureManagerTest->COLD_EXTRUSION_FLAG = false;
-                  #endif
-                  #ifndef PREVENT_COLD_EXTRUSION
-                    #define PREVENT_COLD_EXTRUSION
+                  if(temperatureManagerTest->PREVENT_COLD_EXTRUSION_IS_ACTIVE){
+                    temperatureManagerTest->PREVENT_COLD_EXTRUSION_IS_ACTIVE = false;   
+                    ptMenu->PCE =  " no PCE";
+                    temperatureManagerTest->COLD_EXTRUSION_FLAG = false;
+                  }
+                  else{
+                    temperatureManagerTest->PREVENT_COLD_EXTRUSION_IS_ACTIVE = true;
                     ptMenu->PCE =  "  PCE";
-                  #endif
+                  }
                   ptMenu->isSelected = false;
                   break;
 
