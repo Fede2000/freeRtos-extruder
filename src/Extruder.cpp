@@ -1,8 +1,10 @@
 #include "Extruder.h"
-//#include <Arduino_FreeRTOS.h>
 #include "configuration.h"
 
-
+/*
+formula: 
+    periodo [seconds] = 3/10 * 1/ (RPM * microSteppings)
+*/
 Extruder::Extruder(){
     setSpeedRpm(0);
 }
@@ -23,7 +25,7 @@ void Extruder::setTimer(float target_period_ms){
     else
         period_ms = 1;
 
-    timer = int(period_ms * (2000)); 
+    timer = int(period_ms * (2000 * 16/ MICROSTEPPINGS)); 
 }
 
 void Extruder::runSpeed(){

@@ -45,10 +45,11 @@ void setup() {
   pinMode(E_STEP_PIN,OUTPUT);
 
   digitalWrite(BUZZ_PIN,HIGH);
-  while (!Serial) {
+ /* while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }
-  
+  */
+ 
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
     Serial.println("loading eeprom values");
     readEprom(temperatureManager.tempSetpoint, extruderManager.speed_rpm);           
@@ -129,7 +130,7 @@ ISR(TIMER4_COMPA_vect){
   extruderManager.runSpeed();
   OCR4A = extruderManager.timer; //83 sets the counter compare value
   TCCR4A |= (1<<WGM41); // enable the CTC mode
-  TCCR4B |=  (1<<CS41); //| (1<<CS40); // sets the control scale bits for the timer ....011 -> 64 https://ww1.microchip.com/downloads/en/devicedoc/atmel-2549-8-bit-avr-microcontroller-atmega640-1280-1281-2560-2561_datasheet.pdf
+  TCCR4B |=  (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64 https://ww1.microchip.com/downloads/en/devicedoc/atmel-2549-8-bit-avr-microcontroller-atmega640-1280-1281-2560-2561_datasheet.pdf
   TIMSK4 |= (1<<OCIE4A); //enable the interrupt
   
   /* -------------------- MOTOR RUN ----------------------*/

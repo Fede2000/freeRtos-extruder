@@ -1,6 +1,11 @@
 #ifndef	CONFIGURATION_h
 #define CONFIGURATION_h
 
+/**
+ 
+ * pin settings
+ 
+ **/
 #define ENCODER_PIN1 31
 #define ENCODER_PIN2 33
 #define ENCODER_BTN 35
@@ -24,11 +29,11 @@
  
  **/
 
-#define PREVENT_THERMAL_RUNAWAY        //comment out to disable
+#define PREVENT_THERMAL_RUNAWAY         //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_THRESHOLD 30
 
-#define PREVENT_COLD_EXTRUSION  //comment out to disable
-#define EXTRUDE_MIN_EXTRUSION_TEMP 45 //TODO: 150
+#define PREVENT_COLD_EXTRUSION          //comment out to disable
+#define EXTRUDE_MIN_EXTRUSION_TEMP 45   //TODO: 150
 
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60 //RPM 
@@ -47,16 +52,30 @@
 // the value of the RAMPS resistor
 #define SERIESRESISTOR 4700  
 
+// PID settings
 #define CONST_KP 10
 #define CONST_KI 0.5
 #define CONST_KD 0.3
 
+
+/**
+ 
+ * EEPROM settings
+ 
+ **/
 
 //EEPROM  TODO: almost all useless -> remove their use
 #define ADDRESS_TEMPERATURE  0
 #define ADDRESS_SPEED  1
 #define ADDRESS_CK  2
 #define EEPROM_CK_VALUE 12
+
+/** 
+ * varie
+**/
+
+#define MICROSTEPPINGS 4
+#define GEAR_REDUCTIO 3.75
 
 #endif
 
