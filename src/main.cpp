@@ -124,8 +124,13 @@ void loop() {
 // callback for timer4 
 ISR(TIMER4_COMPA_vect){
   /* ----------------- TIMER ----------------------------*/
-  //TCNT4 = 0; // preload timer to 0
-  //compare_register = extruderManager.timer;
+  /**
+   * prescaler 011->64
+   * system frequency = 16MHz
+   * --> new frequency = 16/64 MHz
+   * single tick period = 1 / new frequncy  = 4 * 10^(-6) [s]
+   * 
+  **/
   TCCR4A = 0;
   TCCR4B = 0;
   TCNT4 = 0; // initialize the counter from 0
@@ -136,7 +141,7 @@ ISR(TIMER4_COMPA_vect){
   TIMSK4 |= (1<<OCIE4A); //enable the interrupt
   
   /* -------------------- MOTOR RUN ----------------------*/
-  if(extruderManager.is_step && extruderManager.is_enabled && temperatureManager.SHOULD_EXTRUDER_RUN){
+  if(extruderManager.is_step && extruderManager.is_enabled && temperatureManager.EXTRUDER_SHOULD_RUN){
     /*digitalWrite(E_STEP_PIN, HIGH);
     digitalWrite(E_STEP_PIN, LOW);*/
 

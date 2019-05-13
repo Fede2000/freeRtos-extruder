@@ -122,9 +122,9 @@ void StatusPage::drawPage(){
     drawButton(100,28,0, heaterStatus, u8g_font_5x8r);
     drawButton(100,40,1, motorStatus, u8g_font_trixel_square);
     drawButton(90,60,2, "->MENU", u8g_font_5x8r);
-    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptExtruderManager->is_step)
-        drawButton(20,61,3, "TRP", u8g_font_5x8r);
-    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptExtruderManager->is_step)
+    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE && ptExtruderManager->is_step)
+        drawButton(20,61,3, "PTR", u8g_font_5x8r);
+    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE && ptExtruderManager->is_step)
         drawButton(55,61,4, "PCE", u8g_font_5x8r);
 }
 
@@ -141,10 +141,10 @@ void SettingPage::drawPage(){
 
     // btn
     #ifdef PREVENT_COLD_EXTRUSION
-    drawButton(10,52,2, PTR, u8g_font_5x8r);
+    drawButton(50,52,3, PCE, u8g_font_5x8r);
     #endif
     #ifdef PREVENT_THERMAL_RUNAWAY
-    drawButton(50,52,3, PCE, u8g_font_5x8r);
+    drawButton(10,52,2, PTR, u8g_font_5x8r);
     #endif
     drawButton(90,60,4, "<-BACK", u8g_font_5x8r);  //TODO: se non definite id non deve essere 4
 

@@ -3,8 +3,11 @@
 
 /*
 formula: 
-    periodo [seconds] = 3/10 * 1/ (RPM * microSteppings)
+    periodo [seconds] = 3/10 * 1/ (RPM * MICROSTEPPINGS * GEAR_REDUCTION)
+    period = 3/(10*MICROSTEPPINGS*GEAR_REDUCTION) [costant] * 1/RPM
+    period = 
 */
+
 Extruder::Extruder(){
     setSpeedRpm(0);
 }
@@ -24,12 +27,14 @@ void Extruder::setTimer(float target_period_ms){
     }
     else
         period_ms = 1;
-
-    timer = int(period_ms * (2000 * 16/ MICROSTEPPINGS)); 
+    // number of ticks, tick period = 4*10^(-6) [s]
+    //timer = int(period_ms * (2000 * 16/ MICROSTEPPINGS));
+    timer = int(period_ms * 2000); 
 }
 
 void Extruder::runSpeed(){
-    target_period_ms = 2.5 /speed_rpm;
+    //target_period_ms = 2.5 /speed_rpm;
+    target_period_ms = PERIOD_COSTANT_MS / speed_rpm;
     setTimer( target_period_ms );
 }
 

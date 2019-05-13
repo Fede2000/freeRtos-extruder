@@ -82,7 +82,7 @@ void TemperatureManager::Main() {
         else 
             THERMAL_RUNAWAY_FLAG=false;
         #endif
-        SHOULD_EXTRUDER_RUN = !THERMAL_RUNAWAY_FLAG && !COLD_EXTRUSION_FLAG;
+        EXTRUDER_SHOULD_RUN = !THERMAL_RUNAWAY_FLAG && !COLD_EXTRUSION_FLAG;
         
         if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED)
             analogWrite(HEATER_PIN, output);

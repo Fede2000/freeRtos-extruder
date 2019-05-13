@@ -32,7 +32,7 @@
 #define PREVENT_THERMAL_RUNAWAY         //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_THRESHOLD 30
 
-#define PREVENT_COLD_EXTRUSION          //comment out to disable
+//#define PREVENT_COLD_EXTRUSION          //comment out to disable
 #define EXTRUDE_MIN_EXTRUSION_TEMP 45   //TODO: 150
 
 #define DEFAULT_TEMP 35
@@ -75,8 +75,9 @@
 **/
 
 #define MICROSTEPPINGS 4
-#define GEAR_REDUCTIO 3.75
-#define DRAW_LOGO
+#define GEAR_REDUCTION 3.75
+#define PERIOD_COSTANT_MS 3/(10*MICROSTEPPINGS*GEAR_REDUCTION) * 1000
+//#define DRAW_LOGO
 
 #endif
 
