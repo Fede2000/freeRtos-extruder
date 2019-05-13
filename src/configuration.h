@@ -76,9 +76,8 @@
 
 #define MICROSTEPPINGS 4
 #define GEAR_REDUCTION 3.75 
-//#define TIMER_PRESCALER 64 //!! manually set this in main.py
 
-//#define DRAW_LOGO
+#define DRAW_LOGO
 
 #endif
 
