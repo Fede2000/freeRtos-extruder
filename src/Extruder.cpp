@@ -28,13 +28,13 @@ void Extruder::setTimer(float target_period_ms){
     else
         period_ms = 1;
     // number of ticks, tick period = 4*10^(-6) [s]
-    //timer = int(period_ms * (2000 * 16/ MICROSTEPPINGS));
-    timer = int(period_ms * 2000); 
+    timer = int(period_ms * (2000 * 16/ MICROSTEPPINGS));
+    //timer = int(period_ms * 2000); 
 }
 
 void Extruder::runSpeed(){
-    //target_period_ms = 2.5 /speed_rpm;
-    target_period_ms = PERIOD_COSTANT_MS / speed_rpm;
+    target_period_ms = 2.5 /speed_rpm;
+    //target_period_ms = PERIOD_COSTANT_MS / speed_rpm;
     setTimer( target_period_ms );
 }
 

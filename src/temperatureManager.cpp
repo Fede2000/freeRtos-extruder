@@ -42,7 +42,6 @@ double TemperatureManager::readTemperature(){
 
 void TemperatureManager::Main() {
     #ifdef PREVENT_THERMAL_RUNAWAY        
-        COLD_EXTRUSION_FLAG = true;
         PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
         bool THERMAL_RUNAWAY_TEMP_FLAG;
         unsigned long THERMAL_RUNAWAY_AT;
