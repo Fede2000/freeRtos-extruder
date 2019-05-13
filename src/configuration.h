@@ -32,7 +32,7 @@
 #define PREVENT_THERMAL_RUNAWAY         //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_THRESHOLD 30
 
-//#define PREVENT_COLD_EXTRUSION          //comment out to disable
+#define PREVENT_COLD_EXTRUSION          //comment out to disable
 #define EXTRUDE_MIN_EXTRUSION_TEMP 22   //TODO: 150
 
 #define DEFAULT_TEMP 35
@@ -75,8 +75,9 @@
 **/
 
 #define MICROSTEPPINGS 4
-#define GEAR_REDUCTION 3.75
-#define PERIOD_COSTANT_MS 3/(10*MICROSTEPPINGS*GEAR_REDUCTION) * 1000
+#define GEAR_REDUCTION 3.75 
+//#define TIMER_PRESCALER 64 //!! manually set this in main.py
+
 //#define DRAW_LOGO
 
 #endif

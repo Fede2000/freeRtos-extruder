@@ -27,6 +27,7 @@ class Extruder //: public Thread
         
         float target_period_ms;
         float period_ms;
+        float PERIOD_COSTANT_MS ;
         //uint32_t ticks;
 };
 

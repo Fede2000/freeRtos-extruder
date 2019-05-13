@@ -6,6 +6,7 @@
 #include "logo.h"
 #include "Extruder.h"
 #include "temperatureManager.h"
+#include <Arduino.h>
 
 
 ClickEncoder MenuManager::encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
@@ -37,6 +38,7 @@ void MenuManager::Main() {
     //Serial.println("qwerty");
     for (;;)
     {
+      Serial.println(extruderManager->timer);
       buttonState = encoder.getButton();
       extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
 
