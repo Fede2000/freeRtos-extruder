@@ -7,5 +7,9 @@
     "cSpell.words": [
         "EEPROMHELPER",
         "Eprom"
-    ]
+    ],
+    "terminal.integrated.env.linux": {
+        "PATH": "/home/federico/.platformio/penv/bin:/home/federico/.platformio/penv:/usr/local/cuda-10.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "PLATFORMIO_CALLER": "vscode"
+    }
 }

@@ -1,4 +1,4 @@
-#include "TemperatureManager.h"
+#include "temperatureManager.h"
 #include <PID_v1.h>
 #include <Arduino_FreeRTOS.h>
 #include <Arduino.h>

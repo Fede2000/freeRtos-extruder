@@ -6,7 +6,7 @@
 #include "U8glib.h"
 #include "displayUtility.h"
 #include "configuration.h"
-#include "eepromHelper.h"
+#include "EepromHelper.h"
 #include "temperatureManager.h"
 #include "menuManager.h"
 #include "Extruder.h"
@@ -58,11 +58,13 @@ void setup() {
 
   /* --------------------------------------Display settings -------------------------------------*/  
   //displaying logo
-  u8g.firstPage();
-  do {
-    drawLogo();
-  } while( u8g.nextPage() );
-  delay(200);
+  #ifdef DRAW_LOGO
+    u8g.firstPage();
+    do {
+      drawLogo();
+    } while( u8g.nextPage() );
+    delay(2000);
+  #endif
 
   /* ------------------------------------ END Display settings ----------------------------------*/  
 

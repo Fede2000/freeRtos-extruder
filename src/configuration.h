@@ -76,6 +76,7 @@
 
 #define MICROSTEPPINGS 4
 #define GEAR_REDUCTIO 3.75
+#define DRAW_LOGO
 
 #endif
 
