@@ -74,7 +74,7 @@
  * varie
 **/
 
-#define MICROSTEPPINGS 4
+#define MICROSTEPPINGS 4 // default 4
 #define GEAR_REDUCTION 3.75 
 
 #define DRAW_LOGO
