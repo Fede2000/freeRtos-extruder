@@ -1,7 +1,6 @@
 #ifndef EXTRUDER_H
 #define EXTRUDER_H
 
-#include <AccelStepper.h>
 #include <Arduino_FreeRTOS.h>
 #include "Thread.h"
 
@@ -31,8 +30,5 @@ class Extruder //: public Thread
         //uint32_t ticks;
 };
 
-
-extern AccelStepper extruder1;
-//extern int ESet;
 
 #endif

@@ -1,6 +1,6 @@
 #include "Extruder.h"
 #include "configuration.h"
-
+#include "Arduino.h"
 /*
 formula: 
     periodo [seconds] = 3/10 * 1/ (RPM * MICROSTEPPINGS * GEAR_REDUCTION)
@@ -56,5 +56,3 @@ void Extruder::incrementSpeed(int i){
     setSpeedRpm(speed_rpm + i);
 }
 
-
-//AccelStepper extruder1(AccelStepper::DRIVER, E_STEP_PIN, E_DIR_PIN);
