@@ -41,7 +41,8 @@ void MenuManager::Main() {
       Serial.println(extruderManager->timer);
       buttonState = encoder.getButton();
       extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
-
+      digitalWrite(E_ENABLE_PIN,!extruderManager->is_step);
+      
       if (ptMenu->title == "SETTINGS"){
         if( ptMenu->isSelected && ptMenu->currentMenu == 0){
           temperatureManagerTest->temperatureIncrement(- encoder.getValue());  

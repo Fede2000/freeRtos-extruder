@@ -31,7 +31,7 @@
 
 #define PREVENT_THERMAL_RUNAWAY         //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_THRESHOLD 30
-
+#define PREVENT_THERMAL_RUNAWAY_TIME 10000 //ms
 #define PREVENT_COLD_EXTRUSION          //comment out to disable
 #define EXTRUDE_MIN_EXTRUSION_TEMP 22   //TODO: 150
 

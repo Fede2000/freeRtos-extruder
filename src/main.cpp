@@ -70,9 +70,12 @@ void setup() {
 
   
   // extruder settings
-  extruder1.setMaxSpeed(1500);
+  /*extruder1.setMaxSpeed(1500);
   extruder1.setPinsInverted(false,false,true);  
-  extruder1.setEnablePin(E_ENABLE_PIN);
+  extruder1.setEnablePin(E_ENABLE_PIN);*/
+
+  pinMode(E_ENABLE_PIN, OUTPUT);
+  digitalWrite(E_ENABLE_PIN, LOW);
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
   

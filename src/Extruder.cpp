@@ -21,7 +21,7 @@ void Extruder::setTimer(float target_period_ms){
         period_ms = period_ms * 0.8 + target_period_ms * 0.2;
     }
     else
-        period_ms = 1;
+        period_ms = 2.5;
     // tick period = 4*10^(-6) [s]
     // timer = int(period_ms /tick period); -->
     // timer = int(period_ms *250); 
@@ -37,13 +37,19 @@ void Extruder::runSpeed(){
 }
 
 void Extruder::setSpeedRpm(float speed){
-    speed_rpm = speed;
-    if(speed > MAX_SET_TEMP)
-        speed_rpm = MAX_SET_TEMP;
+    
+    if(speed > MAX_SET_SPEED){
+        speed_rpm = MAX_SET_SPEED;
+        return 0;
+    }
     else if(speed <= 0){
         speed_rpm = 0;
         is_step = false;
+        digitalWrite(E_ENABLE_PIN,HIGH); // free the motor
+        return 0;
     }
+    digitalWrite(E_ENABLE_PIN,LOW); //TODO: evitare digitalWrite ogni volta
+    speed_rpm = speed;
 }
 
 void Extruder::incrementSpeed(int i){
@@ -51,4 +57,4 @@ void Extruder::incrementSpeed(int i){
 }
 
 
-AccelStepper extruder1(AccelStepper::DRIVER, E_STEP_PIN, E_DIR_PIN);
+//AccelStepper extruder1(AccelStepper::DRIVER, E_STEP_PIN, E_DIR_PIN);

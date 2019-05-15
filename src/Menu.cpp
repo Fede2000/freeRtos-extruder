@@ -112,9 +112,18 @@ void StatusPage::drawPage(){
     uint8_t i, h;
     u8g_uint_t w, d;
 
+    char two[10];  //  Hold The Convert Data
+    char one[] = "/ ";
+    dtostrf(int(ptTemperatureManager->tempSetpoint),2,0,two);
+    
+    char combined[32] = {0};
+
+    strcat(combined, one);
+    strcat(combined, two);
     // °C
     u8g.setFont(u8g_font_profont12); 
-    u8g.setPrintPos(51,21);
+    u8g.drawStr(51, 21, combined);
+    u8g.setPrintPos(80,21);
     u8g.write(0xB0);    u8g.print("C");
     u8g.drawStr(51, 31, "rpm"); 
 
@@ -122,9 +131,9 @@ void StatusPage::drawPage(){
     drawButton(100,28,0, heaterStatus, u8g_font_5x8r);
     drawButton(100,40,1, motorStatus, u8g_font_trixel_square);
     drawButton(90,60,2, "->MENU", u8g_font_5x8r);
-    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE && ptExtruderManager->is_step)
+    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE )//&& ptExtruderManager->is_step)
         drawButton(20,61,3, "PTR", u8g_font_5x8r);
-    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE && ptExtruderManager->is_step)
+    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE ) // && ptExtruderManager->is_step)
         drawButton(55,61,4, "PCE", u8g_font_5x8r);
 }
 
