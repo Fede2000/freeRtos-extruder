@@ -36,7 +36,6 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
 void MenuManager::Main() {
     for (;;)
     {
-      Serial.println(extruderManager->timer);
       buttonState = encoder.getButton();
       extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
       digitalWrite(E_ENABLE_PIN,!(extruderManager->is_step * temperatureManagerTest->EXTRUDER_SHOULD_RUN));

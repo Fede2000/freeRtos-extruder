@@ -59,7 +59,7 @@ void Menu::drawMenu()
 } 
 
 void Page::drawTitle(){
-    uint8_t i, h;
+    uint8_t h;
     u8g_uint_t w, d;
     u8g.setFont(u8g_font_7x13B);
     h = u8g.getFontAscent()-u8g.getFontDescent();
@@ -109,9 +109,6 @@ void StatusPage::drawPage(){
     if(has_menu)
         drawMenu();
 
-    uint8_t i, h;
-    u8g_uint_t w, d;
-
     char two[10];  //  Hold The Convert Data
     char one[] = "/ ";
     dtostrf(int(ptTemperatureManager->tempSetpoint),2,0,two);
@@ -130,11 +127,11 @@ void StatusPage::drawPage(){
     // btn
     drawButton(100,28,0, heaterStatus, u8g_font_5x8r);
     drawButton(100,40,1, motorStatus, u8g_font_trixel_square);
-    drawButton(90,60,2, "->MENU", u8g_font_5x8r);
+    drawButton(90,60,2, (char*)"->MENU", u8g_font_5x8r);
     if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE )//&& ptExtruderManager->is_step)
-        drawButton(20,61,3, "PTR", u8g_font_5x8r);
+        drawButton(20,61,3,(char*)"PTR", u8g_font_5x8r);
     if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE ) // && ptExtruderManager->is_step)
-        drawButton(55,61,4, "PCE", u8g_font_5x8r);
+        drawButton(55,61,4,(char*)"PCE", u8g_font_5x8r);
 }
 
 void SettingPage::drawPage(){
@@ -145,9 +142,6 @@ void SettingPage::drawPage(){
     if(has_menu)
         drawMenu();
 
-    uint8_t i, h;
-    u8g_uint_t w, d;
-
     // btn
     #ifdef PREVENT_COLD_EXTRUSION
     drawButton(50,52,3, PCE, u8g_font_5x8r);
@@ -155,13 +149,7 @@ void SettingPage::drawPage(){
     #ifdef PREVENT_THERMAL_RUNAWAY
     drawButton(10,52,2, PTR, u8g_font_5x8r);
     #endif
-    drawButton(90,60,4, "<-BACK", u8g_font_5x8r);  //TODO: se non definite id non deve essere 4
-
-    /*if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptExtruderManager->is_step)
-        drawButton(20,61,3, "TRP", u8g_font_5x8r);
-    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptExtruderManager->is_step)
-        drawButton(55,61,4, "PCE", u8g_font_5x8r);*/
-    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
+    drawButton(90,60,4, (char*)"<-BACK", u8g_font_5x8r);  //TODO: se non definite id non deve essere 4
 }
 
 
@@ -173,14 +161,9 @@ void SavePage::drawPage(){
     if(has_menu)
         drawMenu();
 
-    uint8_t i, h;
-    u8g_uint_t w, d;
-
     // btn
-    drawButton(50,60,0, "save", u8g_font_5x8r);
-    drawButton(90,60,1, "back", u8g_font_5x8r);
-    //drawButton(55,61,2, "PCE", u8g_font_5x8r);
-    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
+    drawButton(50,60,0, (char*)"save", u8g_font_5x8r);
+    drawButton(90,60,1, (char*)"back", u8g_font_5x8r);
 }
 
 void ResetPage::drawPage(){
@@ -190,13 +173,7 @@ void ResetPage::drawPage(){
 
     if(has_menu)
         drawMenu();
-
-    uint8_t i, h;
-    u8g_uint_t w, d;
-
     // btn
-    drawButton(50,60,0, "reset", u8g_font_5x8r);
-    drawButton(90,60,1, "back", u8g_font_5x8r);
-    //drawButton(55,61,2, "PCE", u8g_font_5x8r);
-    //drawButton(85,61,3, "TRP", u8g_font_5x8r);
+    drawButton(50,60,0, (char*)"reset", u8g_font_5x8r);
+    drawButton(90,60,1, (char*)"back", u8g_font_5x8r);
 }

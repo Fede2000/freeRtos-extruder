@@ -29,33 +29,28 @@
  
  **/
 
-#define PREVENT_THERMAL_RUNAWAY         //comment out to disable
-#define PREVENT_THERMAL_RUNAWAY_THRESHOLD 30
-#define PREVENT_THERMAL_RUNAWAY_TIME 10000 //ms
-#define PREVENT_COLD_EXTRUSION          //comment out to disable
-#define EXTRUDE_MIN_EXTRUSION_TEMP 30   //TODO: 150
+#define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
+#define PREVENT_THERMAL_RUNAWAY_THRESHOLD 35
+#define PREVENT_THERMAL_RUNAWAY_TIME 10000      //ms
+#define PREVENT_COLD_EXTRUSION                  //comment out to disable
+#define MIN_EXTRUSION_TEMP 30                   //TODO: 150
 
 #define DEFAULT_TEMP 35
-#define DEFAULT_SPEED 60 //RPM 
+#define DEFAULT_SPEED 60    //RPM 
 #define MAX_SET_TEMP 300
 #define MAX_SET_SPEED 300
 
 
 #define THERMISTORNOMINAL 100000      
-// temp. for nominal resistance (almost always 25 C)
-#define TEMPERATURENOMINAL 25   
-// how many samples to take and average, more takes longer
-// but is more 'smooth'
-#define NUMSAMPLES 5
-// The beta coefficient of the thermistor (usually 3000-4000)
-#define B_COEFFICIENT 3950
-// the value of the RAMPS resistor
-#define SERIESRESISTOR 4700  
+#define TEMPERATURENOMINAL 25       // temp. for nominal resistance (almost always 25 C)
+#define NUMSAMPLES 5                // how many samples to take and average, more takes longer, but is smoother
+#define B_COEFFICIENT 3950          // The beta coefficient of the thermistor (usually 3000-4000)
+#define SERIESRESISTOR 4700         // the value of the RAMPS resistor
 
-// PID settings
-#define CONST_KP 10
-#define CONST_KI 0.5
-#define CONST_KD 0.3
+//  PID settings
+#define CONST_KP 10         //kp
+#define CONST_KI 0.5        //ki
+#define CONST_KD 0.3        //kd
 
 
 /**
@@ -64,7 +59,8 @@
  
  **/
 
-//EEPROM  TODO: almost all useless -> remove their use
+//  EEPROM  
+//TODO: almost all useless -> remove their use
 #define ADDRESS_TEMPERATURE  0
 #define ADDRESS_SPEED  1
 #define ADDRESS_CK  2

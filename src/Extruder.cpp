@@ -11,8 +11,6 @@ formula:
 Extruder::Extruder(){
     setSpeedRpm(0);
     PERIOD_COSTANT_MS = 3.0 /(10.0 *(float)MICROSTEPPINGS*(float)GEAR_REDUCTION) * 1000.0;
-    Serial.println("PERIOD_COSTANT_MS");
-    Serial.println(PERIOD_COSTANT_MS);
 }
 
 // set timer 4-A
@@ -36,7 +34,7 @@ void Extruder::runSpeed(){
     setTimer( target_period_ms );
 }
 
-void Extruder::setSpeedRpm(float speed){
+int Extruder::setSpeedRpm(float speed){
     
     if(speed > MAX_SET_SPEED){
         speed_rpm = MAX_SET_SPEED;

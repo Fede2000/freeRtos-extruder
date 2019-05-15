@@ -15,7 +15,7 @@ class Extruder //: public Thread
         //Extruder( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
         Extruder();
         
-        void setSpeedRpm(float speed);
+        int setSpeedRpm(float speed);
         void incrementSpeed(int i);
         void runSpeed();
         int getSpeed(); // not yet implemented
