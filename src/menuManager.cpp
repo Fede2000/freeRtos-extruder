@@ -1,12 +1,11 @@
 #include "menuManager.h"
-#include <ClickEncoder.h>
-#include <TimerOne.h>
-#include "EepromHelper.h"
 #include "configuration.h"
-#include "logo.h"
+#include "EepromHelper.h"
 #include "Extruder.h"
 #include "temperatureManager.h"
-#include <Arduino.h>
+#include "logo.h"
+#include <ClickEncoder.h>
+#include <TimerOne.h>
 
 
 ClickEncoder MenuManager::encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
@@ -35,7 +34,6 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
 
 
 void MenuManager::Main() {
-    //Serial.println("qwerty");
     for (;;)
     {
       Serial.println(extruderManager->timer);

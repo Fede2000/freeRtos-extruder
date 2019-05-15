@@ -1,8 +1,7 @@
 #include "temperatureManager.h"
-#include <PID_v1.h>
-#include <Arduino_FreeRTOS.h>
-#include <Arduino.h>
 #include "configuration.h"
+#include <PID_v1.h>
+#include <Arduino.h>
 
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
                                                                                     myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
