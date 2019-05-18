@@ -29,7 +29,6 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
     Timer1.initialize(1000);
     Timer1.attachInterrupt(timerIsr);
     encoder.setAccelerationEnabled(true);
-
 }
 
 

@@ -1,7 +1,10 @@
 #include "Menu.h"
 #include "temperatureManager.h"
 #include "Extruder.h"
-#include "U8glib.h"
+//#include "U8glib.h"
+#include <U8g2lib.h>
+
+
 
 class Pages 
 {   

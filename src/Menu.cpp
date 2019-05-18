@@ -1,25 +1,29 @@
 
-#include "U8glib.h"
+//#include "U8glib.h"
+#include <U8g2lib.h>
 #include "Menu.h"
 #include "Arduino.h"
 
-U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
-  
+//U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
+//U8G2_ST7920_128X64_F_SW_SPI u8g(U8G2_R0, 23, 17, 16);
+U8G2_ST7920_128X64_F_SW_SPI u8g(U8G2_R0, /* clock=*/ 23, /* data=*/ 17, /* CS=*/ 16, /* reset=*/ 8);
+
+
 void Menu::drawMenu() 
 { 
 
-    uint8_t i, h;
-    u8g_uint_t w, d;
+    u8g2_uint_t i, h;
+    u8g2_uint_t w, d;
 
     u8g.setFont(menuFont);     //u8g_font_6x10
     u8g.setFontRefHeightText();
     u8g.setFontPosTop();
-    h = u8g.getFontAscent()-u8g.getFontDescent();
-    w = u8g.getWidth();
+    h = u8g.getAscent()-u8g.getDescent();
+    w = u8g.getDisplayWidth();
 
     for( i = 0; i < itemIdx; i++ ) {
         d = (w-u8g.getStrWidth(menu_strings[i]))/2;
-        u8g.setDefaultForegroundColor();
+        u8g.setDrawColor(1);
         
         
         if ( i == currentMenu && isSelectable) {
@@ -48,9 +52,9 @@ void Menu::drawMenu()
         u8g.drawStr(10, topSpacing+i*h, menu_strings[i]);
         
         if(menu_values_float[i] != NULL || menu_values_double[i]  != NULL ){
-            u8g.setDefaultForegroundColor();
+            u8g.setDrawColor(1);
             //u8g.setPrintPos(d -d*2 + w + 3, topSpacing + i*h+1); centered
-            u8g.setPrintPos(10 -d*2 + w + 3, topSpacing + i*h+1);
+            u8g.setCursor(10 -d*2 + w + 3, topSpacing + i*h+1);
             menu_values_float[i] != NULL ? u8g.print(*menu_values_float[i], 0) : u8g.print(*menu_values_double[i], 0);
         }
 
@@ -59,12 +63,15 @@ void Menu::drawMenu()
 } 
 
 void Page::drawTitle(){
-    uint8_t h;
-    u8g_uint_t w, d;
-    u8g.setFont(u8g_font_7x13B);
-    h = u8g.getFontAscent()-u8g.getFontDescent();
-    w = u8g.getWidth();    
-    d = (w- u8g.getStrWidth(title) )/2;
+    u8g2_uint_t h;
+    u8g2_uint_t w, d;
+    u8g.setFontRefHeightText();
+    u8g.setFontPosBaseline();
+    u8g.setFont(u8g2_font_7x13B_mf);
+
+    h = u8g.getAscent()-u8g.getDescent();
+    w = u8g.getDisplayWidth();    
+    d = (w - u8g.getStrWidth(title) )/2;
     u8g.drawStr(d, h + topSpacing, title);  //centered
     u8g.drawRFrame(0,0,w, h + topSpacing*2, 6);
     topSpacing = h + topSpacing*3;
@@ -79,19 +86,18 @@ void Page::drawPage(){
         drawMenu();  
 }
 
-void Page::drawButton(int x, int y, int id, char * name = NULL , const u8g_fntpgm_uint8_t *font = u8g_font_7x13B){
-    // btn1
+void Page::drawButton(int x, int y, int id, char * name = NULL , const uint8_t *font = u8g2_font_7x13_mf){
     int h,d;
     u8g.setFont(font);
-    //u8g.setFontRefHeightText();
-    //u8g.setFontPosTop();
-    h = u8g.getFontAscent()-u8g.getFontDescent();
+    u8g.setFontRefHeightText();
+    u8g.setFontPosBaseline();
+    h = u8g.getAscent()-u8g.getDescent();
     d = u8g.getStrWidth(name);
     if(id==currentMenu){  
         u8g.drawRBox(x -3, y -h -3, d+2*3, h+3*2, 3 );
-        u8g.setDefaultBackgroundColor();
+        u8g.setDrawColor(0);
         u8g.drawStr(x, y, name);
-        u8g.setDefaultForegroundColor();
+        u8g.setDrawColor(1);
     }
     else{
         u8g.drawStr(x, y, name);  
@@ -120,7 +126,7 @@ void StatusPage::drawPage(){
     // °C
     u8g.setFont(u8g_font_profont12); 
     u8g.drawStr(51, 21, combined);
-    u8g.setPrintPos(80,21);
+    u8g.setCursor(80,21);
     u8g.write(0xB0);    u8g.print("C");
     u8g.drawStr(51, 31, "rpm"); 
 

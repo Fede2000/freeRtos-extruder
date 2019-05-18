@@ -1,9 +1,21 @@
 #ifndef	MENU_H
 #define MENU_H
 
-#include "U8glib.h"
+//#include "U8glib.h"
 #include "temperatureManager.h"
 #include "Extruder.h"
+/**
+ * */
+#include <Arduino.h>
+#include <U8g2lib.h>
+
+#ifdef U8X8_HAVE_HW_SPI
+#include <SPI.h>
+#endif
+#ifdef U8X8_HAVE_HW_I2C
+#include <Wire.h>
+#endif
+
 class Menu 
 {   
     #define MAX_MENU_ITEMS  5
@@ -12,7 +24,7 @@ class Menu
         char *menu_strings[MAX_MENU_ITEMS]; 
         float *menu_values_float[MAX_MENU_ITEMS];
         double *menu_values_double[MAX_MENU_ITEMS];   /* TODO: eliminare non usato */
-        const u8g_fntpgm_uint8_t *menuFont;
+        const uint8_t *menuFont;
 
     public: 
         bool has_menu = false;
@@ -24,7 +36,7 @@ class Menu
         bool isSelected = false; 
         int topSpacing;
 
-    Menu(char * ptTitle = NULL, u8g_fntpgm_uint8_t *aMenuFont = u8g_font_profont12 ):
+    Menu(char * ptTitle = NULL, const uint8_t *aMenuFont = u8g2_font_7x13_mf ):
         menuFont(aMenuFont), title(ptTitle)  { }
 
     void addMenuString(char * ptItem){
@@ -56,10 +68,10 @@ class Menu
 class Page : public Menu
 {   
     public:     
-        Page(char *aPtTitle = NULL, u8g_fntpgm_uint8_t *aMenuFont = u8g_font_profont12 ): Menu(aPtTitle, aMenuFont){ }
+        Page(char *aPtTitle = NULL, const uint8_t *aMenuFont = u8g2_font_7x13_mf ): Menu(aPtTitle, aMenuFont){ }
         virtual void drawPage();
         void drawTitle();  
-        void drawButton(int x, int y, int id, char * name, const u8g_fntpgm_uint8_t *font);
+        void drawButton(int x, int y, int id, char * name, const uint8_t *font);
         char *heaterStatus;
         char *motorStatus;
         char *PCE;
@@ -94,18 +106,19 @@ class SettingPage : public Page
 class SavePage : public Page
 {   
     public:     
-        SavePage(char *aPtTitle = NULL, u8g_fntpgm_uint8_t *aMenuFont = u8g_font_profont12 ): Page(aPtTitle, aMenuFont){ nMenuItems = 0;}
+        SavePage(char *aPtTitle = NULL, uint8_t *aMenuFont = u8g2_font_7x13_mf ): Page(aPtTitle, aMenuFont){ nMenuItems = 0;}
         void drawPage();
         
 }; 
 class ResetPage : public Page
 {   
     public:     
-        ResetPage(char *aPtTitle = NULL, u8g_fntpgm_uint8_t *aMenuFont = u8g_font_profont12): Page(aPtTitle, aMenuFont){ nMenuItems = 0;}
+        ResetPage(char *aPtTitle = NULL, uint8_t *aMenuFont = u8g2_font_7x13_mf): Page(aPtTitle, aMenuFont){ nMenuItems = 0;}
         void drawPage();
         
 }; 
 
-extern U8GLIB_ST7920_128X64_1X u8g;
+//extern U8GLIB_ST7920_128X64_1X u8g;
+extern U8G2_ST7920_128X64_F_SW_SPI u8g;
 
 #endif

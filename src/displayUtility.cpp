@@ -20,21 +20,25 @@ DisplayManager::DisplayManager(unsigned portSHORT _stackDepth, UBaseType_t _prio
     menuManagerTest = aMenuManager;
     temperatureManager = aTemperatureManager;
     extruderManager = aExtruderManager;
+    
+}
 
   
-}
  
 void DisplayManager::Main(){
     for (;;) // A Task shall never return or exit.
     {
       menuManagerTest->updateMenu();
       
-      u8g.firstPage();  
+      /*u8g.firstPage();  
           do {
             menuManagerTest->ptMenu->drawPage();
           } while( u8g.nextPage() );
 
-
+      */
+      u8g.clearBuffer();	
+      menuManagerTest->ptMenu->drawPage();
+      u8g.sendBuffer();
       vTaskDelay(ticks);
   }
 }

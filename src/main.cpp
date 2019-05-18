@@ -38,7 +38,6 @@ void setup() {
   pinMode(EN_PIN, INPUT);
 
   pinMode(E_STEP_PIN,OUTPUT);
-
   digitalWrite(BUZZ_PIN,HIGH);
  /* while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
@@ -52,6 +51,7 @@ void setup() {
  
 
   /* --------------------------------------Display settings -------------------------------------*/  
+  u8g.begin();
   //displaying logo
   #ifdef DRAW_LOGO
     u8g.firstPage();
