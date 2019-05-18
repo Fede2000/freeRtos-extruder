@@ -51,13 +51,13 @@ void setup() {
  
 
   /* --------------------------------------Display settings -------------------------------------*/  
-  u8g.begin();
+  u8g2.begin();
   //displaying logo
   #ifdef DRAW_LOGO
-    u8g.firstPage();
+    u8g2.firstPage();
     do {
       drawLogo();
-    } while( u8g.nextPage() );
+    } while( u8g2.nextPage() );
     delay(2000);
   #endif
 

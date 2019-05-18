@@ -1,12 +1,9 @@
 
-//#include "U8glib.h"
 #include <U8g2lib.h>
 #include "Menu.h"
 #include "Arduino.h"
 
-//U8GLIB_ST7920_128X64_1X u8g(23, 17, 16);
-//U8G2_ST7920_128X64_F_SW_SPI u8g(U8G2_R0, 23, 17, 16);
-U8G2_ST7920_128X64_F_SW_SPI u8g(U8G2_R0, /* clock=*/ 23, /* data=*/ 17, /* CS=*/ 16, /* reset=*/ 8);
+U8G2_ST7920_128X64_F_SW_SPI u8g2(U8G2_R0, /* clock=*/ 23, /* data=*/ 17, /* CS=*/ 16, /* reset=*/ 8);
 
 
 void Menu::drawMenu() 
@@ -15,47 +12,47 @@ void Menu::drawMenu()
     u8g2_uint_t i, h;
     u8g2_uint_t w, d;
 
-    u8g.setFont(menuFont);     //u8g_font_6x10
-    u8g.setFontRefHeightText();
-    u8g.setFontPosTop();
-    h = u8g.getAscent()-u8g.getDescent();
-    w = u8g.getDisplayWidth();
+    u8g2.setFont(menuFont);     //u8g_font_6x10
+    u8g2.setFontRefHeightText();
+    u8g2.setFontPosTop();
+    h = u8g2.getAscent()-u8g2.getDescent();
+    w = u8g2.getDisplayWidth();
 
     for( i = 0; i < itemIdx; i++ ) {
-        d = (w-u8g.getStrWidth(menu_strings[i]))/2;
-        u8g.setDrawColor(1);
+        d = (w-u8g2.getStrWidth(menu_strings[i]))/2;
+        u8g2.setDrawColor(1);
         
         
         if ( i == currentMenu && isSelectable) {
 
             /*  DRAW box  centered */
             /*
-            u8g.drawBox(d-2, topSpacing + i*h, w-2*d+2, h);
-            u8g.setDefaultBackgroundColor();
+            u8g2.drawBox(d-2, topSpacing + i*h, w-2*d+2, h);
+            u8g2.setDefaultBackgroundColor();
             */
             if (isSelected){
-                u8g.setFont(u8g_font_profont15);  //u8g_font_6x12_75r
-                u8g.setFontRefHeightText();
-                u8g.setFontPosTop();
-                u8g.drawStr(0, topSpacing+i*h, "<");
-                //u8g.setPrintPos(2,topSpacing+i*h);
-                //u8g.print(0x20);    // https://github.com/olikraus/u8glib/wiki/fontgroupx11
-                u8g.setFont(menuFont);
-                u8g.setFontRefHeightText();
-                u8g.setFontPosTop();
+                u8g2.setFont(u8g_font_profont15);  //u8g_font_6x12_75r
+                u8g2.setFontRefHeightText();
+                u8g2.setFontPosTop();
+                u8g2.drawStr(0, topSpacing+i*h, "<");
+                //u8g2.setPrintPos(2,topSpacing+i*h);
+                //u8g2.print(0x20);    // https://github.com/olikraus/u8glib/wiki/fontgroupx11
+                u8g2.setFont(menuFont);
+                u8g2.setFontRefHeightText();
+                u8g2.setFontPosTop();
             }
             else
-                u8g.drawStr(2, topSpacing+i*h, ">");
+                u8g2.drawStr(2, topSpacing+i*h, ">");
         }
 
-        //u8g.drawStr(d, topSpacing+i*h, menu_strings[i]); // centered
-        u8g.drawStr(10, topSpacing+i*h, menu_strings[i]);
+        //u8g2.drawStr(d, topSpacing+i*h, menu_strings[i]); // centered
+        u8g2.drawStr(10, topSpacing+i*h, menu_strings[i]);
         
         if(menu_values_float[i] != NULL || menu_values_double[i]  != NULL ){
-            u8g.setDrawColor(1);
-            //u8g.setPrintPos(d -d*2 + w + 3, topSpacing + i*h+1); centered
-            u8g.setCursor(10 -d*2 + w + 3, topSpacing + i*h+1);
-            menu_values_float[i] != NULL ? u8g.print(*menu_values_float[i], 0) : u8g.print(*menu_values_double[i], 0);
+            u8g2.setDrawColor(1);
+            //u8g2.setPrintPos(d -d*2 + w + 3, topSpacing + i*h+1); centered
+            u8g2.setCursor(10 -d*2 + w + 3, topSpacing + i*h+1);
+            menu_values_float[i] != NULL ? u8g2.print(*menu_values_float[i], 0) : u8g2.print(*menu_values_double[i], 0);
         }
 
         //drawExtra();   
@@ -65,15 +62,15 @@ void Menu::drawMenu()
 void Page::drawTitle(){
     u8g2_uint_t h;
     u8g2_uint_t w, d;
-    u8g.setFontRefHeightText();
-    u8g.setFontPosBaseline();
-    u8g.setFont(u8g2_font_7x13B_mf);
+    u8g2.setFontRefHeightText();
+    u8g2.setFontPosBaseline();
+    u8g2.setFont(u8g2_font_7x13B_mf);
 
-    h = u8g.getAscent()-u8g.getDescent();
-    w = u8g.getDisplayWidth();    
-    d = (w - u8g.getStrWidth(title) )/2;
-    u8g.drawStr(d, h + topSpacing, title);  //centered
-    u8g.drawRFrame(0,0,w, h + topSpacing*2, 6);
+    h = u8g2.getAscent()-u8g2.getDescent();
+    w = u8g2.getDisplayWidth();    
+    d = (w - u8g2.getStrWidth(title) )/2;
+    u8g2.drawStr(d, h + topSpacing, title);  //centered
+    u8g2.drawRFrame(0,0,w, h + topSpacing*2, 6);
     topSpacing = h + topSpacing*3;
 }
 
@@ -88,20 +85,20 @@ void Page::drawPage(){
 
 void Page::drawButton(int x, int y, int id, char * name = NULL , const uint8_t *font = u8g2_font_7x13_mf){
     int h,d;
-    u8g.setFont(font);
-    u8g.setFontRefHeightText();
-    u8g.setFontPosBaseline();
-    h = u8g.getAscent()-u8g.getDescent();
-    d = u8g.getStrWidth(name);
+    u8g2.setFont(font);
+    u8g2.setFontRefHeightText();
+    u8g2.setFontPosBaseline();
+    h = u8g2.getAscent()-u8g2.getDescent();
+    d = u8g2.getStrWidth(name);
     if(id==currentMenu){  
-        u8g.drawRBox(x -3, y -h -3, d+2*3, h+3*2, 3 );
-        u8g.setDrawColor(0);
-        u8g.drawStr(x, y, name);
-        u8g.setDrawColor(1);
+        u8g2.drawRBox(x -3, y -h -3, d+2*3, h+3*2, 3 );
+        u8g2.setDrawColor(0);
+        u8g2.drawStr(x, y, name);
+        u8g2.setDrawColor(1);
     }
     else{
-        u8g.drawStr(x, y, name);  
-        //u8g.drawFrame(x -2, y -h -2, d+2*2, h+2*2 );
+        u8g2.drawStr(x, y, name);  
+        //u8g2.drawFrame(x -2, y -h -2, d+2*2, h+2*2 );
     }
     
 }
@@ -112,23 +109,38 @@ void StatusPage::drawPage(){
     if(title !=NULL)
         drawTitle();
 
-    if(has_menu)
-        drawMenu();
+    u8g2_uint_t i, h;
+    u8g2_uint_t w, d;    
 
-    char two[10];  //  Hold The Convert Data
-    char one[] = "/ ";
-    dtostrf(int(ptTemperatureManager->tempSetpoint),2,0,two);
-    
+    u8g2.setFont(u8g2_font_7x13_mf);     //u8g_font_6x10
+    u8g2.setFontRefHeightText();
+    u8g2.setFontPosTop();
+    h = u8g2.getAscent()-u8g2.getDescent();
+    w = u8g2.getDisplayWidth();
+    ///////////////
+    i=0;
+    char t_setpoint_ch[10];  //  Hold The Convert Data
+    char t_ch[10];         //  Hold The Convert Data
+    dtostrf(int(ptTemperatureManager->temperature),1,0,t_ch);
+    dtostrf(int(ptTemperatureManager->tempSetpoint),1,0,t_setpoint_ch);
     char combined[32] = {0};
+    strcat(combined,"T:");
+    strcat(combined, t_ch);
+    strcat(combined, "/");
+    strcat(combined, t_setpoint_ch);
+    u8g2.drawStr(10, topSpacing+i*h, combined);
+    u8g2.setCursor(10 + u8g2.getStrWidth(combined),topSpacing+i*h);
+    u8g2.write(0xB0);    u8g2.print("C");
 
-    strcat(combined, one);
-    strcat(combined, two);
-    // °C
-    u8g.setFont(u8g_font_profont12); 
-    u8g.drawStr(51, 21, combined);
-    u8g.setCursor(80,21);
-    u8g.write(0xB0);    u8g.print("C");
-    u8g.drawStr(51, 31, "rpm"); 
+    i=1;
+    char s_ch[10];         //  Hold The Convert Data
+    dtostrf(int(ptExtruderManager->speed_rpm),1,0,s_ch);
+    char combined2[32] = {0};
+    strcat(combined2,"S:");
+    strcat(combined2, s_ch);
+    strcat(combined2, "rpm");
+    u8g2.drawStr(10, topSpacing+i*h, combined2);
+    
 
     // btn
     drawButton(100,28,0, heaterStatus, u8g_font_5x8r);

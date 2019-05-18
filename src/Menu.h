@@ -1,7 +1,6 @@
 #ifndef	MENU_H
 #define MENU_H
 
-//#include "U8glib.h"
 #include "temperatureManager.h"
 #include "Extruder.h"
 /**
@@ -118,7 +117,6 @@ class ResetPage : public Page
         
 }; 
 
-//extern U8GLIB_ST7920_128X64_1X u8g;
-extern U8G2_ST7920_128X64_F_SW_SPI u8g;
+extern U8G2_ST7920_128X64_F_SW_SPI u8g2;
 
 #endif

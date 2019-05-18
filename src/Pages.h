@@ -1,7 +1,6 @@
 #include "Menu.h"
 #include "temperatureManager.h"
 #include "Extruder.h"
-//#include "U8glib.h"
 #include <U8g2lib.h>
 
 
@@ -30,8 +29,8 @@ class Pages
             menuPage.addMenuString("Reset");
             menuPage.isSelectable = true;
             //status
-            statusPage.addMenuStringValue("T:", & (aPtTemperatureManager->temperature)); 
-            statusPage.addMenuStringValue("S:", &aPtExtruderManager->speed_rpm); 
+            //statusPage.addMenuStringValue("T:", & (aPtTemperatureManager->temperature)); 
+            //statusPage.addMenuStringValue("S:", &aPtExtruderManager->speed_rpm); 
             //set
             setPage.addMenuStringValue("Set temp: ", & (aPtTemperatureManager->tempSetpoint));
             setPage.addMenuStringValue("Set speed: ", & aPtExtruderManager->speed_rpm);

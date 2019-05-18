@@ -12,7 +12,7 @@ ClickEncoder MenuManager::encoder(ENCODER_PIN1, ENCODER_PIN2, ENCODER_BTN, 4);
 void timerIsr() { MenuManager::encoder.service(); } 
 
 void drawLogo(){
-  u8g.drawXBMP( 0, 0, bmp_width, bmp_height, bmp_bits);
+  u8g2.drawXBMP( 0, 0, bmp_width, bmp_height, bmp_bits);
 }
 
 MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, 

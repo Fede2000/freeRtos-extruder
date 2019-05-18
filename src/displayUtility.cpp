@@ -29,16 +29,10 @@ void DisplayManager::Main(){
     for (;;) // A Task shall never return or exit.
     {
       menuManagerTest->updateMenu();
-      
-      /*u8g.firstPage();  
-          do {
-            menuManagerTest->ptMenu->drawPage();
-          } while( u8g.nextPage() );
 
-      */
-      u8g.clearBuffer();	
+      u8g2.clearBuffer();	
       menuManagerTest->ptMenu->drawPage();
-      u8g.sendBuffer();
+      u8g2.sendBuffer();
       vTaskDelay(ticks);
   }
 }
