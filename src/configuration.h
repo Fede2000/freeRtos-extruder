@@ -33,7 +33,7 @@
 #define PREVENT_THERMAL_RUNAWAY_THRESHOLD 35
 #define PREVENT_THERMAL_RUNAWAY_TIME 10000      //ms
 #define PREVENT_COLD_EXTRUSION                  //comment out to disable
-#define MIN_EXTRUSION_TEMP 30                   //TODO: 150
+#define PREVENT_COLD_EXTRUSION_DELTA_TEMP 30    //TODO: 150
 
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60    //RPM 

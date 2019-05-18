@@ -58,7 +58,7 @@ void TemperatureManager::Main() {
 
         #ifdef PREVENT_COLD_EXTRUSION
         if( PREVENT_COLD_EXTRUSION_IS_ACTIVE)
-            COLD_EXTRUSION_FLAG = temperature > MIN_EXTRUSION_TEMP ? false : true;
+            COLD_EXTRUSION_FLAG = temperature > (tempSetpoint - PREVENT_COLD_EXTRUSION_DELTA_TEMP) ? false : true;
         else  
             COLD_EXTRUSION_FLAG = false;
         #endif

@@ -144,7 +144,7 @@ void MenuManager::Main() {
                 case 0:
                   temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
                   ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
-          
+                  //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
                   break;
                 case 1:
                   extruderManager->is_enabled = ! extruderManager->is_enabled;
