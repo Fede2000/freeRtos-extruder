@@ -102,10 +102,37 @@ void Page::drawButton(int x, int y, int id, char * name = NULL , const uint8_t *
     }
     
 }
+void Page::drawIconButton(int x, int y, int id, uint16_t code = NULL , const uint8_t *font = u8g2_font_7x13_mf){
+    int h,d;
+    u8g2.setFont(font);
+    h = u8g2.getAscent()-u8g2.getDescent();
+    d = u8g2.getMaxCharWidth();
+    if(id==currentMenu){ 
+        if(isSelected){
+            u8g2.drawRFrame(x -3, y -h -3, d+2*3, h+3*2, 5 );
+            u8g2.setDrawColor(1);
+            u8g2.drawGlyph(x, y, code);
+        } 
+        else{
+            u8g2.drawRBox(x -3, y -h -3, d+2*3, h+3*2, 5 );
+            u8g2.setDrawColor(0);
+            u8g2.drawGlyph(x, y, code);
+            u8g2.setDrawColor(1);
+        }
+        
+    }
+    else{
+        u8g2.drawGlyph(x, y, code); 
+        //u8g2.drawFrame(x -2, y -h -2, d+2*2, h+2*2 );
+    }
+    
+}
 
 
 void StatusPage::drawPage(){
     topSpacing = 3;
+    int id=0;   // ->itemId
+
     if(title !=NULL)
         drawTitle();
 
@@ -114,7 +141,7 @@ void StatusPage::drawPage(){
 
     u8g2.setFont(u8g2_font_6x12_tf);     //u8g_font_6x10
     u8g2.setFontRefHeightText();
-    u8g2.setFontPosTop();
+    //u8g2.setFontPosTop();
     h = u8g2.getAscent()-u8g2.getDescent();
     w = u8g2.getDisplayWidth();
     ///////////////
@@ -128,14 +155,16 @@ void StatusPage::drawPage(){
     strcat(combined, t_ch);
     strcat(combined, "/");
     strcat(combined, t_setpoint_ch);
-    u8g2.setFont(u8g2_font_siji_t_6x10); 
-    u8g2.drawGlyph(0, topSpacing+i*h, 57372);
+    //u8g2.setFont(u8g2_font_siji_t_6x10); 
+    //u8g2.drawGlyph(0, topSpacing+i*h, 57372);
+    drawIconButton(0, topSpacing+h+i*h, id++,57372, u8g2_font_siji_t_6x10);
     u8g2.setFont(u8g2_font_6x12_tf);
-    u8g2.drawStr(15, topSpacing+i*h, combined);
-    u8g2.setCursor(15 + u8g2.getStrWidth(combined),topSpacing+i*h);
+    u8g2.drawStr(18, topSpacing+h+i*h, combined);
+    u8g2.setCursor(18 + u8g2.getStrWidth(combined),topSpacing+h+i*h);
     u8g2.write(0xB0);    u8g2.print("C");
 
     i=1;
+
     char s_ch[10];         //  Hold The Convert Data
     dtostrf(int(ptExtruderManager->speed_rpm),1,0,s_ch);
     char combined2[32] = {0};
@@ -143,17 +172,20 @@ void StatusPage::drawPage(){
     strcat(combined2, s_ch);
     strcat(combined2, " rpm");
 
-    u8g2.setFont(u8g2_font_siji_t_6x10); 
-    u8g2.drawGlyph(0, topSpacing+i*h, 57408);
+    //u8g2.setFont(u8g2_font_siji_t_6x10); 
+    //u8g2.drawGlyph(0, topSpacing+i*h, 57408);
+    drawIconButton(0,4 + topSpacing+h+i*h,id++,57408, u8g2_font_siji_t_6x10);
     u8g2.setFont(u8g2_font_6x12_tf);
-    u8g2.drawStr(15, topSpacing+i*h, combined2);
+    u8g2.drawStr(18,4 + topSpacing+h+i*h, combined2);
     
 
     // btn
-    int id=0;
+    
     drawButton(100,28,id++, heaterStatus, u8g_font_5x8r);
-    drawButton(100,40,id++, motorStatus, u8g_font_trixel_square);
-    drawButton(90,60,id++, (char*)"->MENU", u8g_font_5x8r);
+    //drawButton(100,40,id++, motorStatus, u8g_font_trixel_square);
+    drawIconButton(117,61,id++,84, u8g2_font_open_iconic_arrow_1x_t);   //save button
+
+
     if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
         u8g2.setFont(u8g2_font_open_iconic_embedded_1x_t); 
         u8g2.drawGlyph(10, 61, 71);

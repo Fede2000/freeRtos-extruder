@@ -39,7 +39,16 @@ void MenuManager::Main() {
       extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
       digitalWrite(E_ENABLE_PIN,!(extruderManager->is_step * temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
-      if (ptMenu->title == "SETTINGS"){
+      if (ptMenu->title == "STATUS"){
+        if( ptMenu->isSelected && ptMenu->currentMenu == 0){
+          temperatureManagerTest->temperatureIncrement(- encoder.getValue());  
+        }
+        else if(ptMenu->isSelected && ptMenu->currentMenu == 1){
+          extruderManager->incrementSpeed(- encoder.getValue());
+        }  
+      }
+      
+      else if (ptMenu->title == "SETTINGS"){
         if( ptMenu->isSelected && ptMenu->currentMenu == 0){
           temperatureManagerTest->temperatureIncrement(- encoder.getValue());  
         }
@@ -47,12 +56,11 @@ void MenuManager::Main() {
           extruderManager->incrementSpeed(- encoder.getValue());
         }  
       }
+      
 
-      //else{
-        tempEnc += encoder.getValue();    
-        if(tempEnc > 0)         {uiKeyCode = 1; tempEnc = 0;}
-        else if(tempEnc < 0)   {uiKeyCode = -1; tempEnc = 0;}
-      //}
+      tempEnc += encoder.getValue();    
+      if(tempEnc > 0)         {uiKeyCode = 1; tempEnc = 0;}
+      else if(tempEnc < 0)   {uiKeyCode = -1; tempEnc = 0;}
       
       if (buttonState != 0) {
         Serial.print("Button: "); Serial.println(buttonState);
@@ -76,7 +84,37 @@ void MenuManager::Main() {
 
           case ClickEncoder::Clicked:       //5
             ptMenu->isSelected = ! ptMenu->isSelected;
-            if(ptMenu->title == "MENU"){
+            if(ptMenu->title == "STATUS") { 
+              switch (ptMenu->currentMenu)
+              {
+                case 2:
+                  temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
+                  ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
+                  //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
+                  break;
+                /*case 3:
+                  extruderManager->is_enabled = ! extruderManager->is_enabled;
+                  ptMenu->motorStatus = extruderManager->is_enabled ? "ON" : "OFF";
+                  break;
+                */
+                /*case 3:
+                  ptMenu = & pages.menuPage;
+                  ptMenu->isSelected = false;
+                  break;
+                */
+                case 4:
+                  ptMenu->isSelected = false;
+                  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
+                  break;
+
+                default:
+                  break;
+              }
+    
+
+            }
+            
+            else if(ptMenu->title == "MENU"){
               ptMenu = pages.ptPages[pages.menuPage.currentMenu + 1];
               ptMenu->isSelected = false;
             }
@@ -136,34 +174,12 @@ void MenuManager::Main() {
               }
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;
-            }
-            else if(ptMenu->title == "STATUS") { 
-              switch (ptMenu->currentMenu)
-              {
-                case 0:
-                  temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
-                  ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
-                  //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
-                  break;
-                case 1:
-                  extruderManager->is_enabled = ! extruderManager->is_enabled;
-                  ptMenu->motorStatus = extruderManager->is_enabled ? "ON" : "OFF";
-                  break;
-                case 2:
-                  ptMenu = & pages.menuPage;
-                  ptMenu->isSelected = false;
-                  break;
-
-                default:
-                  break;
-              }
-    
-
-            }
+            } 
             break;
-            
+          
           case ClickEncoder::DoubleClicked: //6
-            ptMenu->isSelected = ! ptMenu->isSelected;
+            //ptMenu->isSelected = ! ptMenu->isSelected;
+            ptMenu->isSelected = false;
             if(ptMenu->title != "MENU"){
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;

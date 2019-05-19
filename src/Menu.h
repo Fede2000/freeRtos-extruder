@@ -71,6 +71,7 @@ class Page : public Menu
         virtual void drawPage();
         void drawTitle();  
         void drawButton(int x, int y, int id, char * name, const uint8_t *font);
+        void drawIconButton(int x, int y, int id, uint16_t code, const uint8_t *font);
         char *heaterStatus;
         char *motorStatus;
         char *PCE;
@@ -83,7 +84,7 @@ class StatusPage : public Page
 {   
     public:     
         StatusPage(char *aPtTitle = NULL, TemperatureManager * aPtTemperatureManager = NULL, Extruder *aPtExtruderManager = NULL ): Page(aPtTitle), ptTemperatureManager(aPtTemperatureManager), ptExtruderManager(aPtExtruderManager)
-        { nMenuItems = 3; heaterStatus = "COLD"; motorStatus="ON";}
+        { nMenuItems = 5; heaterStatus = "COLD"; motorStatus="ON";}
         void drawPage();
     private:
         TemperatureManager *ptTemperatureManager;

@@ -66,7 +66,7 @@ void TemperatureManager::Main() {
         #ifdef PREVENT_THERMAL_RUNAWAY
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
             if( (millis() -THERMAL_RUNAWAY_AT) > PREVENT_THERMAL_RUNAWAY_TIME && HEATER_ENABLED){
-                if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_THRESHOLD){
+                if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_HYSTERESIS){
                     Serial.println("THERMAL_RUNAWAY_TEMP_FLAG");
                     if(THERMAL_RUNAWAY_TEMP_FLAG)
                         THERMAL_RUNAWAY_FLAG = true;
