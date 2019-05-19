@@ -112,7 +112,7 @@ void StatusPage::drawPage(){
     u8g2_uint_t i, h;
     u8g2_uint_t w, d;    
 
-    u8g2.setFont(u8g2_font_7x13_mf);     //u8g_font_6x10
+    u8g2.setFont(u8g2_font_6x12_tf);     //u8g_font_6x10
     u8g2.setFontRefHeightText();
     u8g2.setFontPosTop();
     h = u8g2.getAscent()-u8g2.getDescent();
@@ -124,32 +124,50 @@ void StatusPage::drawPage(){
     dtostrf(int(ptTemperatureManager->temperature),1,0,t_ch);
     dtostrf(int(ptTemperatureManager->tempSetpoint),1,0,t_setpoint_ch);
     char combined[32] = {0};
-    strcat(combined,"T:");
+    //strcat(combined,"T:");
     strcat(combined, t_ch);
     strcat(combined, "/");
     strcat(combined, t_setpoint_ch);
-    u8g2.drawStr(10, topSpacing+i*h, combined);
-    u8g2.setCursor(10 + u8g2.getStrWidth(combined),topSpacing+i*h);
+    u8g2.setFont(u8g2_font_siji_t_6x10); 
+    u8g2.drawGlyph(0, topSpacing+i*h, 57372);
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.drawStr(15, topSpacing+i*h, combined);
+    u8g2.setCursor(15 + u8g2.getStrWidth(combined),topSpacing+i*h);
     u8g2.write(0xB0);    u8g2.print("C");
 
     i=1;
     char s_ch[10];         //  Hold The Convert Data
     dtostrf(int(ptExtruderManager->speed_rpm),1,0,s_ch);
     char combined2[32] = {0};
-    strcat(combined2,"S:");
+    //strcat(combined2,"S:");
     strcat(combined2, s_ch);
-    strcat(combined2, "rpm");
-    u8g2.drawStr(10, topSpacing+i*h, combined2);
+    strcat(combined2, " rpm");
+
+    u8g2.setFont(u8g2_font_siji_t_6x10); 
+    u8g2.drawGlyph(0, topSpacing+i*h, 57408);
+    u8g2.setFont(u8g2_font_6x12_tf);
+    u8g2.drawStr(15, topSpacing+i*h, combined2);
     
 
     // btn
-    drawButton(100,28,0, heaterStatus, u8g_font_5x8r);
-    drawButton(100,40,1, motorStatus, u8g_font_trixel_square);
-    drawButton(90,60,2, (char*)"->MENU", u8g_font_5x8r);
-    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE )//&& ptExtruderManager->is_step)
-        drawButton(20,61,3,(char*)"PTR", u8g_font_5x8r);
-    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE ) // && ptExtruderManager->is_step)
-        drawButton(55,61,4,(char*)"PCE", u8g_font_5x8r);
+    int id=0;
+    drawButton(100,28,id++, heaterStatus, u8g_font_5x8r);
+    drawButton(100,40,id++, motorStatus, u8g_font_trixel_square);
+    drawButton(90,60,id++, (char*)"->MENU", u8g_font_5x8r);
+    if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
+        u8g2.setFont(u8g2_font_open_iconic_embedded_1x_t); 
+        u8g2.drawGlyph(10, 61, 71);
+        u8g2.setFont(u8g2_font_6x12_tf);
+
+        drawButton(20,61,id++,(char*)"PTR", u8g_font_5x8r);
+    }
+    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE ){ // && ptExtruderManager->is_step)
+        u8g2.setFont(u8g2_font_open_iconic_embedded_1x_t); 
+        u8g2.drawGlyph(45, 61, 71);
+        u8g2.setFont(u8g2_font_6x12_tf);
+
+        drawButton(55,61,id++,(char*)"PCE", u8g_font_5x8r);
+    }
 }
 
 void SettingPage::drawPage(){

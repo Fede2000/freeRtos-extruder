@@ -83,7 +83,7 @@ class StatusPage : public Page
 {   
     public:     
         StatusPage(char *aPtTitle = NULL, TemperatureManager * aPtTemperatureManager = NULL, Extruder *aPtExtruderManager = NULL ): Page(aPtTitle), ptTemperatureManager(aPtTemperatureManager), ptExtruderManager(aPtExtruderManager)
-        { nMenuItems = 1; heaterStatus = "COLD"; motorStatus="ON";}
+        { nMenuItems = 3; heaterStatus = "COLD"; motorStatus="ON";}
         void drawPage();
     private:
         TemperatureManager *ptTemperatureManager;

@@ -29,16 +29,17 @@ DisplayManager displayManager { 1524, 2, "Display", 100 / portTICK_PERIOD_MS, &m
 
 void setup() {
   // serial init
-  
   Serial.begin(9600);
+
   pinMode(LED_BUILTIN,OUTPUT);
   pinMode(BUZZ_PIN,OUTPUT);
   pinMode(EN_M_PIN, INPUT);
   digitalWrite(EN_M_PIN, HIGH);
   pinMode(EN_PIN, INPUT);
-
+  
   pinMode(E_STEP_PIN,OUTPUT);
-  digitalWrite(BUZZ_PIN,HIGH);
+  tone(BUZZ_PIN, 1000, 500);
+  delay(1000);
  /* while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB  TODO: delete if serial port not used
   }

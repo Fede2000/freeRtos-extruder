@@ -16,7 +16,7 @@
 
 #define THERMISTOR_PIN 13
 #define HEATER_PIN 10
-#define BUZZ_PIN 33 
+#define BUZZ_PIN 37 
 
 #define EN_PIN  57    // enable pin
 #define EN_M_PIN  41 // manually enable pin "KILL PIN"
@@ -33,7 +33,7 @@
 #define PREVENT_THERMAL_RUNAWAY_THRESHOLD 35
 #define PREVENT_THERMAL_RUNAWAY_TIME 10000      //ms
 #define PREVENT_COLD_EXTRUSION                  //comment out to disable
-#define PREVENT_COLD_EXTRUSION_DELTA_TEMP 30    //TODO: 150
+#define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5    
 
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60    //RPM 

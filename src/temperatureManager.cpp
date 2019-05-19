@@ -43,7 +43,7 @@ void TemperatureManager::Main() {
     #ifdef PREVENT_THERMAL_RUNAWAY        
         PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
         bool THERMAL_RUNAWAY_TEMP_FLAG;
-        unsigned long THERMAL_RUNAWAY_AT;
+        unsigned long THERMAL_RUNAWAY_AT = millis();
     #endif //PREVENT_THERMAL_RUNAWAY
 
     #ifdef PREVENT_COLD_EXTRUSION
