@@ -178,11 +178,17 @@ void StatusPage::drawPage(){
     u8g2.setFont(u8g2_font_6x12_tf);
     u8g2.drawStr(18,4 + topSpacing+h+i*h, combined2);
     
+    if(ptExtruderManager->retraction_is_enabled)
+        drawIconButton(100,4 + topSpacing+h+i*h, id++,79, u8g2_font_open_iconic_embedded_1x_t);   //retraction button
+    else
+        drawIconButton(100,4 + topSpacing+h+i*h, id++,78, u8g2_font_open_iconic_arrow_1x_t);   //no retraction button
+    
 
     // btn
     
-    drawButton(100,28,id++, heaterStatus, u8g_font_5x8r);
+    drawButton(100,28,id++, heaterStatus, u8g_font_trixel_square);
     //drawButton(100,40,id++, motorStatus, u8g_font_trixel_square);
+    
     drawIconButton(117,61,id++,84, u8g2_font_open_iconic_arrow_1x_t);   //save button
 
 

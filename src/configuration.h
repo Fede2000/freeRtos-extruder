@@ -30,10 +30,10 @@
  **/
 
 #define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
-#define PREVENT_THERMAL_RUNAWAY_THRESHOLD 35
-#define PREVENT_THERMAL_RUNAWAY_TIME 10000      //ms
+#define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 4    //^C
+#define THERMAL_RUNAWAY_PERIOD 40000            //ms
 #define PREVENT_COLD_EXTRUSION                  //comment out to disable
-#define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5    
+#define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5     //^C
 
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60    //RPM 

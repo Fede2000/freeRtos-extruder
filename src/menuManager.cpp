@@ -37,7 +37,17 @@ void MenuManager::Main() {
     {
       buttonState = encoder.getButton();
       extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
-      digitalWrite(E_ENABLE_PIN,!(extruderManager->is_step * temperatureManagerTest->EXTRUDER_SHOULD_RUN));
+      if(extruderManager->is_step == false && extruderManager->was_step){
+        extruderManager->retract(200);
+        Serial.println("retract");
+      }
+      else if(extruderManager->is_step && extruderManager->was_step == false){
+        extruderManager->overExtrude(500);
+        Serial.println("overExtrude");
+      }
+      extruderManager->was_step = extruderManager->is_step;
+
+      digitalWrite(E_ENABLE_PIN,!((extruderManager->is_step || extruderManager->should_step_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
       if (ptMenu->title == "STATUS"){
         if( ptMenu->isSelected && ptMenu->currentMenu == 0){
@@ -88,6 +98,10 @@ void MenuManager::Main() {
               switch (ptMenu->currentMenu)
               {
                 case 2:
+                  extruderManager->retraction_is_enabled = !extruderManager->retraction_is_enabled;
+                  ptMenu->isSelected = false;
+                  break;
+                case 3:
                   temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
                   ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
                   //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;

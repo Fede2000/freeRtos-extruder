@@ -32,8 +32,10 @@ void setup() {
   Serial.begin(9600);
 
   pinMode(LED_BUILTIN,OUTPUT);
+  pinMode(E_DIR_PIN,OUTPUT);
   pinMode(BUZZ_PIN,OUTPUT);
   pinMode(EN_M_PIN, INPUT);
+  
   digitalWrite(EN_M_PIN, HIGH);
   pinMode(EN_PIN, INPUT);
   
@@ -119,13 +121,26 @@ ISR(TIMER4_COMPA_vect){
   TIMSK4 |= (1<<OCIE4A); //enable the interrupt
   
   /* -------------------- MOTOR RUN ----------------------*/
-  if(extruderManager.is_step && extruderManager.is_enabled && temperatureManager.EXTRUDER_SHOULD_RUN){
-    // pin 26 = port A bit 4
-    // 14 times faster
-    //PORTA |= B00001000;
-    //PORTA &= B11110111;
-    PORTA |= 1 << PORTA4;
-    PORTA &= ~(1 << PORTA4);
+  if(extruderManager.is_enabled && temperatureManager.EXTRUDER_SHOULD_RUN){
+    if(extruderManager.is_step){
+      // pin 26 = port A bit 4 --> step pin
+      // 14 times faster
+      //PORTA |= B00001000;
+      //PORTA &= B11110111;
+      //PORTA &= ~(1 << PORTA6);
+      PORTA |= 1 << PORTA4;
+      PORTA &= ~(1 << PORTA4);
+      //extruderManager.steps++;
+
+      
+
+    }
+
+    else if(extruderManager.steps < 0){
+      extruderManager.steps++;
+      PORTA |= 1 << PORTA4;
+      PORTA &= ~(1 << PORTA4);      
+    }
   }
  }
 

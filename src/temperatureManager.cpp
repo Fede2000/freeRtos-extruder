@@ -42,7 +42,7 @@ double TemperatureManager::readTemperature(){
 void TemperatureManager::Main() {
     #ifdef PREVENT_THERMAL_RUNAWAY        
         PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
-        bool THERMAL_RUNAWAY_TEMP_FLAG;
+        bool THERMAL_RUNAWAY_TEMP_FLAG = false;
         unsigned long THERMAL_RUNAWAY_AT = millis();
     #endif //PREVENT_THERMAL_RUNAWAY
 
@@ -65,7 +65,7 @@ void TemperatureManager::Main() {
         
         #ifdef PREVENT_THERMAL_RUNAWAY
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
-            if( (millis() -THERMAL_RUNAWAY_AT) > PREVENT_THERMAL_RUNAWAY_TIME && HEATER_ENABLED){
+            if( (millis() - THERMAL_RUNAWAY_AT) > THERMAL_RUNAWAY_PERIOD && HEATER_ENABLED){
                 if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_HYSTERESIS){
                     Serial.println("THERMAL_RUNAWAY_TEMP_FLAG");
                     if(THERMAL_RUNAWAY_TEMP_FLAG)

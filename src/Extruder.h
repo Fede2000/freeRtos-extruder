@@ -4,30 +4,33 @@
 #include <Arduino_FreeRTOS.h>
 #include "Thread.h"
 
-class Extruder //: public Thread
+class Extruder 
 {
     public:
         float speed_rpm; //rpm target
         int timer;
+        int steps = 0;
         bool is_step = false;
+        bool was_step = false;
         bool is_enabled = true;
-        
-        //Extruder( unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks );
+        bool retraction_is_enabled = true, should_step_retraction = false;
+
         Extruder();
-        
         int setSpeedRpm(float speed);
         void incrementSpeed(int i);
         void runSpeed();
-        int getSpeed(); // not yet implemented
+        bool retract(int nSteps);
+        bool overExtrude(int nSteps);
+
         
     private:
         void Main();
         void setTimer(float period_us);
         
-        float target_period_ms;
+        float target_period_ms, boost = 1;
         float period_ms;
         float PERIOD_COSTANT_MS ;
-        //uint32_t ticks;
+        
 };
 
 
