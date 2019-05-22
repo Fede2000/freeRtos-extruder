@@ -95,5 +95,8 @@ void Extruder::incrementSpeed(int i){
 }
 void Extruder::incrementRetraction(int i){
     steps_to_retract += i;
+    if(steps_to_retract < 0)
+        steps_to_retract  = 0;
+    
 }
 

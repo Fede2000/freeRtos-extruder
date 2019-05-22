@@ -46,7 +46,6 @@ void MenuManager::Main() {
         Serial.println("overExtrude");
       }
       extruderManager->last_input_step = extruderManager->is_input_step;
-      Serial.println(extruderManager->steps);
       digitalWrite(E_ENABLE_PIN,!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
       if (ptMenu->title == "STATUS" && ptMenu->isSelected){
@@ -137,7 +136,7 @@ void MenuManager::Main() {
                 */
                 case 5:
                   ptMenu->isSelected = false;
-                  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
+                  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract);
                   break;
 
                 default:
@@ -193,7 +192,7 @@ void MenuManager::Main() {
             //save
             else if(ptMenu->title == "SAVE") {
               if(ptMenu->currentMenu == 0)
-                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
+                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract);
 
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;
@@ -203,7 +202,7 @@ void MenuManager::Main() {
             else if(ptMenu->title == "RESET") {      
               if(ptMenu->currentMenu == 0){
                 temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
-                writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED);
+                writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED, (int) DEFAULT_RETRACTION_STEPS);
               }
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;

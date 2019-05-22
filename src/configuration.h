@@ -39,6 +39,7 @@
 #define DEFAULT_SPEED 60    //RPM 
 #define MAX_SET_TEMP 300
 #define MAX_SET_SPEED 300
+#define DEFAULT_RETRACTION_STEPS 500
 
 
 #define THERMISTORNOMINAL 100000      
@@ -73,7 +74,7 @@
 #define MICROSTEPPINGS 4 // default 4
 #define GEAR_REDUCTION 3.75 
 
-//#define DRAW_LOGO
+#define DRAW_LOGO
 
 #endif
 

@@ -19,14 +19,17 @@ int read16b(int addr){
    return dato;
 }
 
-void writeEprom(int temp, int speed){
+void writeEprom(int temp, int speed, int steps){
   write16b(temp,4);
   write16b(speed,8);
+  write16b(steps, 12);
   EEPROM.write(ADDRESS_CK, EEPROM_CK_VALUE);
 }
-void readEprom(double &temp, float &speed){
+void readEprom(double &temp, float &speed, int &steps){
   temp = read16b(4);
   speed = read16b(8);
+  steps = read16b(12);
   Serial.println(temp);
   Serial.println(speed);
+  Serial.println(steps);
 }
