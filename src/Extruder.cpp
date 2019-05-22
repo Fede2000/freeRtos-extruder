@@ -17,7 +17,7 @@ Extruder::Extruder(){
 
 // set timer 4-A
 void Extruder::setTimer(float target_period_ms){
-    if(is_step || should_step_retraction){
+    if(is_input_step || run_retraction){
         period_ms = period_ms * 0.8 + target_period_ms * 0.2;
     }
     //else
@@ -32,27 +32,45 @@ void Extruder::setTimer(float target_period_ms){
 
 void Extruder::runSpeed(){
     //target_period_ms = 2.5 /speed_rpm;
-    target_period_ms = PERIOD_COSTANT_MS / speed_rpm; //* boost;
+    if(steps < 0){
+        boost_period = 1;  //
+        steps++;
+        run_retraction = true;
+    }
+    else if (steps > 0) //overExtrusion
+    {
+        boost_period = 0.5;    //double the speed
+        steps --;
+        run_retraction = true;
+    }
+    else
+    {
+        boost_period = 1;
+        run_retraction = false;
+    }
+    
+    
+    target_period_ms = PERIOD_COSTANT_MS / speed_rpm * boost_period;
     setTimer( target_period_ms );
 }
 //  nSteps always > 0
-bool Extruder::retract(int nSteps){
+bool Extruder::retract(){
     if(retraction_is_enabled){
         period_ms = 2.5;
         PORTA |= 1 << PORTA6;
-        steps -= nSteps;
-        //boost = 1;
-        should_step_retraction = true;
+        steps -= steps_to_retract;
+        //boost_period = 1;
+        run_retraction = true;
     }
 }
 
-bool Extruder::overExtrude(int nSteps){
+bool Extruder::overExtrude(){
     period_ms = 2.5;
     PORTA &= ~(1 << PORTA6);
     if(retraction_is_enabled){
-        //steps -= nSteps;
-        //boost = 0.5;
-        should_step_retraction = false;
+        steps += steps_to_retract;  //+ over extrude
+        //boost_period = 0.5;
+        //run_retraction = false;
     }
 }
 
@@ -64,7 +82,7 @@ int Extruder::setSpeedRpm(float speed){
     }
     else if(speed <= 0){
         speed_rpm = 0;
-        is_step = false;
+        is_input_step = false;
         digitalWrite(E_ENABLE_PIN,HIGH); // free the motor
         return 0;
     }

@@ -36,18 +36,18 @@ void MenuManager::Main() {
     for (;;)
     {
       buttonState = encoder.getButton();
-      extruderManager->is_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
-      if(extruderManager->is_step == false && extruderManager->was_step){
-        extruderManager->retract(200);
+      extruderManager->is_input_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
+      if(extruderManager->is_input_step == false && extruderManager->last_input_step){
+        extruderManager->retract();
         Serial.println("retract");
       }
-      else if(extruderManager->is_step && extruderManager->was_step == false){
-        extruderManager->overExtrude(500);
+      else if(extruderManager->is_input_step && extruderManager->last_input_step == false){
+        extruderManager->overExtrude();
         Serial.println("overExtrude");
       }
-      extruderManager->was_step = extruderManager->is_step;
-
-      digitalWrite(E_ENABLE_PIN,!((extruderManager->is_step || extruderManager->should_step_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
+      extruderManager->last_input_step = extruderManager->is_input_step;
+      Serial.println(extruderManager->steps);
+      digitalWrite(E_ENABLE_PIN,!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
       if (ptMenu->title == "STATUS"){
         if( ptMenu->isSelected && ptMenu->currentMenu == 0){

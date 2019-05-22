@@ -199,7 +199,7 @@ void StatusPage::drawPage(){
 
         drawButton(20,61,id++,(char*)"PTR", u8g_font_5x8r);
     }
-    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE ){ // && ptExtruderManager->is_step)
+    if(ptTemperatureManager->COLD_EXTRUSION_FLAG && ptTemperatureManager->PREVENT_COLD_EXTRUSION_IS_ACTIVE ){ // && ptExtruderManager->is_input_step)
         u8g2.setFont(u8g2_font_open_iconic_embedded_1x_t); 
         u8g2.drawGlyph(45, 61, 71);
         u8g2.setFont(u8g2_font_6x12_tf);

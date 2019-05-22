@@ -122,7 +122,7 @@ ISR(TIMER4_COMPA_vect){
   
   /* -------------------- MOTOR RUN ----------------------*/
   if(extruderManager.is_enabled && temperatureManager.EXTRUDER_SHOULD_RUN){
-    if(extruderManager.is_step){
+    if(extruderManager.is_input_step || extruderManager.run_retraction){
       // pin 26 = port A bit 4 --> step pin
       // 14 times faster
       //PORTA |= B00001000;
@@ -134,12 +134,6 @@ ISR(TIMER4_COMPA_vect){
 
       
 
-    }
-
-    else if(extruderManager.steps < 0){
-      extruderManager.steps++;
-      PORTA |= 1 << PORTA4;
-      PORTA &= ~(1 << PORTA4);      
     }
   }
  }
