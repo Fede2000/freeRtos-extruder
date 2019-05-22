@@ -93,4 +93,7 @@ int Extruder::setSpeedRpm(float speed){
 void Extruder::incrementSpeed(int i){
     setSpeedRpm(speed_rpm + i);
 }
+void Extruder::incrementRetraction(int i){
+    steps_to_retract += i;
+}
 

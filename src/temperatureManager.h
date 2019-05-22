@@ -29,7 +29,7 @@ public:
 
     void getTemperature();
     void setTemperature(double temperatureSetpoint);
-    void temperatureIncrement(int i);
+    void incrementTemperature(int i);
     double readTemperature();
     void Main();
 

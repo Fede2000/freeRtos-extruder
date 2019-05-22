@@ -100,6 +100,6 @@ void TemperatureManager::setTemperature( double temperatureSetpoint){
         tempSetpoint = 0;
 }
 
-void TemperatureManager::temperatureIncrement( int i ){
+void TemperatureManager::incrementTemperature( int i ){
     setTemperature( tempSetpoint + i);
 }

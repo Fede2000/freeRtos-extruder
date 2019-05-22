@@ -49,18 +49,35 @@ void MenuManager::Main() {
       Serial.println(extruderManager->steps);
       digitalWrite(E_ENABLE_PIN,!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
-      if (ptMenu->title == "STATUS"){
+      if (ptMenu->title == "STATUS" && ptMenu->isSelected){
+        switch (ptMenu->currentMenu)
+        {
+        case 0:
+          temperatureManagerTest->incrementTemperature(- encoder.getValue()); 
+          break;
+        case 2:
+          extruderManager->incrementSpeed(- encoder.getValue());
+          break;
+        case 4:
+          extruderManager->incrementRetraction(-encoder.getValue());
+        
+        default:
+          break;
+        }   
         if( ptMenu->isSelected && ptMenu->currentMenu == 0){
-          temperatureManagerTest->temperatureIncrement(- encoder.getValue());  
+          temperatureManagerTest->incrementTemperature(- encoder.getValue());  
         }
-        else if(ptMenu->isSelected && ptMenu->currentMenu == 1){
+        else if(ptMenu->isSelected && ptMenu->currentMenu == 2){
+          extruderManager->incrementSpeed(- encoder.getValue());
+        }  
+        else if(ptMenu->isSelected && ptMenu->currentMenu == 2){
           extruderManager->incrementSpeed(- encoder.getValue());
         }  
       }
       
       else if (ptMenu->title == "SETTINGS"){
         if( ptMenu->isSelected && ptMenu->currentMenu == 0){
-          temperatureManagerTest->temperatureIncrement(- encoder.getValue());  
+          temperatureManagerTest->incrementTemperature(- encoder.getValue());  
         }
         else if(ptMenu->isSelected){
           extruderManager->incrementSpeed(- encoder.getValue());
@@ -97,15 +114,17 @@ void MenuManager::Main() {
             if(ptMenu->title == "STATUS") { 
               switch (ptMenu->currentMenu)
               {
-                case 2:
-                  extruderManager->retraction_is_enabled = !extruderManager->retraction_is_enabled;
-                  ptMenu->isSelected = false;
-                  break;
-                case 3:
+                
+                case 1:
                   temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
                   ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
                   //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
                   break;
+                case 3:
+                  extruderManager->retraction_is_enabled = !extruderManager->retraction_is_enabled;
+                  ptMenu->isSelected = false;
+                  break;
+
                 /*case 3:
                   extruderManager->is_enabled = ! extruderManager->is_enabled;
                   ptMenu->motorStatus = extruderManager->is_enabled ? "ON" : "OFF";
@@ -113,10 +132,10 @@ void MenuManager::Main() {
                 */
                 /*case 3:
                   ptMenu = & pages.menuPage;
-                  ptMenu->isSelected = false;
+                  ptMenu->isSelected = falsIT
                   break;
                 */
-                case 4:
+                case 5:
                   ptMenu->isSelected = false;
                   writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm);
                   break;

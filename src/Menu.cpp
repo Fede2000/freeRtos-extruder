@@ -144,8 +144,9 @@ void StatusPage::drawPage(){
     //u8g2.setFontPosTop();
     h = u8g2.getAscent()-u8g2.getDescent();
     w = u8g2.getDisplayWidth();
-    ///////////////
-    i=0;
+    
+    /////////////// first row
+    int y = 3 + topSpacing+h;
     char t_setpoint_ch[10];  //  Hold The Convert Data
     char t_ch[10];         //  Hold The Convert Data
     dtostrf(int(ptTemperatureManager->temperature),1,0,t_ch);
@@ -157,14 +158,15 @@ void StatusPage::drawPage(){
     strcat(combined, t_setpoint_ch);
     //u8g2.setFont(u8g2_font_siji_t_6x10); 
     //u8g2.drawGlyph(0, topSpacing+i*h, 57372);
-    drawIconButton(0, topSpacing+h+i*h, id++,57372, u8g2_font_siji_t_6x10);
+    drawIconButton(0, y , id++,57372, u8g2_font_siji_t_6x10);
     u8g2.setFont(u8g2_font_6x12_tf);
-    u8g2.drawStr(18, topSpacing+h+i*h, combined);
-    u8g2.setCursor(18 + u8g2.getStrWidth(combined),topSpacing+h+i*h);
+    u8g2.drawStr(18, y, combined);
+    u8g2.setCursor(18 + u8g2.getStrWidth(combined),y);
     u8g2.write(0xB0);    u8g2.print("C");
+    drawButton(65, y,id++, heaterStatus, u8g_font_trixel_square);
 
-    i=1;
-
+    /////////////// second row
+    y = y + h + 4;
     char s_ch[10];         //  Hold The Convert Data
     dtostrf(int(ptExtruderManager->speed_rpm),1,0,s_ch);
     char combined2[32] = {0};
@@ -174,23 +176,28 @@ void StatusPage::drawPage(){
 
     //u8g2.setFont(u8g2_font_siji_t_6x10); 
     //u8g2.drawGlyph(0, topSpacing+i*h, 57408);
-    drawIconButton(0,4 + topSpacing+h+i*h,id++,57408, u8g2_font_siji_t_6x10);
+    drawIconButton(0, y,id++,57408, u8g2_font_siji_t_6x10);
     u8g2.setFont(u8g2_font_6x12_tf);
-    u8g2.drawStr(18,4 + topSpacing+h+i*h, combined2);
+    u8g2.drawStr(18, y, combined2);
     
+    
+    
+    /////////////// third row
+    y = 6 + y + h;
     if(ptExtruderManager->retraction_is_enabled)
-        drawIconButton(100,4 + topSpacing+h+i*h, id++,79, u8g2_font_open_iconic_embedded_1x_t);   //retraction button
+        drawIconButton(2, y, id++,79, u8g2_font_open_iconic_embedded_1x_t);   //retraction button
     else
-        drawIconButton(100,4 + topSpacing+h+i*h, id++,78, u8g2_font_open_iconic_arrow_1x_t);   //no retraction button
-    
+        drawIconButton(2, y, id++,78, u8g2_font_open_iconic_arrow_1x_t);   //no retraction button
 
-    // btn
-    
-    drawButton(100,28,id++, heaterStatus, u8g_font_trixel_square);
     //drawButton(100,40,id++, motorStatus, u8g_font_trixel_square);
     
+    char st_ch[10];         //  Hold The Convert Data
+    dtostrf(ptExtruderManager->steps_to_retract,1,0,st_ch);
+    u8g2.setFont(u8g2_font_6x12_tf);
+    drawButton(18, y, id++, st_ch, u8g2_font_6x12_tf);
+    ///////////////
     drawIconButton(117,61,id++,84, u8g2_font_open_iconic_arrow_1x_t);   //save button
-
+    
 
     if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
         u8g2.setFont(u8g2_font_open_iconic_embedded_1x_t); 
