@@ -33,19 +33,38 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
 
 
 void MenuManager::Main() {
+    bool btn_stop_prev = false, btn_stop = false;
     for (;;)
     {
-      buttonState = encoder.getButton();
-      extruderManager->is_input_step = (digitalRead(EN_M_PIN) == 0) ||( digitalRead(EN_PIN) == 1);
-      if(extruderManager->is_input_step == false && extruderManager->last_input_step){
-        extruderManager->retract();
-        Serial.println("retract");
-      }
-      else if(extruderManager->is_input_step && extruderManager->last_input_step == false){
-        extruderManager->overExtrude();
-        Serial.println("overExtrude");
-      }
+      encoderButtonState = encoder.getButton();
+      btn_stop = digitalRead(EXTRUDER_BTN_EN_PIN);
+      #ifdef STOP_BTN_TEST
+        extruderManager->is_input_step = (digitalRead(EXTRUDER_BTN_EN_PIN) == 0) ||( digitalRead(EXTRUDER_EN_PIN) == 1);
+        if(extruderManager->is_input_step == false && extruderManager->last_input_step){
+          extruderManager->retract();
+          Serial.println("retract");
+        }
+        else if(extruderManager->is_input_step && extruderManager->last_input_step == false){
+          extruderManager->overExtrude();
+          Serial.println("overExtrude");
+        }
+      #endif //STOP_BTN_TEST
+      #ifdef STOP_BTN_CONTROLL
+        extruderManager->is_input_step = (btn_stop == 0 && btn_stop_prev == 1) ? !extruderManager->is_input_step: extruderManager->is_input_step;  
+        extruderManager->is_input_step |=  digitalRead(EXTRUDER_EN_PIN) == 1; 
+        if(extruderManager->is_input_step == false && extruderManager->last_input_step){
+          extruderManager->retract();
+          Serial.println("retract");
+        }
+        else if(extruderManager->is_input_step && extruderManager->last_input_step == false){
+          extruderManager->overExtrude();
+          Serial.println("overExtrude");
+        }
+      #endif //STOP_BTN_CONTROLL
+
       extruderManager->last_input_step = extruderManager->is_input_step;
+      btn_stop_prev = btn_stop;
+
       digitalWrite(E_ENABLE_PIN,!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
       if (ptMenu->title == "STATUS" && ptMenu->isSelected){
@@ -88,10 +107,10 @@ void MenuManager::Main() {
       if(tempEnc > 0)         {uiKeyCode = 1; tempEnc = 0;}
       else if(tempEnc < 0)   {uiKeyCode = -1; tempEnc = 0;}
       
-      if (buttonState != 0) {
-        Serial.print("Button: "); Serial.println(buttonState);
-        lastButtonState = buttonState;
-        switch (buttonState) {
+      if (encoderButtonState != 0) {
+        Serial.print("Button: "); Serial.println(encoderButtonState);
+        lastButtonState = encoderButtonState;
+        switch (encoderButtonState) {
           case ClickEncoder::Open:          //0
             break;
 

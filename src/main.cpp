@@ -34,10 +34,10 @@ void setup() {
   pinMode(LED_BUILTIN,OUTPUT);
   pinMode(E_DIR_PIN,OUTPUT);
   pinMode(BUZZ_PIN,OUTPUT);
-  pinMode(EN_M_PIN, INPUT);
+  pinMode(EXTRUDER_BTN_EN_PIN, INPUT);
   
-  digitalWrite(EN_M_PIN, HIGH);
-  pinMode(EN_PIN, INPUT);
+  digitalWrite(EXTRUDER_BTN_EN_PIN, HIGH);
+  pinMode(EXTRUDER_EN_PIN, INPUT);
   
   pinMode(E_STEP_PIN,OUTPUT);
   tone(BUZZ_PIN, 1000, 500);

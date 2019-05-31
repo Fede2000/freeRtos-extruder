@@ -18,8 +18,8 @@
 #define HEATER_PIN 10
 #define BUZZ_PIN 37 
 
-#define EN_PIN  57    // enable pin
-#define EN_M_PIN  41 // manually enable pin "KILL PIN"
+#define EXTRUDER_EN_PIN  57    // enable pin
+#define EXTRUDER_BTN_EN_PIN  41 // manually enable pin "KILL PIN"
 
 
 
@@ -74,6 +74,9 @@
 #define MICROSTEPPINGS 4 // default 4
 #define GEAR_REDUCTION 3.75 
 
+//stop btn function definition
+//#define STOP_BTN_TEST     //stop btn usato x spurgare
+#define STOP_BTN_CONTROLL   //stop btn usato x comandare estrusore
 #define DRAW_LOGO
 
 #endif

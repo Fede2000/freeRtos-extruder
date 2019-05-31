@@ -36,7 +36,7 @@ public:
 		 uint32_t _ticks, TemperatureManager *  aTemperatureManager, Extruder * extruderManager );
     
     static ClickEncoder encoder;
-    uint8_t buttonState, lastButtonState;
+    uint8_t encoderButtonState, lastButtonState;
     //Page_t page_current = Status;
     int uiKeyCode = 0;
     Page * ptMenu;
