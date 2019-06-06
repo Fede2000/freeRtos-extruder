@@ -163,7 +163,7 @@ void StatusPage::drawPage(){
     u8g2.drawStr(18, y, combined);
     u8g2.setCursor(18 + u8g2.getStrWidth(combined),y);
     u8g2.write(0xB0);    u8g2.print("C");
-    drawButton(70, y,id++, heaterStatus, u8g_font_trixel_square);
+    drawButton(110, y,id++, heaterStatus, u8g_font_trixel_square);
 
     /////////////// second row
     y = y + h + 4;
