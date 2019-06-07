@@ -15,7 +15,7 @@ class Extruder
         bool is_input_step = false;
         bool last_input_step = false;
         bool is_enabled = true;
-        bool retraction_is_enabled = true, run_retraction = false;
+        bool is_retraction_enabled = true, run_retraction = false;
 
         Extruder();
         int setSpeedRpm(float speed);

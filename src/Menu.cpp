@@ -184,7 +184,7 @@ void StatusPage::drawPage(){
     
     /////////////// third row
     y = 6 + y + h;
-    if(ptExtruderManager->retraction_is_enabled)
+    if(ptExtruderManager->is_retraction_enabled)
         drawIconButton(2, y, id++,79, u8g2_font_open_iconic_embedded_1x_t);   //retraction button
     else
         drawIconButton(2, y, id++,78, u8g2_font_open_iconic_arrow_1x_t);   //no retraction button

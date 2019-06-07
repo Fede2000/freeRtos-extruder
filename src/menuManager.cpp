@@ -33,7 +33,7 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
 }
 
 void MenuManager::saveEprom_short(){
-  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract, extruderManager->retraction_is_enabled);
+  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract, extruderManager->is_retraction_enabled);
 }
 
 
@@ -143,7 +143,7 @@ void MenuManager::Main() {
                   //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
                   break;
                 case 3:
-                  extruderManager->retraction_is_enabled = !extruderManager->retraction_is_enabled;
+                  extruderManager->is_retraction_enabled = !extruderManager->is_retraction_enabled;
                   ptMenu->isSelected = false;
                   saveEprom_short();
                   break;

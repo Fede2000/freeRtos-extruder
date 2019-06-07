@@ -55,7 +55,7 @@ void Extruder::runSpeed(){
 }
 //  nSteps always > 0
 bool Extruder::retract(){
-    if(retraction_is_enabled){
+    if(is_retraction_enabled){
         period_ms = 2.5;
         PORTA |= 1 << PORTA6;
         steps -= steps_to_retract;
@@ -67,7 +67,7 @@ bool Extruder::retract(){
 bool Extruder::overExtrude(){
     period_ms = 2.5;
     PORTA &= ~(1 << PORTA6);
-    if(retraction_is_enabled){
+    if(is_retraction_enabled){
         steps += steps_to_retract;  //+ over extrude
         //boost_period = 0.5;
         //run_retraction = false;
