@@ -40,7 +40,7 @@
 #define MAX_SET_TEMP 300
 #define MAX_SET_SPEED 300
 #define DEFAULT_RETRACTION_STEPS 500
-
+#define EXTRUSION_ACCELERATION  0.05 // higher accelerations=> lees torque; slower accelerations => more torque, but less reactivity.  range[0.02 - 0.15]
 
 #define THERMISTORNOMINAL 100000      
 #define TEMPERATURENOMINAL 25       // temp. for nominal resistance (almost always 25 C)

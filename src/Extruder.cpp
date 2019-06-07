@@ -18,7 +18,7 @@ Extruder::Extruder(){
 // set timer 4-A
 void Extruder::setTimer(float target_period_ms){
     if(is_input_step || run_retraction){
-        period_ms = period_ms * 0.95 + target_period_ms * 0.05;
+        period_ms = period_ms * (1-(float)EXTRUSION_ACCELERATION) + target_period_ms * (float)EXTRUSION_ACCELERATION;
     }
     //else
     //    period_ms = 2.5;
