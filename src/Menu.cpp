@@ -196,7 +196,7 @@ void StatusPage::drawPage(){
     u8g2.setFont(u8g2_font_6x12_tf);
     drawButton(18, y, id++, st_ch, u8g2_font_6x12_tf);
     ///////////////
-    drawIconButton(117,61,id++,84, u8g2_font_open_iconic_arrow_1x_t);   //save button
+    //drawIconButton(117,61,id++,84, u8g2_font_open_iconic_arrow_1x_t);   //save button
     
 
     if(ptTemperatureManager->THERMAL_RUNAWAY_FLAG && ptTemperatureManager->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){

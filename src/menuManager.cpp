@@ -15,6 +15,7 @@ void drawLogo(){
   u8g2.drawXBMP( 0, 0, bmp_width, bmp_height, bmp_bits);
 }
 
+
 MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, 
                         uint32_t _ticks, TemperatureManager *  aTemperatureManager, Extruder * aExtruderManager) :
                                                                                     //temperatureManagerTest(aTemperatureManager),
@@ -31,9 +32,14 @@ MenuManager::MenuManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, 
     encoder.setAccelerationEnabled(true);
 }
 
+void MenuManager::saveEprom_short(){
+  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract, extruderManager->retraction_is_enabled);
+}
+
 
 void MenuManager::Main() {
-    bool btn_stop_prev = false, btn_stop = false;
+    bool btn_stop_prev = false, btn_stop = false, dataHasBeenSaved=true;
+   
     for (;;)
     {
       encoderButtonState = encoder.getButton();
@@ -65,9 +71,11 @@ void MenuManager::Main() {
       extruderManager->last_input_step = extruderManager->is_input_step;
       btn_stop_prev = btn_stop;
 
+      //free the motor when not used
       digitalWrite(E_ENABLE_PIN,!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
       if (ptMenu->title == "STATUS" && ptMenu->isSelected){
+        dataHasBeenSaved=false;
         switch (ptMenu->currentMenu)
         {
         case 0:
@@ -82,22 +90,18 @@ void MenuManager::Main() {
         default:
           break;
         }   
-        if( ptMenu->isSelected && ptMenu->currentMenu == 0){
-          temperatureManagerTest->incrementTemperature(- encoder.getValue());  
-        }
-        else if(ptMenu->isSelected && ptMenu->currentMenu == 2){
-          extruderManager->incrementSpeed(- encoder.getValue());
-        }  
-        else if(ptMenu->isSelected && ptMenu->currentMenu == 2){
-          extruderManager->incrementSpeed(- encoder.getValue());
-        }  
+
+      }
+      else if(!ptMenu->isSelected && !dataHasBeenSaved){
+        saveEprom_short();
+        dataHasBeenSaved=true;
       }
       
-      else if (ptMenu->title == "SETTINGS"){
-        if( ptMenu->isSelected && ptMenu->currentMenu == 0){
+      else if (ptMenu->title == "SETTINGS" && ptMenu->isSelected){
+        if(ptMenu->currentMenu == 0){
           temperatureManagerTest->incrementTemperature(- encoder.getValue());  
         }
-        else if(ptMenu->isSelected){
+        else {
           extruderManager->incrementSpeed(- encoder.getValue());
         }  
       }
@@ -141,6 +145,7 @@ void MenuManager::Main() {
                 case 3:
                   extruderManager->retraction_is_enabled = !extruderManager->retraction_is_enabled;
                   ptMenu->isSelected = false;
+                  saveEprom_short();
                   break;
 
                 /*case 3:
@@ -152,12 +157,12 @@ void MenuManager::Main() {
                   ptMenu = & pages.menuPage;
                   ptMenu->isSelected = falsIT
                   break;
-                */
+                
                 case 5:
                   ptMenu->isSelected = false;
-                  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract, extruderManager->retraction_is_enabled);
+                  saveEprom_short();
                   break;
-
+                */
                 default:
                   break;
               }
@@ -211,7 +216,7 @@ void MenuManager::Main() {
             //save
             else if(ptMenu->title == "SAVE") {
               if(ptMenu->currentMenu == 0)
-                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract, extruderManager->retraction_is_enabled);
+                saveEprom_short();
 
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;

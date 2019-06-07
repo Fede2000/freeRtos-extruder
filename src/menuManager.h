@@ -43,7 +43,7 @@ public:
     Pages pages; //constructor
     void updateMenu();
     void Main();
-
+    
 private:
 
 
@@ -57,6 +57,7 @@ private:
 
     void setSpeed();
     void setTimer();
+    void saveEprom_short();
 
 };
 
