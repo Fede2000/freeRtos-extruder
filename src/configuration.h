@@ -75,8 +75,8 @@
 #define GEAR_REDUCTION 3.75 
 
 //stop btn function definition
-//#define STOP_BTN_TEST     //stop btn usato x spurgare
-#define STOP_BTN_CONTROLL   //stop btn usato x comandare estrusore
+#define STOP_BTN_TEST     //stop btn usato x spurgare
+//#define STOP_BTN_CONTROLL   //stop btn usato x comandare estrusore
 #define DRAW_LOGO
 
 #endif

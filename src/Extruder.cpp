@@ -18,7 +18,7 @@ Extruder::Extruder(){
 // set timer 4-A
 void Extruder::setTimer(float target_period_ms){
     if(is_input_step || run_retraction){
-        period_ms = period_ms * 0.8 + target_period_ms * 0.2;
+        period_ms = period_ms * 0.95 + target_period_ms * 0.05;
     }
     //else
     //    period_ms = 2.5;
@@ -65,7 +65,7 @@ bool Extruder::retract(){
 }
 
 bool Extruder::overExtrude(){
-    period_ms = 2.5;
+    period_ms = 10.0;
     PORTA &= ~(1 << PORTA6);
     if(is_retraction_enabled){
         steps += steps_to_retract;  //+ over extrude
