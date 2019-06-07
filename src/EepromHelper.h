@@ -10,7 +10,7 @@
 void write16b( int value, int addr = 0);
 int read16b(int addr);
 
-void writeEprom(int temp, int speed, int steps);
-void readEprom(double &temp, float &speed, int &steps);
+void writeEprom(int temp, int speed, int steps, bool retractionIsEnabled);
+void readEprom(double &temp, float &speed, int &steps, bool &retractionIsEnabled);
 
 #endif

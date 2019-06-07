@@ -155,7 +155,7 @@ void MenuManager::Main() {
                 */
                 case 5:
                   ptMenu->isSelected = false;
-                  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract);
+                  writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract, extruderManager->retraction_is_enabled);
                   break;
 
                 default:
@@ -176,7 +176,7 @@ void MenuManager::Main() {
                 case 2: //TRP
                   if(temperatureManagerTest->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE){
                     temperatureManagerTest->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = false;   
-                    ptMenu->PTR =  " no PTR";
+                    ptMenu->PTR = " no PTR";
                     temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
                   }
                   else{
@@ -211,7 +211,7 @@ void MenuManager::Main() {
             //save
             else if(ptMenu->title == "SAVE") {
               if(ptMenu->currentMenu == 0)
-                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract);
+                writeEprom((int) temperatureManagerTest->tempSetpoint, (int) extruderManager->speed_rpm, extruderManager->steps_to_retract, extruderManager->retraction_is_enabled);
 
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;
@@ -221,7 +221,7 @@ void MenuManager::Main() {
             else if(ptMenu->title == "RESET") {      
               if(ptMenu->currentMenu == 0){
                 temperatureManagerTest->tempSetpoint = DEFAULT_TEMP; extruderManager->speed_rpm = DEFAULT_SPEED;
-                writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED, (int) DEFAULT_RETRACTION_STEPS);
+                writeEprom((int) DEFAULT_TEMP, (int) DEFAULT_SPEED, (int) DEFAULT_RETRACTION_STEPS, true);
               }
               ptMenu = & pages.menuPage;
               ptMenu->isSelected = false;

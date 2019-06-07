@@ -49,7 +49,7 @@ void setup() {
  
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
     Serial.println("loading eeprom values");
-    readEprom(temperatureManager.tempSetpoint, extruderManager.speed_rpm,extruderManager.steps_to_retract );           
+    readEprom(temperatureManager.tempSetpoint, extruderManager.speed_rpm,extruderManager.steps_to_retract, extruderManager.retraction_is_enabled);           
   }
  
 
