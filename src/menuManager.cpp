@@ -38,26 +38,30 @@ void MenuManager::saveEprom_short(){
 
 
 void MenuManager::Main() {
-    bool btn_stop_prev = false, btn_stop = false, dataHasBeenSaved=true;
+    bool was_btn_stop = false, is_btn_stop = false, is_extruder_pin = false, was_extruder_pin = false,
+      dataHasBeenSaved=true;
    
     for (;;)
     {
       encoderButtonState = encoder.getButton();
-      btn_stop = digitalRead(EXTRUDER_BTN_EN_PIN);
+      is_btn_stop = !digitalRead(EXTRUDER_BTN_EN_PIN);
+      is_extruder_pin = digitalRead(EXTRUDER_EN_PIN); 
       #ifdef STOP_BTN_TEST
         extruderManager->is_input_step = (digitalRead(EXTRUDER_BTN_EN_PIN) == 0) ||( digitalRead(EXTRUDER_EN_PIN) == 1);
         if(extruderManager->is_input_step == false && extruderManager->last_input_step){
           extruderManager->retract();
           Serial.println("retract");
-        }
+        }EXTRUSION_ACCELERATION
         else if(extruderManager->is_input_step && extruderManager->last_input_step == false){
           extruderManager->overExtrude();
           Serial.println("overExtrude");
         }
       #endif //STOP_BTN_TEST
       #ifdef STOP_BTN_CONTROLL
-        extruderManager->is_input_step = (btn_stop == 0 && btn_stop_prev == 1) ? !extruderManager->is_input_step: extruderManager->is_input_step;  
-        extruderManager->is_input_step |= digitalRead(EXTRUDER_EN_PIN) == 1; 
+        extruderManager->is_input_step = (is_btn_stop==0 && was_btn_stop==1 ) ? !extruderManager->is_input_step: extruderManager->is_input_step;  
+        extruderManager->is_input_step = (is_extruder_pin==0 && was_extruder_pin==1 ) ? extruderManager->is_input_step= false: extruderManager->is_input_step = extruderManager->is_input_step; // TODO: else inutile
+        extruderManager->is_input_step |= is_extruder_pin; 
+
         if(extruderManager->is_input_step == false && extruderManager->last_input_step){
           extruderManager->retract();
           Serial.println("retract");
@@ -69,7 +73,8 @@ void MenuManager::Main() {
       #endif //STOP_BTN_CONTROLL
 
       extruderManager->last_input_step = extruderManager->is_input_step;
-      btn_stop_prev = btn_stop;
+      was_btn_stop = is_btn_stop;
+      was_extruder_pin = is_extruder_pin;
 
       //free the motor when not used
       digitalWrite(E_ENABLE_PIN,!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
@@ -81,10 +86,10 @@ void MenuManager::Main() {
         case 1:
           temperatureManagerTest->incrementTemperature(- encoder.getValue()); 
           break;
-        case 2:
+        case 3:
           extruderManager->incrementSpeed(- encoder.getValue());
           break;
-        case 4:
+        case 5:
           extruderManager->incrementRetraction(-encoder.getValue());
         
         default:
@@ -138,10 +143,14 @@ void MenuManager::Main() {
                 
                 case 0:
                   temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
-                  ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
+                  ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD"; //TODO: heaterstatus non più utilizzato
                   //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
                   break;
-                case 3:
+                case 2:
+                  extruderManager->is_input_step = !extruderManager->is_input_step;
+                  break;
+
+                case 4:
                   extruderManager->is_retraction_enabled = !extruderManager->is_retraction_enabled;
                   ptMenu->isSelected = false;
                   saveEprom_short();
