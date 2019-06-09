@@ -146,6 +146,7 @@ void MenuManager::Main() {
                   temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
                   ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD"; //TODO: heaterstatus non più utilizzato
                   temperatureManagerTest->setStage();
+                  temperatureManagerTest->initVariables();
                   break;
                 case 2:
                   extruderManager->is_input_step = !extruderManager->is_input_step;
@@ -196,6 +197,7 @@ void MenuManager::Main() {
                   }
                   else{
                     temperatureManagerTest->PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
+                    temperatureManagerTest->initVariables();
                     ptMenu->PTR =  "  PTR";
                   }    
                   ptMenu->isSelected = false;

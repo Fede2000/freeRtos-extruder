@@ -31,7 +31,5 @@ void readEprom(double &temp, float &speed, int &steps, bool &retractionIsEnsable
   speed = read16b(8);
   steps = read16b(12);
   retractionIsEnsabled = read16b(16);
-  Serial.println(temp);
-  Serial.println(speed);
-  Serial.println(steps);
+
 }

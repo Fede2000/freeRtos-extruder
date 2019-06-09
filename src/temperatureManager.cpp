@@ -23,11 +23,20 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
 void TemperatureManager::setStage(){
     if((temperature-tempSetpoint)>(PREVENT_THERMAL_RUNAWAY_HYSTERESIS-1)) 
         stage = 2; //cooling
-    else if((temperature-tempSetpoint)<(PREVENT_THERMAL_RUNAWAY_HYSTERESIS-1)) 
+    else if((temperature-tempSetpoint)<-(PREVENT_THERMAL_RUNAWAY_HYSTERESIS-1)) 
         stage = 0;  //heating
     else
         stage = 1; //holding temperature
+    Serial.println(stage);
 }
+void TemperatureManager::initVariables(){
+    #ifdef PREVENT_THERMAL_RUNAWAY
+        THERMAL_RUNAWAY_AT = millis();
+        prev_temperature = temperature;
+    #endif
+
+}
+
 void TemperatureManager::getTemperature(){
 
     double average;
@@ -56,9 +65,8 @@ double TemperatureManager::readTemperature(){
 void TemperatureManager::Main() {
     #ifdef PREVENT_THERMAL_RUNAWAY        
         PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
-        bool THERMAL_RUNAWAY_TEMP_FLAG = false;
-        unsigned long THERMAL_RUNAWAY_AT = millis();
-        double prev_temperature = temperature;
+        THERMAL_RUNAWAY_AT = millis();
+        prev_temperature = temperature;
     #endif //PREVENT_THERMAL_RUNAWAY
 
     #ifdef PREVENT_COLD_EXTRUSION
@@ -79,12 +87,15 @@ void TemperatureManager::Main() {
         #endif
         
         #ifdef PREVENT_THERMAL_RUNAWAY
+        if(stage==0 && (temperature-tempSetpoint>=0))
+            stage=1;
+            
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
             if( (millis() - THERMAL_RUNAWAY_AT) > THERMAL_RUNAWAY_PERIOD && HEATER_ENABLED){
                 switch (stage)
                 {
                 case 0:  //heating
-                    if(temperature-prev_temperature < WATCH_TEMP_INCREASE )
+                    if(temperature-prev_temperature < ((float) WATCH_TEMP_INCREASE ))
                         THERMAL_RUNAWAY_FLAG = true;
                     break;
                 case 1:  //holding temperature

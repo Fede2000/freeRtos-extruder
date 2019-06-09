@@ -28,9 +28,9 @@
  **/
 
 #define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
-#define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 4    //^C
-#define THERMAL_RUNAWAY_PERIOD 10000            //ms
-#define WATCH_TEMP_INCREASE 1                   //^C
+#define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 5    //^C
+#define THERMAL_RUNAWAY_PERIOD 20000            //ms
+#define WATCH_TEMP_INCREASE 0.5                   //^C
 #define PREVENT_COLD_EXTRUSION                  //comment out to disable
 #define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5     //^C
 
@@ -48,8 +48,8 @@
 #define SERIESRESISTOR 4700         // the value of the RAMPS resistor
 
 //  PID settings
-#define CONST_KP 10         //kp
-#define CONST_KI 0.5        //ki
+#define CONST_KP 7         //kp
+#define CONST_KI 0.8        //ki
 #define CONST_KD 0.3        //kd
 #define MAX_PID_OUT  200
 
@@ -70,7 +70,7 @@
 /** 
  * varie
 **/
-
+#define debug
 #define MICROSTEPPINGS 4 // default 4
 #define GEAR_REDUCTION 3.75 
 

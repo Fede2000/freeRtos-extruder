@@ -6,6 +6,7 @@
 #include <PID_v1.h>
 #include <Arduino_FreeRTOS.h>
 #include "Thread.h"
+#include "Arduino.h"
 
 
 /* https://drive.google.com/file/d/1SBhXfaA_kXBOX_d44FqEMjZ5Gr1imTRZ/view */
@@ -13,11 +14,16 @@ class TemperatureManager : public Thread
 {
 
 private:
-    double output;
+    
 	uint32_t ticks;
     PID myPID;
+    #ifdef PREVENT_THERMAL_RUNAWAY
+        unsigned long THERMAL_RUNAWAY_AT = millis();
+        double prev_temperature;
+    #endif
 
 public:
+    double output;
     double temperature;
     double tempSetpoint;
     float alpha;
@@ -32,7 +38,7 @@ public:
     void getTemperature();
     void setTemperature(double temperatureSetpoint);
     void incrementTemperature(int i);
-    void setStage();
+    void setStage(); void initVariables();
     double readTemperature();
     void Main();
 
