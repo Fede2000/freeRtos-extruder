@@ -13,8 +13,21 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
     tempSetpoint = 35; // derault value
     alpha = 0.45;
     HEATER_ENABLED = false;
+
+    //TCCR2B = TCCR2B & B11111000 | B00000111; 
+    TCCR2B |=  (1<<CS41) | (1<<CS41) | (1<<CS40); // set pwm frequency (pin 10 & 9) to 30.64Hz: prescaler 1024
+    getTemperature();
+    setStage();
 }
 
+void TemperatureManager::setStage(){
+    if((temperature-tempSetpoint)>(PREVENT_THERMAL_RUNAWAY_HYSTERESIS-1)) 
+        stage = 2; //cooling
+    else if((temperature-tempSetpoint)<(PREVENT_THERMAL_RUNAWAY_HYSTERESIS-1)) 
+        stage = 0;  //heating
+    else
+        stage = 1; //holding temperature
+}
 void TemperatureManager::getTemperature(){
 
     double average;
@@ -35,9 +48,6 @@ void TemperatureManager::getTemperature(){
     average -= 273.15;                                      // convert to C
     temperature = average*alpha + temperature*(1-alpha);   //FIR filter
 
-    //TCCR2B = TCCR2B & B11111000 | B00000111; 
-    TCCR2B |=  (1<<CS41) | (1<<CS41) | (1<<CS40); // set pwm frequency (pin 10 & 9) to 30.64Hz: prescaler 1024
-
 }
 double TemperatureManager::readTemperature(){
     return temperature;
@@ -48,6 +58,7 @@ void TemperatureManager::Main() {
         PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
         bool THERMAL_RUNAWAY_TEMP_FLAG = false;
         unsigned long THERMAL_RUNAWAY_AT = millis();
+        double prev_temperature = temperature;
     #endif //PREVENT_THERMAL_RUNAWAY
 
     #ifdef PREVENT_COLD_EXTRUSION
@@ -70,15 +81,25 @@ void TemperatureManager::Main() {
         #ifdef PREVENT_THERMAL_RUNAWAY
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
             if( (millis() - THERMAL_RUNAWAY_AT) > THERMAL_RUNAWAY_PERIOD && HEATER_ENABLED){
-                if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_HYSTERESIS){
-                    Serial.println("THERMAL_RUNAWAY_TEMP_FLAG");
-                    if(THERMAL_RUNAWAY_TEMP_FLAG)
+                switch (stage)
+                {
+                case 0:  //heating
+                    if(temperature-prev_temperature < WATCH_TEMP_INCREASE )
                         THERMAL_RUNAWAY_FLAG = true;
-                    THERMAL_RUNAWAY_AT = millis();
-                    THERMAL_RUNAWAY_TEMP_FLAG = !THERMAL_RUNAWAY_TEMP_FLAG;
+                    break;
+                case 1:  //holding temperature
+                    if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_HYSTERESIS)
+                        THERMAL_RUNAWAY_FLAG = true;
+                    break;
+                case 2:  //cooling 
+                    if(((temperature - prev_temperature) > 2) && abs(tempSetpoint - temperature) > 5)   //if it's heating instead of cooling down & temp is distant from temp setpoint
+                        THERMAL_RUNAWAY_FLAG = true;
+                    break;
+                default:
+                    break;
                 }
-                else
-                    THERMAL_RUNAWAY_TEMP_FLAG = false;
+                THERMAL_RUNAWAY_AT = millis();
+                prev_temperature = temperature;
             }
         }
         else 

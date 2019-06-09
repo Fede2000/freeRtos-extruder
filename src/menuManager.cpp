@@ -85,6 +85,7 @@ void MenuManager::Main() {
         {
         case 1:
           temperatureManagerTest->incrementTemperature(- encoder.getValue()); 
+          temperatureManagerTest->setStage();
           break;
         case 3:
           extruderManager->incrementSpeed(- encoder.getValue());
@@ -144,7 +145,7 @@ void MenuManager::Main() {
                 case 0:
                   temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
                   ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD"; //TODO: heaterstatus non più utilizzato
-                  //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
+                  temperatureManagerTest->setStage();
                   break;
                 case 2:
                   extruderManager->is_input_step = !extruderManager->is_input_step;

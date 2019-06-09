@@ -21,8 +21,6 @@
 #define EXTRUDER_EN_PIN  57    // enable pin
 #define EXTRUDER_BTN_EN_PIN  41 // manually enable pin "KILL PIN"
 
-
-
 /**
  
  * thermistor and temperature settings
@@ -31,7 +29,8 @@
 
 #define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 4    //^C
-#define THERMAL_RUNAWAY_PERIOD 40000            //ms
+#define THERMAL_RUNAWAY_PERIOD 10000            //ms
+#define WATCH_TEMP_INCREASE 1                   //^C
 #define PREVENT_COLD_EXTRUSION                  //comment out to disable
 #define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5     //^C
 
