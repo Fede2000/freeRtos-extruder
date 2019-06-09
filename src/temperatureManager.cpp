@@ -77,7 +77,7 @@ void TemperatureManager::Main() {
     for (;;)
     {
         getTemperature();
-        myPID.Compute();
+        
 
         #ifdef PREVENT_COLD_EXTRUSION
         if( PREVENT_COLD_EXTRUSION_IS_ACTIVE)
@@ -118,8 +118,10 @@ void TemperatureManager::Main() {
         #endif
         EXTRUDER_SHOULD_RUN = !THERMAL_RUNAWAY_FLAG && !COLD_EXTRUSION_FLAG;
         
-        if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED)
+        if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED){
+            myPID.Compute();
             analogWrite(HEATER_PIN, output);
+        }
         else             
             analogWrite(HEATER_PIN, 0);
              
