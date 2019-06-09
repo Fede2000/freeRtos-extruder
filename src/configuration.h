@@ -52,6 +52,7 @@
 #define CONST_KP 10         //kp
 #define CONST_KI 0.5        //ki
 #define CONST_KD 0.3        //kd
+#define MAX_PID_OUT  200
 
 
 /**

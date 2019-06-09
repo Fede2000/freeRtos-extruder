@@ -9,6 +9,7 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
                                                                                     ticks{ _ticks }
 {
     myPID.SetMode(AUTOMATIC);
+    myPID.SetOutputLimits(0,MAX_PID_OUT);
     tempSetpoint = 35; // derault value
     alpha = 0.45;
     HEATER_ENABLED = false;
@@ -33,6 +34,9 @@ void TemperatureManager::getTemperature(){
     average = 1.0 / average;                                // Invert
     average -= 273.15;                                      // convert to C
     temperature = average*alpha + temperature*(1-alpha);   //FIR filter
+
+    //TCCR2B = TCCR2B & B11111000 | B00000111; 
+    TCCR2B |=  (1<<CS41) | (1<<CS41) | (1<<CS40); // set pwm frequency (pin 10 & 9) to 30.64Hz: prescaler 1024
 
 }
 double TemperatureManager::readTemperature(){
