@@ -158,27 +158,23 @@ void StatusPage::drawPage(){
     strcat(combined, t_setpoint_ch);
     //u8g2.setFont(u8g2_font_siji_t_6x10); 
     //u8g2.drawGlyph(0, topSpacing+i*h, 57372);
-    drawIconButton(0, y , id++,57372, u8g2_font_siji_t_6x10);
+    drawIconButton(0, y ,id++, 57372, u8g2_font_siji_t_6x10);
     u8g2.setFont(u8g2_font_6x12_tf);
-    u8g2.drawStr(18, y, combined);
-    u8g2.setCursor(18 + u8g2.getStrWidth(combined),y);
-    u8g2.write(0xB0);    u8g2.print("C");
-    drawButton(110, y,id++, heaterStatus, u8g_font_trixel_square);
+    //u8g2.drawStr(18, y, combined);
+    drawButton(18, y, id++, combined, u8g2_font_6x12_tf);
+    u8g2.setCursor(18 + u8g2.getStrWidth(combined) + 8,y);
+    u8g2.write(0xB0);   u8g2.print("C");
+    drawButton(110, y, 1236, heaterStatus, u8g_font_trixel_square);
 
     /////////////// second row
     y = y + h + 4;
     char s_ch[10];         //  Hold The Convert Data
     dtostrf(int(ptExtruderManager->speed_rpm),1,0,s_ch);
-    char combined2[32] = {0};
-    //strcat(combined2,"S:");
-    strcat(combined2, s_ch);
-    strcat(combined2, " rpm");
-
-    //u8g2.setFont(u8g2_font_siji_t_6x10); 
-    //u8g2.drawGlyph(0, topSpacing+i*h, 57408);
-    drawIconButton(0, y,id++,57408, u8g2_font_siji_t_6x10);
-    u8g2.setFont(u8g2_font_6x12_tf);
-    u8g2.drawStr(18, y, combined2);
+   
+    drawIconButton(0, y,1234,57408, u8g2_font_siji_t_6x10);
+    //u8g2.setFont(u8g2_font_6x12_tf);
+    drawButton(18, y, id++, s_ch, u8g2_font_6x12_tf);
+    u8g2.drawStr(18 + u8g2.getStrWidth(s_ch) + 8, y, "rpm");
     
     
     

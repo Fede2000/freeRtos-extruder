@@ -57,7 +57,7 @@ void MenuManager::Main() {
       #endif //STOP_BTN_TEST
       #ifdef STOP_BTN_CONTROLL
         extruderManager->is_input_step = (btn_stop == 0 && btn_stop_prev == 1) ? !extruderManager->is_input_step: extruderManager->is_input_step;  
-        extruderManager->is_input_step |=  digitalRead(EXTRUDER_EN_PIN) == 1; 
+        extruderManager->is_input_step |= digitalRead(EXTRUDER_EN_PIN) == 1; 
         if(extruderManager->is_input_step == false && extruderManager->last_input_step){
           extruderManager->retract();
           Serial.println("retract");
@@ -78,7 +78,7 @@ void MenuManager::Main() {
         dataHasBeenSaved=false;
         switch (ptMenu->currentMenu)
         {
-        case 0:
+        case 1:
           temperatureManagerTest->incrementTemperature(- encoder.getValue()); 
           break;
         case 2:
@@ -132,12 +132,11 @@ void MenuManager::Main() {
             break;
 
           case ClickEncoder::Clicked:       //5
-            ptMenu->isSelected = ! ptMenu->isSelected;
             if(ptMenu->title == "STATUS") { 
               switch (ptMenu->currentMenu)
               {
                 
-                case 1:
+                case 0:
                   temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
                   ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD";
                   //temperatureManagerTest->THERMAL_RUNAWAY_FLAG = false;
@@ -164,6 +163,7 @@ void MenuManager::Main() {
                   break;
                 */
                 default:
+                  ptMenu->isSelected = ! ptMenu->isSelected;
                   break;
               }
     

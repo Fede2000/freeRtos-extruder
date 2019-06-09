@@ -12,8 +12,8 @@
 
 
 #define KEY_NONE 0
-#define KEY_NEXT 1
-#define KEY_PREV -1
+#define KEY_NEXT -1
+#define KEY_PREV 1
 
 
 typedef enum {
