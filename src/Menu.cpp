@@ -168,9 +168,9 @@ void StatusPage::drawPage(){
     drawButton(18, y, id++, combined, u8g2_font_6x12_tf);
     u8g2.setCursor(18 + u8g2.getStrWidth(combined) + 8,y);
     u8g2.write(0xB0);   u8g2.print("C");
-    u8g2.setCursor(80,y);
+    u8g2.setCursor(85,y);
     #ifdef debug
-        u8g2.print(ptTemperatureManager->output);
+        u8g2.print(int(ptTemperatureManager->output));
     #endif
     //drawButton(110, y, 1236, heaterStatus, u8g_font_trixel_square);
 
