@@ -48,8 +48,8 @@
 #define SERIESRESISTOR 4700         // the value of the RAMPS resistor
 
 //  PID settings
-#define CONST_KP 8.46         //kp
-#define CONST_KI 0.3        //ki
+#define CONST_KP 10         //kp
+#define CONST_KI 0.5        //ki
 #define CONST_KD 0.0       //kd
 #define MAX_PID_OUT  200
 

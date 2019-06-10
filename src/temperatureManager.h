@@ -19,7 +19,7 @@ private:
     PID myPID;
     #ifdef PREVENT_THERMAL_RUNAWAY
         unsigned long THERMAL_RUNAWAY_AT = millis();
-        double prev_temperature;
+        double t1_temperature, t2_temperature;
     #endif
 
 public:

@@ -32,7 +32,8 @@ void TemperatureManager::setStage(){
 void TemperatureManager::initVariables(){
     #ifdef PREVENT_THERMAL_RUNAWAY
         THERMAL_RUNAWAY_AT = millis();
-        prev_temperature = temperature;
+        t1_temperature = temperature -5;
+        t2_temperature = temperature -10;
     #endif
 
 }
@@ -66,7 +67,8 @@ void TemperatureManager::Main() {
     #ifdef PREVENT_THERMAL_RUNAWAY        
         PREVENT_THERMAL_RUNAWAY_IS_ACTIVE = true;
         THERMAL_RUNAWAY_AT = millis();
-        prev_temperature = temperature;
+        t1_temperature = temperature -5;
+        t2_temperature = t1_temperature - 10;
     #endif //PREVENT_THERMAL_RUNAWAY
 
     #ifdef PREVENT_COLD_EXTRUSION
@@ -89,13 +91,14 @@ void TemperatureManager::Main() {
         #ifdef PREVENT_THERMAL_RUNAWAY
         if(stage==0 && (temperature-tempSetpoint>=0))
             stage=1;
-            
+        else if(stage==2 && (temperature-tempSetpoint<=0))
+            stage=1;
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
             if( (millis() - THERMAL_RUNAWAY_AT) > THERMAL_RUNAWAY_PERIOD && HEATER_ENABLED){
                 switch (stage)
                 {
                 case 0:  //heating
-                    if(temperature-prev_temperature < ((float) WATCH_TEMP_INCREASE ))
+                    if((temperature-t2_temperature <  (float)WATCH_TEMP_INCREASE)  &&  (temperature-t1_temperature)< (t1_temperature-t2_temperature)) 
                         THERMAL_RUNAWAY_FLAG = true;
                     break;
                 case 1:  //holding temperature
@@ -103,14 +106,15 @@ void TemperatureManager::Main() {
                         THERMAL_RUNAWAY_FLAG = true;
                     break;
                 case 2:  //cooling 
-                    if(((temperature - prev_temperature) > 2) && abs(tempSetpoint - temperature) > 5)   //if it's heating instead of cooling down & temp is distant from temp setpoint
+                    if(((temperature - t1_temperature) > 2) && abs(tempSetpoint - temperature) > 5)   //if it's heating instead of cooling down & temp is distant from temp setpoint
                         THERMAL_RUNAWAY_FLAG = true;
                     break;
                 default:
                     break;
                 }
                 THERMAL_RUNAWAY_AT = millis();
-                prev_temperature = temperature;
+                t2_temperature = t1_temperature;
+                t1_temperature = temperature;
             }
         }
         else 
