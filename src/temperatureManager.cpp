@@ -93,8 +93,8 @@ void TemperatureManager::Main() {
             stage=1;
         else if(stage==2 && (temperature-tempSetpoint<=0))
             stage=1;
-        if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
-            if( (millis() - THERMAL_RUNAWAY_AT) > (THERMAL_RUNAWAY_PERIOD + extraTime) && HEATER_ENABLED){
+        if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE && HEATER_ENABLED ){
+            if( (millis() - THERMAL_RUNAWAY_AT) > (THERMAL_RUNAWAY_PERIOD + extraTime)){
                 extraTime = 0;
                 switch (stage)
                 {
@@ -125,11 +125,12 @@ void TemperatureManager::Main() {
         
         if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED){
             myPID.Compute();
-            if(abs(tempSetpoint-temperature)< 20)
-                myPID.SetTunings(CONST_KP/2,CONST_KI/2,CONST_KD/2, P_ON_M);
+            if(abs(tempSetpoint-temperature) > 20)
+                
+                myPID.SetTunings(CONST_KP,CONST_KI,CONST_KD);
             else
             {
-                myPID.SetTunings(CONST_KP,CONST_KI,CONST_KD, P_ON_M);
+                myPID.SetTunings(CONST_KP/1.15,CONST_KI/1,CONST_KD);
             }
             
             analogWrite(HEATER_PIN, output);
@@ -149,6 +150,19 @@ void TemperatureManager::setTemperature( double temperatureSetpoint){
         tempSetpoint = MAX_SET_TEMP;
     else if(temperatureSetpoint < 0)
         tempSetpoint = 0;
+}
+void TemperatureManager::switchMode(){
+    if(HEATER_ENABLED){
+        HEATER_ENABLED= false;
+        myPID.SetMode(MANUAL);
+    }
+    else
+    {
+        extraTime = 15000;
+        HEATER_ENABLED= true;
+        myPID.SetMode(AUTOMATIC);
+    }
+    
 }
 
 void TemperatureManager::incrementTemperature( int i ){

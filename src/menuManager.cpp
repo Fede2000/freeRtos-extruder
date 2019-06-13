@@ -143,7 +143,7 @@ void MenuManager::Main() {
               {
                 
                 case 0:
-                  temperatureManagerTest->HEATER_ENABLED = !temperatureManagerTest->HEATER_ENABLED;
+                  temperatureManagerTest->switchMode();
                   ptMenu->heaterStatus = temperatureManagerTest->HEATER_ENABLED ? "HOT" : "COLD"; //TODO: heaterstatus non più utilizzato
                   temperatureManagerTest->setStage();
                   temperatureManagerTest->initVariables();

@@ -38,6 +38,7 @@ public:
     void getTemperature();
     void setTemperature(double temperatureSetpoint);
     void incrementTemperature(int i);
+    void switchMode();
     void setStage(); void initVariables();
     double readTemperature();
     void Main();
