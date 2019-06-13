@@ -18,7 +18,7 @@ private:
 	uint32_t ticks;
     PID myPID;
     #ifdef PREVENT_THERMAL_RUNAWAY
-        unsigned long THERMAL_RUNAWAY_AT = millis();
+        unsigned long THERMAL_RUNAWAY_AT = millis(), extraTime = 15000;
         double t1_temperature, t2_temperature;
     #endif
 

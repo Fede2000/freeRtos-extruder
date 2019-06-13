@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
-                                                                                    myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
+                                                                                    myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, P_ON_M, (int) 0 /*PID::DIRECT*/) , 
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {
@@ -94,7 +94,8 @@ void TemperatureManager::Main() {
         else if(stage==2 && (temperature-tempSetpoint<=0))
             stage=1;
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE ){
-            if( (millis() - THERMAL_RUNAWAY_AT) > THERMAL_RUNAWAY_PERIOD && HEATER_ENABLED){
+            if( (millis() - THERMAL_RUNAWAY_AT) > (THERMAL_RUNAWAY_PERIOD + extraTime) && HEATER_ENABLED){
+                extraTime = 0;
                 switch (stage)
                 {
                 case 0:  //heating
@@ -124,6 +125,13 @@ void TemperatureManager::Main() {
         
         if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED){
             myPID.Compute();
+            if(abs(tempSetpoint-temperature)< 20)
+                myPID.SetTunings(CONST_KP/2,CONST_KI/2,CONST_KD/2, P_ON_M);
+            else
+            {
+                myPID.SetTunings(CONST_KP,CONST_KI,CONST_KD, P_ON_M);
+            }
+            
             analogWrite(HEATER_PIN, output);
         }
         else             
@@ -135,6 +143,7 @@ void TemperatureManager::Main() {
 }
 
 void TemperatureManager::setTemperature( double temperatureSetpoint){
+    extraTime = 15000;
     tempSetpoint = temperatureSetpoint;
     if(temperatureSetpoint > MAX_SET_TEMP)
         tempSetpoint = MAX_SET_TEMP;
