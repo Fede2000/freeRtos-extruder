@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
-                                                                                    myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, P_ON_M, (int) 0 /*PID::DIRECT*/) , 
+                                                                                    myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {
@@ -125,13 +125,7 @@ void TemperatureManager::Main() {
         
         if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED){
             myPID.Compute();
-            if(abs(tempSetpoint-temperature) > 20)
-                
-                myPID.SetTunings(CONST_KP,CONST_KI,CONST_KD);
-            else
-            {
-                myPID.SetTunings(CONST_KP/1.15,CONST_KI/1,CONST_KD);
-            }
+
             
             analogWrite(HEATER_PIN, output);
         }
@@ -146,6 +140,12 @@ void TemperatureManager::Main() {
 void TemperatureManager::setTemperature( double temperatureSetpoint){
     extraTime = 15000;
     tempSetpoint = temperatureSetpoint;
+     if(abs(tempSetpoint) > 100)
+        myPID.SetTunings(CONST_KP,CONST_KI,CONST_KD);
+    else
+    {
+        myPID.SetTunings(CONST_KP/1.5,CONST_KI/1.5,CONST_KD/1.5);
+    }
     if(temperatureSetpoint > MAX_SET_TEMP)
         tempSetpoint = MAX_SET_TEMP;
     else if(temperatureSetpoint < 0)

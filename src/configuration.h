@@ -47,12 +47,19 @@
 #define B_COEFFICIENT 3950          // The beta coefficient of the thermistor (usually 3000-4000)
 #define SERIESRESISTOR 4700         // the value of the RAMPS resistor
 
-//  PID settings !! proportional on measurment is active
+//  PID settings 
+//  https://newton.ex.ac.uk/teaching/CDHW/Feedback/Setup-PID.html
 // in P_on_Me mode kp is resistive as kd, only ki is propositive
-#define CONST_KP 15         //kp 
-#define CONST_KI 4.5        //ki
-#define CONST_KD 1       //kd
+#define CONST_KP 38         //kp  15: oscillation period 23s -> kd =1/3*23, kp 15->*0.7
+#define CONST_KI 2        //ki
+#define CONST_KD 130       //kd
 #define MAX_PID_OUT  200
+/*
+#define CONST_KP 10.5         //kp  15: oscillation period 23s -> kd =1/3*23, kp 15->*0.7
+#define CONST_KI 0.1        //ki
+#define CONST_KD 3       //kd
+#define MAX_PID_OUT  200
+*/
 
 
 /**
