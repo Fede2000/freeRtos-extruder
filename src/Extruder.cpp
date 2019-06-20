@@ -76,12 +76,12 @@ bool Extruder::overExtrude(){
 
 int Extruder::setSpeedRpm(float speed){
     
-    if(speed > MAX_SET_SPEED){
-        speed_rpm = MAX_SET_SPEED;
+    if(speed > MAX_SETPOINT_SPEED){
+        speed_rpm = MAX_SETPOINT_SPEED;
         return 0;
     }
-    else if(speed <= 0){
-        speed_rpm = 0;
+    else if(speed <= MIN_SETPOINT_SPEED){
+        speed_rpm = MIN_SETPOINT_SPEED;
         is_input_step = false;
         digitalWrite(E_ENABLE_PIN,HIGH); // free the motor
         return 0;

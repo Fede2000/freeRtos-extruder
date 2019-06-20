@@ -8,6 +8,11 @@
 #include "Thread.h"
 #include "Arduino.h"
 
+#define HOTEND_INDEX  0
+#define PID_K2 (1-float(PID_K1))
+// PID storage
+typedef struct { float Kp, Ki, Kd;     } PID_t;
+typedef PID_t hotend_pid_t;
 
 /* https://drive.google.com/file/d/1SBhXfaA_kXBOX_d44FqEMjZ5Gr1imTRZ/view */
 class TemperatureManager : public Thread
@@ -17,6 +22,9 @@ private:
     
 	uint32_t ticks;
     PID myPID;
+    float get_pid_output();
+    
+
     #ifdef PREVENT_THERMAL_RUNAWAY
         unsigned long THERMAL_RUNAWAY_AT = millis(), extraTime = 15000;
         double t1_temperature, t2_temperature;

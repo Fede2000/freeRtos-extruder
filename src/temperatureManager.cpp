@@ -4,12 +4,12 @@
 #include <Arduino.h>
 
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
-                                                                                    myPID(&temperature, &output, &tempSetpoint, (double) CONST_KP, (double) CONST_KI, (double) CONST_KD, (int) 0 /*PID::DIRECT*/) , 
+                                                                                    myPID(&temperature, &output, &tempSetpoint, (double) DEFAULT_Kp, (double) DEFAULT_Ki, (double) DEFAULT_Kd, (int) 0 /*PID::DIRECT*/) , 
                                                                                     Thread{ _stackDepth, _priority, _name },
                                                                                     ticks{ _ticks }
 {
     myPID.SetMode(AUTOMATIC);
-    myPID.SetOutputLimits(0,MAX_PID_OUT);
+    myPID.SetOutputLimits(0,PID_MAX);
     tempSetpoint = 35; // derault value
     alpha = 0.45;
     HEATER_ENABLED = false;
@@ -124,10 +124,10 @@ void TemperatureManager::Main() {
         EXTRUDER_SHOULD_RUN = !THERMAL_RUNAWAY_FLAG && !COLD_EXTRUSION_FLAG;
         
         if(!THERMAL_RUNAWAY_FLAG && HEATER_ENABLED){
-            myPID.Compute();
-
+            //myPID.Compute();
+            output = get_pid_output();
             
-            analogWrite(HEATER_PIN, output);
+            analogWrite(HEATER_PIN, output); // output);
         }
         else             
             analogWrite(HEATER_PIN, 0);
@@ -141,15 +141,15 @@ void TemperatureManager::setTemperature( double temperatureSetpoint){
     extraTime = 15000;
     tempSetpoint = temperatureSetpoint;
      if(abs(tempSetpoint) > 100)
-        myPID.SetTunings(CONST_KP,CONST_KI,CONST_KD);
+        myPID.SetTunings(DEFAULT_Kp,DEFAULT_Ki,DEFAULT_Kd);
     else
     {
-        myPID.SetTunings(CONST_KP/1.5,CONST_KI/1.5,CONST_KD/1.5);
+        myPID.SetTunings(DEFAULT_Kp/1.5,DEFAULT_Ki/1.5,DEFAULT_Kd/1.5);
     }
-    if(temperatureSetpoint > MAX_SET_TEMP)
-        tempSetpoint = MAX_SET_TEMP;
-    else if(temperatureSetpoint < 0)
-        tempSetpoint = 0;
+    if(temperatureSetpoint > MAX_SETPOINT_TEMP)
+        tempSetpoint = MAX_SETPOINT_TEMP;
+    else if(temperatureSetpoint < MIN_SETPOINT_TEMP)
+        tempSetpoint = MIN_SETPOINT_TEMP;
 }
 void TemperatureManager::switchMode(){
     if(HEATER_ENABLED){
@@ -167,4 +167,48 @@ void TemperatureManager::switchMode(){
 
 void TemperatureManager::incrementTemperature( int i ){
     setTemperature( tempSetpoint + i);
+}
+
+
+float TemperatureManager::get_pid_output() {
+    float pid_output;
+    static hotend_pid_t work_pid[HOTENDS];
+    static float temp_iState[HOTENDS] = { 0 },
+                temp_dState[HOTENDS] = { 0 };
+    static bool pid_reset[HOTENDS] = { false };
+    float pid_error = tempSetpoint - temperature;
+    work_pid[HOTEND_INDEX].Kd = PID_K2 * DEFAULT_Kd * (temperature - temp_dState[HOTEND_INDEX]) + float(PID_K1) * work_pid[HOTEND_INDEX].Kd;
+    temp_dState[HOTEND_INDEX] = temperature;
+
+    if (tempSetpoint == 0
+    || pid_error < -(PID_FUNCTIONAL_RANGE)) {
+        pid_output = 0;
+        pid_reset[HOTEND_INDEX] = true;
+        }
+        else if (pid_error > PID_FUNCTIONAL_RANGE) {
+        pid_output = BANG_MAX;
+        pid_reset[HOTEND_INDEX] = true;
+    }
+    else {
+        if (pid_reset[HOTEND_INDEX]) {
+            temp_iState[HOTEND_INDEX] = 0.0;
+            pid_reset[HOTEND_INDEX] = false;
+        }
+        temp_iState[HOTEND_INDEX] += pid_error;
+        work_pid[HOTEND_INDEX].Kp = DEFAULT_Kp * pid_error;
+        work_pid[HOTEND_INDEX].Ki = DEFAULT_Ki * temp_iState[HOTEND_INDEX];
+
+        pid_output = work_pid[HOTEND_INDEX].Kp + work_pid[HOTEND_INDEX].Ki - work_pid[HOTEND_INDEX].Kd;
+
+        if (pid_output > PID_MAX) {
+            if (pid_error > 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
+            pid_output = PID_MAX;
+        }
+        else if (pid_output < 0) {
+            if (pid_error < 0) temp_iState[HOTEND_INDEX] -= pid_error; // conditional un-integration
+            pid_output = 0;
+        }
+    }
+
+  return pid_output;
 }

@@ -21,23 +21,42 @@
 #define EXTRUDER_EN_PIN  57    // enable pin
 #define EXTRUDER_BTN_EN_PIN  41 // manually enable pin "KILL PIN"
 
-/**
- 
- * thermistor and temperature settings
- 
- **/
 
+
+//===========================================================================
+//======================== Thermal Runaway Protection =======================
+//===========================================================================
+
+/**
+ * Thermal Protection provides additional protection to your printer from damage
+ * and fire. Marlin always includes safe min and max temperature ranges which
+ * protect against a broken or disconnected thermistor wire.
+ *
+ * The issue: If a thermistor falls out, it will report the much lower
+ * temperature of the air in the room, and the the firmware will keep
+ * the heater on.
+ *
+ * If you get "Thermal Runaway" or "Heating failed" errors the
+ * details can be tuned in Configuration_adv.h
+ */
 #define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 6    //^C
-#define THERMAL_RUNAWAY_PERIOD 20000            //ms
+#define THERMAL_RUNAWAY_PERIOD 4000            //ms
 #define WATCH_TEMP_INCREASE 0.5                   //^C
 #define PREVENT_COLD_EXTRUSION                  //comment out to disable
 #define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5     //^C
 
+//===========================================================================
+//==================== thermistor and temperature settings ==================
+//===========================================================================
+
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60    //RPM 
-#define MAX_SET_TEMP 300
-#define MAX_SET_SPEED 300
+#define MAX_SETPOINT_TEMP 300
+#define MIN_SETPOINT_TEMP 0
+#define MAX_SETPOINT_SPEED 300
+#define MIN_SETPOINT_SPEED 0
+
 #define DEFAULT_RETRACTION_STEPS 500
 #define EXTRUSION_ACCELERATION  0.05 // higher accelerations=> lees torque; slower accelerations => more torque, but less reactivity.  range[0.02 - 0.15]
 
@@ -47,18 +66,47 @@
 #define B_COEFFICIENT 3950          // The beta coefficient of the thermistor (usually 3000-4000)
 #define SERIESRESISTOR 4700         // the value of the RAMPS resistor
 
-//  PID settings 
-//  https://newton.ex.ac.uk/teaching/CDHW/Feedback/Setup-PID.html
-// in P_on_Me mode kp is resistive as kd, only ki is propositive
-#define CONST_KP 38         //kp  15: oscillation period 23s -> kd =1/3*23, kp 15->*0.7
-#define CONST_KI 2        //ki
-#define CONST_KD 130       //kd
-#define MAX_PID_OUT  200
+// This defines the number of extruders
+// :[1, 2, 3, 4, 5, 6]
+#define EXTRUDERS 1
+#ifndef HOTENDS
+  #define HOTENDS EXTRUDERS
+#endif
+
+//===========================================================================
+//============================= PID Settings ================================
+//===========================================================================
+// PID Tuning Guide here: http://reprap.org/wiki/PID_Tuning
+
 /*
-#define CONST_KP 10.5         //kp  15: oscillation period 23s -> kd =1/3*23, kp 15->*0.7
-#define CONST_KI 0.1        //ki
-#define CONST_KD 3       //kd
-#define MAX_PID_OUT  200
+if it overshoots a lot and oscillates, either the integral gain needs to be increased or all gains should be reduced
+Too much overshoot? Increase D, decrease P.
+Response too damped? Increase P.
+Ramps up quickly to a value below target temperature (0-160 fast) and then slows down as it approaches target (160-170 slow, 170-180 really slow, etc) temperature? Try increasing the I constant.
+*/
+
+/*
+#define DEFAULT_Kp 22.2
+#define DEFAULT_Ki 1.08
+#define DEFAULT_Kd 114
+*/
+#define DEFAULT_Kp 5.0
+#define DEFAULT_Ki 0.2
+#define DEFAULT_Kd 16
+
+#define PID_K1 0.95      // Smoothing factor within any PID loop
+
+#define PID_FUNCTIONAL_RANGE 15 // If the temperature difference between the target temperature and the actual temperature
+                                  // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max
+                                  
+#define BANG_MAX 200     // Limits current to nozzle while in bang-bang mode; 255=full current
+#define PID_MAX BANG_MAX // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+
+/*
+#define DEFAULT_Kp 10.5         //kp  15: oscillation period 23s -> kd =1/3*23, kp 15->*0.7
+#define DEFAULT_Ki 0.1        //ki
+#define DEFAULT_Kd 3       //kd
+#define PID_MAX  200
 */
 
 

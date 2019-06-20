@@ -146,6 +146,7 @@ void StatusPage::drawPage(){
     w = u8g2.getDisplayWidth();
     
     /////////////// first row
+    int x = 18;
     int y = 3 + topSpacing+h;
     char t_setpoint_ch[10];  //  Hold The Convert Data
     char t_ch[10];         //  Hold The Convert Data
@@ -155,7 +156,7 @@ void StatusPage::drawPage(){
     //strcat(combined,"T:");
     strcat(combined, t_ch);
     strcat(combined, "/");
-    strcat(combined, t_setpoint_ch);
+    //strcat(combined, t_setpoint_ch);
     //u8g2.setFont(u8g2_font_siji_t_6x10); 
     //u8g2.drawGlyph(0, topSpacing+i*h, 57372);
      if(ptTemperatureManager->HEATER_ENABLED)
@@ -164,11 +165,13 @@ void StatusPage::drawPage(){
         drawIconButton(0, y ,id++, 57357, u8g2_font_siji_t_6x10);   //no warming down
     
     u8g2.setFont(u8g2_font_6x12_tf);
-    //u8g2.drawStr(18, y, combined);
-    drawButton(18, y, id++, combined, u8g2_font_6x12_tf);
-    u8g2.setCursor(18 + u8g2.getStrWidth(combined) + 8,y);
+    u8g2.drawStr(x, y, combined);
+    x +=u8g2.getStrWidth(combined);
+    drawButton(x, y, id++, t_setpoint_ch, u8g2_font_6x12_tf);
+    x += u8g2.getStrWidth(t_setpoint_ch) + 8;
+    u8g2.setCursor(x,y);
     u8g2.write(0xB0);   u8g2.print("C");
-    u8g2.setCursor(85,y);
+    u8g2.setCursor(105,y);
     #ifdef debug
         u8g2.print(int(ptTemperatureManager->output));
     #endif
