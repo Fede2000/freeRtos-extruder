@@ -39,7 +39,7 @@
  * If you get "Thermal Runaway" or "Heating failed" errors the
  * details can be tuned in Configuration_adv.h
  */
-//#define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
+#define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 6    //^C
 #define THERMAL_RUNAWAY_PERIOD 4000            //ms
 #define WATCH_TEMP_INCREASE 0.5                   //^C
