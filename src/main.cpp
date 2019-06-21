@@ -7,13 +7,6 @@
 #include "Extruder.h"
 
 
-const float Ek = 1.0; // corrective factor
-
-// consts for temperature measurement
-float const R1 = 4700;
-float const c1 = 1.009249522e-03, c2 = 2.378405444e-04, c3 = 2.019202697e-07;
-float logR2, R2, T;
-
 #define compare_register OCR4A  //duty cycle
 
 
