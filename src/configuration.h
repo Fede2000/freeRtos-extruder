@@ -1,11 +1,10 @@
 #ifndef	CONFIGURATION_h
 #define CONFIGURATION_h
 
-/**
- 
- * pin settings
- 
- **/
+
+//===========================================================================
+//=============================== Pin Settings ==============================
+//===========================================================================
 #define ENCODER_PIN1 31
 #define ENCODER_PIN2 33
 #define ENCODER_BTN 35
@@ -22,37 +21,13 @@
 #define EXTRUDER_BTN_EN_PIN  41 // manually enable pin "KILL PIN"
 
 
-
 //===========================================================================
-//======================== Thermal Runaway Protection =======================
-//===========================================================================
-
-/**
- * Thermal Protection provides additional protection to your printer from damage
- * and fire. Marlin always includes safe min and max temperature ranges which
- * protect against a broken or disconnected thermistor wire.
- *
- * The issue: If a thermistor falls out, it will report the much lower
- * temperature of the air in the room, and the the firmware will keep
- * the heater on.
- *
- * If you get "Thermal Runaway" or "Heating failed" errors the
- * details can be tuned in Configuration_adv.h
- */
-#define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
-#define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 6    //^C
-#define THERMAL_RUNAWAY_PERIOD 4000            //ms
-#define WATCH_TEMP_INCREASE 0.5                   //^C
-#define PREVENT_COLD_EXTRUSION                  //comment out to disable
-#define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5     //^C
-
-//===========================================================================
-//==================== thermistor and temperature settings ==================
+//==================== Thermistor and Temperature Settings ==================
 //===========================================================================
 
 #define DEFAULT_TEMP 35
 #define DEFAULT_SPEED 60    //RPM 
-#define MAX_SETPOINT_TEMP 300
+#define MAX_SETPOINT_TEMP 300 
 #define MIN_SETPOINT_TEMP 0
 #define MAX_SETPOINT_SPEED 300
 #define MIN_SETPOINT_SPEED 0
@@ -72,6 +47,31 @@
 #ifndef HOTENDS
   #define HOTENDS EXTRUDERS
 #endif
+
+
+
+//===========================================================================
+//=========================== Security Settings =============================
+//===========================================================================
+
+/**
+ * Thermal Protection provides additional protection to your printer from damage
+ * and fire. Direct3D always includes safe min and max temperature ranges which
+ * protect against a broken or disconnected thermistor wire.
+ *
+ * The issue: If a thermistor falls out, it will report the much lower
+ * temperature of the air in the room, and the the firmware will keep
+ * the heater on.
+ */
+#define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
+#define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 8    //^C  to define the safe operating range of the hotend when in temperature.
+#define THERMAL_RUNAWAY_PERIOD 4000            //ms   
+#define WATCH_TEMP_INCREASE 1                   //^C
+#define PREVENT_COLD_EXTRUSION                  //comment out to disable
+#define PREVENT_COLD_EXTRUSION_DELTA_TEMP 5     //^C
+
+#define MAX_TEMPERATURE MAX_SETPOINT_TEMP 
+#define MIN_TEMPERATURE MIN_SETPOINT_TEMP
 
 //===========================================================================
 //============================= PID Settings ================================
@@ -110,6 +110,11 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
 */
 
 
+
+//===========================================================================
+//=========================== General Settings ==============================
+//===========================================================================
+
 /**
  
  * EEPROM settings
@@ -124,7 +129,7 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
 #define EEPROM_CK_VALUE 12
 
 /** 
- * varie
+ * 
 **/
 #define debug
 #define MICROSTEPPINGS 4 // default 4

@@ -94,7 +94,10 @@ void TemperatureManager::Main() {
         else if(stage==2 && (temperature-tempSetpoint<=0))
             stage=1;
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE && HEATER_ENABLED ){
-            if( (millis() - THERMAL_RUNAWAY_AT) > (THERMAL_RUNAWAY_PERIOD + extraTime)){
+            if( temperature > MAX_TEMPERATURE || temperature < MIN_TEMPERATURE)
+                THERMAL_RUNAWAY_FLAG = true;
+
+            else if( (millis() - THERMAL_RUNAWAY_AT) > (THERMAL_RUNAWAY_PERIOD + extraTime)){
                 extraTime = 0;
                 switch (stage)
                 {
@@ -118,8 +121,8 @@ void TemperatureManager::Main() {
                 t1_temperature = temperature;
             }
         }
-        else 
-            THERMAL_RUNAWAY_FLAG=false;
+        //else 
+            //THERMAL_RUNAWAY_FLAG=false;
         #endif
         EXTRUDER_SHOULD_RUN = !THERMAL_RUNAWAY_FLAG && !COLD_EXTRUSION_FLAG;
         
