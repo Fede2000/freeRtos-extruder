@@ -11,7 +11,7 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
     myPID.SetMode(AUTOMATIC);
     myPID.SetOutputLimits(0,PID_MAX);
     tempSetpoint = 35; // derault value
-    alpha = 0.45;
+    alpha = 0.50;
     HEATER_ENABLED = false;
 
     //TCCR2B = TCCR2B & B11111000 | B00000111; 
@@ -138,7 +138,9 @@ void TemperatureManager::Main() {
 }
 
 void TemperatureManager::setTemperature( double temperatureSetpoint){
-    extraTime = 15000;
+    #ifdef PREVENT_THERMAL_RUNAWAY
+        extraTime = 15000;
+    #endif
     tempSetpoint = temperatureSetpoint;
      if(abs(tempSetpoint) > 100)
         myPID.SetTunings(DEFAULT_Kp,DEFAULT_Ki,DEFAULT_Kd);
@@ -158,7 +160,9 @@ void TemperatureManager::switchMode(){
     }
     else
     {
-        extraTime = 15000;
+        #ifdef PREVENT_THERMAL_RUNAWAY
+            extraTime = 15000;
+        #endif
         HEATER_ENABLED= true;
         myPID.SetMode(AUTOMATIC);
     }

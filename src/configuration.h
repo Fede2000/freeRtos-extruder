@@ -39,7 +39,7 @@
  * If you get "Thermal Runaway" or "Heating failed" errors the
  * details can be tuned in Configuration_adv.h
  */
-#define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
+//#define PREVENT_THERMAL_RUNAWAY                 //comment out to disable
 #define PREVENT_THERMAL_RUNAWAY_HYSTERESIS 6    //^C
 #define THERMAL_RUNAWAY_PERIOD 4000            //ms
 #define WATCH_TEMP_INCREASE 0.5                   //^C
@@ -77,7 +77,7 @@
 //============================= PID Settings ================================
 //===========================================================================
 // PID Tuning Guide here: http://reprap.org/wiki/PID_Tuning
-
+// http://forum.seemecnc.com/download/file.php?id=14309&sid=16e4a26fb0f27e18489562c0d0d18d3d
 /*
 if it overshoots a lot and oscillates, either the integral gain needs to be increased or all gains should be reduced
 Too much overshoot? Increase D, decrease P.
@@ -90,13 +90,13 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
 #define DEFAULT_Ki 1.08
 #define DEFAULT_Kd 114
 */
-#define DEFAULT_Kp 5.0
-#define DEFAULT_Ki 0.2
-#define DEFAULT_Kd 16
+#define DEFAULT_Kp 10.2
+#define DEFAULT_Ki 0.09
+#define DEFAULT_Kd 195
 
-#define PID_K1 0.95      // Smoothing factor within any PID loop
+#define PID_K1 0.85      // Smoothing factor within any PID loop default .95
 
-#define PID_FUNCTIONAL_RANGE 15 // If the temperature difference between the target temperature and the actual temperature
+#define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more than PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max
                                   
 #define BANG_MAX 200     // Limits current to nozzle while in bang-bang mode; 255=full current
