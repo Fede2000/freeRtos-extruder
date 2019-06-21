@@ -77,7 +77,7 @@ void MenuManager::Main() {
       was_extruder_pin = is_extruder_pin;
 
       //free the motor when not used
-      digitalWrite(E_ENABLE_PIN,!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
+      extruderManager->setStatus(!((extruderManager->is_input_step || extruderManager->run_retraction)* temperatureManagerTest->EXTRUDER_SHOULD_RUN));
       
       if (ptMenu->title == "STATUS" && ptMenu->isSelected){
         dataHasBeenSaved=false;

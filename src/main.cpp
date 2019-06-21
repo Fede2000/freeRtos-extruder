@@ -67,7 +67,7 @@ void setup() {
   /* ------------------------------------ END Display settings ----------------------------------*/  
 
   pinMode(E_ENABLE_PIN, OUTPUT);
-  digitalWrite(E_ENABLE_PIN, LOW);
+  digitalWrite(E_ENABLE_PIN, HIGH);
   pinMode(HEATER_PIN, OUTPUT);
   digitalWrite(HEATER_PIN, LOW);
   

@@ -21,7 +21,7 @@ class Extruder
         int setSpeedRpm(float speed);
         void incrementSpeed(int i);
         void incrementRetraction(int i);
-
+        void setStatus(bool status);
         void runSpeed();
         bool retract();
         bool overExtrude();

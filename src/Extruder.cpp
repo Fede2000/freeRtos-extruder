@@ -86,10 +86,13 @@ int Extruder::setSpeedRpm(float speed){
         digitalWrite(E_ENABLE_PIN,HIGH); // free the motor
         return 0;
     }
-    digitalWrite(E_ENABLE_PIN,LOW); //TODO: evitare digitalWrite ogni volta
     speed_rpm = speed;
 }
 
+// false: active, true: inactive
+void Extruder::setStatus(bool status){
+    digitalWrite(E_ENABLE_PIN,status);
+}
 void Extruder::incrementSpeed(int i){
     setSpeedRpm(speed_rpm + i);
 }
