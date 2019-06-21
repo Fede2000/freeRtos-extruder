@@ -139,7 +139,7 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
 //#define STOP_BTN_TEST     //stop btn usato x spurgare
 #define STOP_BTN_CONTROLL   //stop btn usato x comandare estrusore
 #define DRAW_LOGO
-
+#define ALLARM
 #endif
 
 

@@ -23,7 +23,7 @@ private:
 	uint32_t ticks;
     PID myPID;
     float get_pid_output();
-    
+    void allarm();
 
     #ifdef PREVENT_THERMAL_RUNAWAY
         unsigned long THERMAL_RUNAWAY_AT = millis(), extraTime = 15000;

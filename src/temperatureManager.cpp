@@ -94,24 +94,28 @@ void TemperatureManager::Main() {
         else if(stage==2 && (temperature-tempSetpoint<=0))
             stage=1;
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE && HEATER_ENABLED ){
-            if( temperature > MAX_TEMPERATURE || temperature < MIN_TEMPERATURE)
+            if( temperature > MAX_TEMPERATURE || temperature < MIN_TEMPERATURE){
                 THERMAL_RUNAWAY_FLAG = true;
+                allarm();}
 
             else if( (millis() - THERMAL_RUNAWAY_AT) > (THERMAL_RUNAWAY_PERIOD + extraTime)){
                 extraTime = 0;
                 switch (stage)
                 {
                 case 0:  //heating
-                    if((temperature-t2_temperature <  (float)WATCH_TEMP_INCREASE)  &&  (temperature-t1_temperature)< (t1_temperature-t2_temperature)) 
+                    if((temperature-t2_temperature <  (float)WATCH_TEMP_INCREASE)  &&  (temperature-t1_temperature)< (t1_temperature-t2_temperature)){ 
                         THERMAL_RUNAWAY_FLAG = true;
+                        allarm();}
                     break;
                 case 1:  //holding temperature
-                    if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_HYSTERESIS)
+                    if(abs(tempSetpoint - temperature) > PREVENT_THERMAL_RUNAWAY_HYSTERESIS){
                         THERMAL_RUNAWAY_FLAG = true;
+                        allarm();}
                     break;
                 case 2:  //cooling 
-                    if(((temperature - t1_temperature) > 2) && abs(tempSetpoint - temperature) > 5)   //if it's heating instead of cooling down & temp is distant from temp setpoint
+                    if(((temperature - t1_temperature) > 2) && abs(tempSetpoint - temperature) > 5){   //if it's heating instead of cooling down & temp is distant from temp setpoint
                         THERMAL_RUNAWAY_FLAG = true;
+                        allarm();}
                     break;
                 default:
                     break;
@@ -132,6 +136,9 @@ void TemperatureManager::Main() {
             
             analogWrite(HEATER_PIN, output); // output);
         }
+        /*else if THERMAL_RUNAWAY_FLAG
+            allarm();
+        */
         else             
             analogWrite(HEATER_PIN, 0);
              
@@ -175,7 +182,13 @@ void TemperatureManager::switchMode(){
 void TemperatureManager::incrementTemperature( int i ){
     setTemperature( tempSetpoint + i);
 }
-
+void TemperatureManager::allarm(){
+    #ifdef ALLARM
+    tone(BUZZ_PIN, 1000, 1000);
+    vTaskDelay(2000);
+    tone(BUZZ_PIN, 1000, 1000);
+    #endif
+}
 
 float TemperatureManager::get_pid_output() {
     float pid_output;
