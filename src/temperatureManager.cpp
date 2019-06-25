@@ -42,9 +42,12 @@ volatile bool TemperatureManager::temp_meas_ready = false;
     else obj.acc += HAL_READ_ADC(); \
   }while(0)
   */
+
+ /*
 void ACCUMULATE_ADC(hotend_info_t obj){
     obj.acc += ADC;   //read analog 13
 }
+*/
 
 
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
@@ -89,16 +92,19 @@ void TemperatureManager::initVariables(){
  * and this function is called from normal context
  * as it would block the stepper routine.
  */
+/*
 void TemperatureManager::updateTemperaturesFromRawValues() {
   HOTEND_LOOP() temp_hotend[e].current = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   //HOTEND_LOOP() temp_hotend[e].current = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   //temp_hotend[e].current = analog_to_celsius_hotend(temp_hotend[e].raw, e);
   temp_meas_ready = false;
 }
-
+*/
 /**
  * Get raw temperatures
  */
+
+/*
 void TemperatureManager::set_current_temp_raw() {
     temp_hotend[0].raw = temp_hotend[0].acc;
     temp_meas_ready = true;
@@ -121,6 +127,7 @@ void TemperatureManager::isr() {
     }
     
 }
+*/
 
 void TemperatureManager::getTemperature_deprecated(){
 
@@ -144,11 +151,13 @@ void TemperatureManager::getTemperature_deprecated(){
     /*for( int b = 0; b<= OVERSAMPLENR; b++){
         average += ADC;
     }*/
-    //average = ADC*16;
-    temperature = analog_to_celsius_hotend(analogRead(13)*16,  100) * alpha + temperature*(1-alpha);   //FIR filter
+    average = analogRead(THERMISTOR_PIN);
+    // TODO: DOUBLE conversion x evitare che si blocchi il programma...
+    temperature = (double) analog_to_celsius_hotend(average*16,  100) * alpha + temperature*(1-alpha);   //FIR filter
 
 }
 
+/*
 void TemperatureManager::readings_ready() {
   
   // Update the raw values if they've been read. Else we could be updating them during reading.
@@ -160,6 +169,7 @@ void TemperatureManager::readings_ready() {
   
 
 //temp_hotend[0].raw = temp_hotend[0].acc;
+*/
 float TemperatureManager::analog_to_celsius_hotend(const int raw, const uint8_t e){
 
     #ifdef HOTEND_USES_THERMISTOR
