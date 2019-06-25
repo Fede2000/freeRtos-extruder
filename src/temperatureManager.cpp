@@ -3,6 +3,50 @@
 #include <PID_v1.h>
 #include <Arduino.h>
 
+
+hotend_info_t TemperatureManager::temp_hotend[HOTENDS]; // = { 0 }
+#define HOTEND_LOOP() for (int8_t e = 0; e < HOTENDS; e++)
+
+volatile bool TemperatureManager::temp_meas_ready = false;
+
+#define SCAN_THERMISTOR_TABLE(TBL,LEN) do{                             \
+  uint8_t l = 0, r = LEN, m;                                           \
+  for (;;) {                                                           \
+    m = (l + r) >> 1;                                                  \
+    if (!m) return short(pgm_read_word(&TBL[0][1]));                   \
+    if (m == l || m == r) return short(pgm_read_word(&TBL[LEN-1][1])); \
+    short v00 = pgm_read_word(&TBL[m-1][0]),                           \
+          v10 = pgm_read_word(&TBL[m-0][0]);                           \
+         if (raw < v00) r = m;                                         \
+    else if (raw > v10) l = m;                                         \
+    else {                                                             \
+      const short v01 = short(pgm_read_word(&TBL[m-1][1])),            \
+                  v11 = short(pgm_read_word(&TBL[m-0][1]));            \
+      return v01 + (raw - v00) * float(v11 - v01) / float(v10 - v00);  \
+    }                                                                  \
+  }                                                                    \
+}while(0)
+
+  /**
+   * One sensor is sampled on every other call of the ISR.
+   * Each sensor is read 16 (OVERSAMPLENR) times, taking the average.
+   *
+   * On each Prepare pass, ADC is started for a sensor pin.
+   * On the next pass, the ADC value is read and accumulated.
+   *
+   * This gives each ADC 0.9765ms to charge up.
+   */
+  /*
+  #define ACCUMULATE_ADC(obj) do{ \
+    if (!HAL_ADC_READY()) next_sensor_state = adc_sensor_state; \
+    else obj.acc += HAL_READ_ADC(); \
+  }while(0)
+  */
+void ACCUMULATE_ADC(hotend_info_t obj){
+    obj.acc += ADC;   //read analog 13
+}
+
+
 TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType_t _priority, const char* _name, uint32_t _ticks ) : 
                                                                                     myPID(&temperature, &output, &tempSetpoint, (double) DEFAULT_Kp, (double) DEFAULT_Ki, (double) DEFAULT_Kd, (int) 0 /*PID::DIRECT*/) , 
                                                                                     Thread{ _stackDepth, _priority, _name },
@@ -16,7 +60,8 @@ TemperatureManager::TemperatureManager(unsigned portSHORT _stackDepth, UBaseType
 
     //TCCR2B = TCCR2B & B11111000 | B00000111; 
     TCCR2B |=  (1<<CS41) | (1<<CS41) | (1<<CS40); // set pwm frequency (pin 10 & 9) to 30.64Hz: prescaler 1024
-    getTemperature();
+    getTemperature_deprecated();
+
     setStage();
 }
 
@@ -38,10 +83,49 @@ void TemperatureManager::initVariables(){
 
 }
 
-void TemperatureManager::getTemperature(){
+/**
+ * Get the raw values into the actual temperatures.
+ * The raw values are created in interrupt context,
+ * and this function is called from normal context
+ * as it would block the stepper routine.
+ */
+void TemperatureManager::updateTemperaturesFromRawValues() {
+  HOTEND_LOOP() temp_hotend[e].current = analog_to_celsius_hotend(temp_hotend[e].raw, e);
+  //HOTEND_LOOP() temp_hotend[e].current = analog_to_celsius_hotend(temp_hotend[e].raw, e);
+  //temp_hotend[e].current = analog_to_celsius_hotend(temp_hotend[e].raw, e);
+  temp_meas_ready = false;
+}
+
+/**
+ * Get raw temperatures
+ */
+void TemperatureManager::set_current_temp_raw() {
+    temp_hotend[0].raw = temp_hotend[0].acc;
+    temp_meas_ready = true;
+}
+
+
+void TemperatureManager::isr() {
+    
+
+    if (++temp_count >= OVERSAMPLENR) {                 // 10 * 16 * 1/(16000000/64/256)  = 164ms.
+        temp_count = 0;
+        readings_ready();
+        updateTemperaturesFromRawValues();
+        Serial.println(temp_hotend[0].current);
+      }
+    else
+    {
+        ACCUMULATE_ADC(temp_hotend[0]);
+        
+    }
+    
+}
+
+void TemperatureManager::getTemperature_deprecated(){
 
     double average;
- 
+    /*
     //analogRead(THERMISTOR_PIN);                     // reading stability bugfix  https://electronics.stackexchange.com/questions/213851/arduino-analogread-neighbor-pin-noise-on-adc-even-with-big-delay
     average = (double) analogRead(THERMISTOR_PIN);  // reading stability bugfix
 
@@ -56,7 +140,37 @@ void TemperatureManager::getTemperature(){
     average += 1.0 / (TEMPERATURENOMINAL + 273.15);         // + (1/To)
     average = 1.0 / average;                                // Invert
     average -= 273.15;                                      // convert to C
-    temperature = average*alpha + temperature*(1-alpha);   //FIR filter
+    */
+    /*for( int b = 0; b<= OVERSAMPLENR; b++){
+        average += ADC;
+    }*/
+    //average = ADC*16;
+    temperature = analog_to_celsius_hotend(analogRead(13)*16,  100) * alpha + temperature*(1-alpha);   //FIR filter
+
+}
+
+void TemperatureManager::readings_ready() {
+  
+  // Update the raw values if they've been read. Else we could be updating them during reading.
+  if (!temp_meas_ready) set_current_temp_raw();
+  HOTEND_LOOP() temp_hotend[e].acc = 0;
+
+}
+
+  
+
+//temp_hotend[0].raw = temp_hotend[0].acc;
+float TemperatureManager::analog_to_celsius_hotend(const int raw, const uint8_t e){
+
+    #ifdef HOTEND_USES_THERMISTOR
+        // Thermistor with conversion table?
+        //const short(*tt)[][2] = (short(*)[][2])(heater_ttbl_map[e]);
+        //SCAN_THERMISTOR_TABLE((*tt), heater_ttbllen_map[e]); //RETURn
+        const short(*tt)[][2] = (short(*)[][2])(HEATER_0_TEMPTABLE);
+        SCAN_THERMISTOR_TABLE(temptable_1, HEATER_0_TEMPTABLE_LEN);
+    #endif
+
+  return 0;
 
 }
 double TemperatureManager::readTemperature(){
@@ -78,7 +192,15 @@ void TemperatureManager::Main() {
 
     for (;;)
     {
-        getTemperature();
+        getTemperature_deprecated();
+        Serial.print(temperature);
+        Serial.print(" - ");
+        //Serial.print(ADC);      // ADC = analog read 13
+        Serial.println(" - ");
+        //Serial.println(analog_to_celsius_hotend(ADC*16,  100));
+
+
+        //isr();
         
 
         #ifdef PREVENT_COLD_EXTRUSION
@@ -94,7 +216,7 @@ void TemperatureManager::Main() {
         else if(stage==2 && (temperature-tempSetpoint<=0))
             stage=1;
         if( PREVENT_THERMAL_RUNAWAY_IS_ACTIVE && HEATER_ENABLED ){
-            if( temperature > MAX_TEMPERATURE || temperature < MIN_TEMPERATURE){
+            if( temperature > HEATER_0_MAXTEMP || temperature < HEATER_0_MINTEMP){
                 THERMAL_RUNAWAY_FLAG = true;
                 allarm();}
 
@@ -103,7 +225,8 @@ void TemperatureManager::Main() {
                 switch (stage)
                 {
                 case 0:  //heating
-                    if((temperature-t2_temperature <  (float)WATCH_TEMP_INCREASE)  &&  (temperature-t1_temperature)< (t1_temperature-t2_temperature)){ 
+                
+                    if((temperature-t2_temperature <  (float)WATCH_TEMP_INCREASE) && -temperature+tempSetpoint > 10 &&  (temperature-t1_temperature)< (t1_temperature-t2_temperature)){ 
                         THERMAL_RUNAWAY_FLAG = true;
                         allarm();}
                     break;
