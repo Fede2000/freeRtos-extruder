@@ -53,6 +53,8 @@ void setup() {
     u8g2.firstPage();
     do {
       drawLogo();
+      u8g2.setFont(u8g2_font_6x12_tf);
+      u8g2.drawStr(90, 60, VERSION);
     } while( u8g2.nextPage() );
     delay(2000);
   #endif
