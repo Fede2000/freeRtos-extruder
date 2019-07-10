@@ -6,7 +6,7 @@
 
 // EEPROM
 void write16b( int value, int addr = 0){
-  Serial.println(value);
+  //Serial.println(value);
   char * pt = (char *) &value;
   EEPROM.write(addr++, *pt++);
   EEPROM.write(addr , *pt );

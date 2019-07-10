@@ -17,7 +17,7 @@
 
 Extruder extruderManager;
 TemperatureManager  temperatureManager  {	128, 1, "Temperature", 10}; //31  ticks
-MenuManager menuManager {	512, 3, "Menu", 5, &temperatureManager, &extruderManager};
+MenuManager menuManager {	512, 3, "Menu", 10, &temperatureManager, &extruderManager};
 DisplayManager displayManager { 1524, 2, "Display", 100 / portTICK_PERIOD_MS, &menuManager, &temperatureManager, &extruderManager};
 
 void setup() {
@@ -41,7 +41,7 @@ void setup() {
   */
  
   if(EEPROM.read(ADDRESS_CK) == EEPROM_CK_VALUE){
-    Serial.println("loading eeprom values");
+    //Serial.println("loading eeprom values");
     readEprom(temperatureManager.tempSetpoint, extruderManager.speed_rpm,extruderManager.steps_to_retract, extruderManager.is_retraction_enabled);           
   }
  

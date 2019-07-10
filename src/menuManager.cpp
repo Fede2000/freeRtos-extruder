@@ -120,7 +120,7 @@ void MenuManager::Main() {
       else if(tempEnc < 0)   {uiKeyCode = -1; tempEnc = 0;}
       
       if (encoderButtonState != 0) {
-        Serial.print("Button: "); Serial.println(encoderButtonState);
+        //Serial.print("Button: "); Serial.println(encoderButtonState);
         lastButtonState = encoderButtonState;
         switch (encoderButtonState) {
           case ClickEncoder::Open:          //0

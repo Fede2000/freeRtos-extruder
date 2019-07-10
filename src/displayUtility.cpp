@@ -15,8 +15,6 @@ DisplayManager::DisplayManager(unsigned portSHORT _stackDepth, UBaseType_t _prio
                                                                                     ticks{ _ticks }
 {   
 
-
-    Serial.println("DisplayManager");
     menuManagerTest = aMenuManager;
     temperatureManager = aTemperatureManager;
     extruderManager = aExtruderManager;
