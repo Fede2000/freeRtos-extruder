@@ -16,7 +16,7 @@
 
 
 Extruder extruderManager;
-TemperatureManager  temperatureManager  {	128, 1, "Temperature", 10}; //31  ticks
+TemperatureManager  temperatureManager  {	128, 1, "Temperature", 13}; //31  ticks
 MenuManager menuManager {	512, 3, "Menu", 10, &temperatureManager, &extruderManager};
 DisplayManager displayManager { 1524, 2, "Display", 100 / portTICK_PERIOD_MS, &menuManager, &temperatureManager, &extruderManager};
 
