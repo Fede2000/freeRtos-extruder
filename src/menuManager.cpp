@@ -66,11 +66,11 @@ void MenuManager::Main() {
 
         if(extruderManager->is_input_step == false && extruderManager->last_input_step){
           extruderManager->retract();
-          Serial.println("retract");
+          //Serial.println("retract");
         }
         else if(extruderManager->is_input_step && extruderManager->last_input_step == false){
           extruderManager->overExtrude();
-          Serial.println("overExtrude");
+          //Serial.println("overExtrude");
         }
       #endif //STOP_BTN_CONTROLL
 

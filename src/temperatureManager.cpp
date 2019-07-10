@@ -75,7 +75,7 @@ void TemperatureManager::setStage(){
         stage = 0;  //heating
     else
         stage = 1; //holding temperature
-    Serial.println(stage);
+    //Serial.println(stage);
 }
 void TemperatureManager::initVariables(){
     #ifdef PREVENT_THERMAL_RUNAWAY
@@ -203,10 +203,10 @@ void TemperatureManager::Main() {
     for (;;)
     {
         getTemperature_deprecated();
-        Serial.print(temperature);
-        Serial.print(" - ");
+        //Serial.print(temperature);
+        //Serial.print(" - ");
         //Serial.print(ADC);      // ADC = analog read 13
-        Serial.println(" - ");
+        //Serial.println(" - ");
         //Serial.println(analog_to_celsius_hotend(ADC*16,  100));
 
 
