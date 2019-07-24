@@ -1,7 +1,7 @@
 #ifndef	CONFIGURATION_h
 #define CONFIGURATION_h
 
-#define VERSION "3.6.2"
+#define VERSION "3.6.3"
 #define DEBUG   
 
 //===========================================================================
@@ -204,7 +204,7 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
  * 
 **/
 #define MICROSTEPPINGS 4 // default 4
-#define GEAR_REDUCTION 1//3.75 
+#define GEAR_REDUCTION 3.75 
 
 
 #define DEFAULT_TEMP 35

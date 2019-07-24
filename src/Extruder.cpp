@@ -12,6 +12,11 @@ Extruder::Extruder(){
     setSpeedRpm(0);
     PERIOD_COSTANT_MS = 3.0 /(10.0 *(float)MICROSTEPPINGS*(float)GEAR_REDUCTION) * 1000.0;
 
+    TCCR4A = 0;
+    TCCR4B = 0;
+    TCNT4 = 0; // initialize the counter from 0
+    TCCR4A |= (1<<WGM42) | (1<<WGM41) | (1<<WGM40); // enable the CTC mode
+  
     
   
 
@@ -50,11 +55,7 @@ void Extruder::main(){
         run_retraction = false;
     }
     
-    TCCR4A = 0;
-    TCCR4B = 0;
-    TCNT4 = 0; // initialize the counter from 0
-    TCCR4A |= (1<<WGM42); // enable the CTC mode
-  
+    
     
     target_period_ms = PERIOD_COSTANT_MS / speed_rpm * boost_period;
     setTimer( target_period_ms );
