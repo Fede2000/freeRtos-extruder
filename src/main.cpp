@@ -106,15 +106,10 @@ ISR(TIMER4_COMPA_vect){
    * single tick period = 1 / new frequncy  = 4 * 10^(-6) [s]
    * 
   **/
-  TCCR4A = 0;
-  TCCR4B = 0;
-  TCNT4 = 0; // initialize the counter from 0
-  extruderManager.runSpeed();
-  OCR4A = extruderManager.timer; //83 sets the counter compare value
-  TCCR4A |= (1<<WGM41); // enable the CTC mode
-  TCCR4B |=  (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64 https://ww1.microchip.com/downloads/en/devicedoc/atmel-2549-8-bit-avr-microcontroller-atmega640-1280-1281-2560-2561_datasheet.pdf
-  TIMSK4 |= (1<<OCIE4A); //enable the interrupt
   
+  extruderManager.main();
+
+
   /* -------------------- MOTOR RUN ----------------------*/
   if(extruderManager.is_enabled && temperatureManager.EXTRUDER_SHOULD_RUN){
     if(extruderManager.is_input_step || extruderManager.run_retraction){
@@ -126,13 +121,11 @@ ISR(TIMER4_COMPA_vect){
       PORTA |= 1 << PORTA4;
       PORTA &= ~(1 << PORTA4);
       //extruderManager.steps++;
-
-      
-
     }
   }
  }
 
+/*
  ISR(TIMER4_COMPB_vect){
  }
- 
+ */

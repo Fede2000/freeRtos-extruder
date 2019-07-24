@@ -1,7 +1,9 @@
 #ifndef	CONFIGURATION_h
 #define CONFIGURATION_h
 
-#define VERSION "3.6.1"
+#define VERSION "3.6.2"
+#define DEBUG   
+
 //===========================================================================
 //=============================== Pin Settings ==============================
 //===========================================================================
@@ -13,7 +15,8 @@
 #define E_DIR_PIN 28
 #define E_ENABLE_PIN 24
 
-#define THERMISTOR_PIN 13
+
+#define THERMISTOR_PIN 13     //analog
 #define HEATER_PIN 10
 #define BUZZ_PIN 37 
 
@@ -200,9 +203,8 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
 /** 
  * 
 **/
-#define debug
 #define MICROSTEPPINGS 4 // default 4
-#define GEAR_REDUCTION 3.75 
+#define GEAR_REDUCTION 1//3.75 
 
 
 #define DEFAULT_TEMP 35

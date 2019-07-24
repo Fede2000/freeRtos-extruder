@@ -8,7 +8,7 @@ class Extruder
 {
     public:
         float speed_rpm; //rpm target
-        int timer;
+        int timer = 10000;
         int steps = 0;  //counter
         int steps_to_retract = 500;
 
@@ -22,7 +22,7 @@ class Extruder
         void incrementSpeed(int i);
         void incrementRetraction(int i);
         void setStatus(bool status);
-        void runSpeed();
+        void main();
         bool retract();
         bool overExtrude();
 
@@ -34,6 +34,8 @@ class Extruder
         float target_period_ms, boost_period = 1; // boost_period = period multiplier -> used to increase velocity in order to recover lost steps
         float period_ms;
         float PERIOD_COSTANT_MS ;
+        int prescaler = 64;
+        int timer_frequency_mHz = 16000 / prescaler;
         
 };
 
