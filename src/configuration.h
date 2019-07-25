@@ -1,7 +1,20 @@
+
+//===========================================================================
+//========================= deployment check list ==========================
+//===========================================================================
+/****
+ * -- make sure: MICROSTEPPINGS 4
+ * -- check: GEAR_REDUCTION 3.75 (not 1)
+ * -- comment out: #define DEBUG  (elliminate the debug features like prints on screen)
+ * -- make sure: all Security Settings are uncommented
+ * -- make sure: correct PIDs are loaded
+ */
+
+
 #ifndef	CONFIGURATION_h
 #define CONFIGURATION_h
 
-#define VERSION "3.6.3"
+#define VERSION "3.6.4"
 #define DEBUG   
 
 //===========================================================================
@@ -203,8 +216,8 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
 /** 
  * 
 **/
-#define MICROSTEPPINGS 4 // default 4
-#define GEAR_REDUCTION 1  //3.75
+#define MICROSTEPPINGS  4  // default 4
+#define GEAR_REDUCTION 3.75  //3.75
 
 
 #define DEFAULT_TEMP 35
@@ -219,6 +232,7 @@ Ramps up quickly to a value below target temperature (0-160 fast) and then slows
 
 
 //stop btn function definition
+
 //#define STOP_BTN_TEST     //stop btn usato x spurgare
 #define STOP_BTN_CONTROLL   //stop btn usato x comandare estrusore
 #define DRAW_LOGO
