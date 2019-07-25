@@ -8,7 +8,7 @@ class Extruder
 {
     public:
         float speed_rpm; //rpm target
-        int timer = 10000;
+        int16_t timer = 0;
         int steps = 0;  //counter
         int steps_to_retract = 500;
 

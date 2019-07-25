@@ -125,7 +125,7 @@ ISR(TIMER4_COMPA_vect){
   }
  }
 
-/*
+
  ISR(TIMER4_COMPB_vect){
+   
  }
- */

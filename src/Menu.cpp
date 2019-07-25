@@ -173,8 +173,8 @@ void StatusPage::drawPage(){
     u8g2.write(0xB0);   u8g2.print("C");
     u8g2.setCursor(105,y);
     #ifdef DEBUG
-        u8g2.print(int(ptTemperatureManager->output));
-        //u8g2.print(int(ptExtruderManager->timer));
+        //u8g2.print(int(ptTemperatureManager->output));
+        u8g2.print(int(ptExtruderManager->timer));
     #endif
     //drawButton(110, y, 1236, heaterStatus, u8g_font_trixel_square);
 

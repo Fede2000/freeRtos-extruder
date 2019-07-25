@@ -11,14 +11,12 @@ formula:
 Extruder::Extruder(){
     setSpeedRpm(0);
     PERIOD_COSTANT_MS = 3.0 /(10.0 *(float)MICROSTEPPINGS*(float)GEAR_REDUCTION) * 1000.0;
-
     TCCR4A = 0;
     TCCR4B = 0;
     TCNT4 = 0; // initialize the counter from 0
-    TCCR4A |= (1<<WGM42) | (1<<WGM41) | (1<<WGM40); // enable the CTC mode
-  
-    
-  
+    TCCR4A |= (1<<WGM42); // enable the CTC mode
+    TCCR4B |=  (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64 https://ww1.microchip.com/downloads/en/devicedoc/atmel-2549-8-bit-avr-microcontroller-atmega640-1280-1281-2560-2561_datasheet.pdf
+    TIMSK4 |= (1<<OCIE4A); //enable Timer4, Ch A interruptions
 
 }
 
@@ -54,14 +52,18 @@ void Extruder::main(){
         boost_period = 1;
         run_retraction = false;
     }
-    
-    
-    
+        
     target_period_ms = PERIOD_COSTANT_MS / speed_rpm * boost_period;
-    setTimer( target_period_ms );
-    OCR4A = int(timer); //83 sets the counter compare value
+    TCCR4A = 0;
+    TCCR4B = 0;
+    TCNT4 = 0; // initialize the counter from 0
+    TCCR4A |= (1<<WGM42); // enable the CTC mode
     TCCR4B |=  (1<<CS41) | (1<<CS40); // sets the control scale bits for the timer ....011 -> 64 https://ww1.microchip.com/downloads/en/devicedoc/atmel-2549-8-bit-avr-microcontroller-atmega640-1280-1281-2560-2561_datasheet.pdf
     TIMSK4 |= (1<<OCIE4A); //enable Timer4, Ch A interruptions
+
+    setTimer( target_period_ms );
+    OCR4A = timer; //sets the counter compare value
+    
     //sei();
     
     /*
